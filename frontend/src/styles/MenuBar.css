@@ -154,7 +154,7 @@
   width: 50px; /* גודל האייקון */
   height: 50px;
   opacity: 0.4; /* חצי דהוי */
-  /*background-image: url("/frontend/public/images/logo image.png");*/
+  /*background-image: url("/frontend/public/images/logo_image.png");*/
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;

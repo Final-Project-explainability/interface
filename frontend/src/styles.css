@@ -123,8 +123,8 @@ body {
 .global-image {
     width: 200px; /* Fixed width */
     height: 200px; /* Fixed height */
-    /*background: url('frontend/public/images/Global Icon.png')*/
-    /*    no-repeat center; !* Background image *!*/
+    background: url('../public/images/Global Icon.png')
+        no-repeat center; /* Background image */
     background-size: contain; /* Ensure full image fits */
     margin-bottom: 10px; /* Spacing below image */
     animation: spin 20s linear infinite; /* Spin animation */
@@ -135,8 +135,8 @@ body {
 .local-image {
     width: 200px; /* Fixed width */
     height: 200px; /* Fixed height */
-    /*background: url('frontend/public/images/Local Icon.png')*/
-    /*    no-repeat center; !* Background image *!*/
+    background: url('../public/images/Local Icon.png')
+        no-repeat center; /* Background image */
     background-size: contain; /* Ensure full image fits */
     margin-bottom: 10px; /* Spacing below image */
 }
@@ -430,7 +430,7 @@ body {
     height: 150px; /* Fixed height for the logo */
     margin: -60px auto 0; /* Adds space above the logo */
     margin-bottom: 0px; /* Removes margin below */
-    /*background-image: url('frontend/public/images/logo image.png'); !* Logo image *!*/
+    background-image: url('../public/images/logo_image.png'); /* Logo image */
     background-size: contain; /* Ensures the logo fits the container */
     background-repeat: no-repeat; /* Prevents repeating of the logo */
     background-position: center; /* Centers the logo inside the container */
