@@ -32,8 +32,18 @@
 </template>
 
 <script>
+// ייבוא הקומפוננטות
 import MenuBar from "../components/MenuBar.vue";
 import MortalityRisk from "../components/MortalityRisk.vue";
+
+// ייבוא הפונקציות מתוך local_functions.js
+import {
+  MockGetPatientPredictXGBOOST,
+  MockGetPatientPredictDecisionTree,
+  MockGetPatientPredictLogisticRegression,
+  MockGetPatientDeatails,
+  MockGetPatientExplanaition,
+} from "../local_functions.js";
 
 export default {
   name: "LocalPage",
@@ -43,38 +53,31 @@ export default {
   },
   data() {
     return {
-      selectedModel: "XGBOOST", // Default model
-      mortalityPercentage: 86, // Default mortality percentage
+      selectedModel: "XGBOOST", // ברירת מחדל: מודל XGBOOST
+      mortalityPercentage: 0, // אחוז תמותה ראשוני
     };
   },
   watch: {
-    // Watch for changes in selectedModel and call fetchMortalityRisk
+    // צפייה בשינוי המודל הנבחר
     selectedModel() {
       this.fetchMortalityRisk();
     },
   },
   methods: {
-    MockGetPatientPredictXGBOOST() {
-      return 86; // Return example mortality percentage
-    },
-    MockGetPatientPredictDecisionTree() {
-      return 20; // Return example mortality percentage
-    },
-    MockGetPatientPredictLogisticRegression() {
-      return 64; // Return example mortality percentage
-    },
     fetchMortalityRisk() {
+      console.log("Selected Model:", this.selectedModel); // דיבאג
       if (this.selectedModel === "XGBOOST") {
-        this.mortalityPercentage = this.MockGetPatientPredictXGBOOST();
+        this.mortalityPercentage = MockGetPatientPredictXGBOOST();
       } else if (this.selectedModel === "DecisionTree") {
-        this.mortalityPercentage = this.MockGetPatientPredictDecisionTree();
+        this.mortalityPercentage = MockGetPatientPredictDecisionTree();
       } else if (this.selectedModel === "LogisticRegression") {
-        this.mortalityPercentage = this.MockGetPatientPredictLogisticRegression();
+        this.mortalityPercentage = MockGetPatientPredictLogisticRegression();
       }
+      console.log("Mortality Percentage:", this.mortalityPercentage); // דיבאג
     },
   },
   mounted() {
-    this.fetchMortalityRisk(); // Initialize the percentage based on default model
+    this.fetchMortalityRisk(); // קריאה ראשונית בעת טעינת הקומפוננטה
   },
 };
 </script>
@@ -109,9 +112,8 @@ export default {
 
 .top-left-container {
   position: relative;
-  flex: 3;
-  height: 50%; /* הגדרת גובה מוגבל */
-  //background-image: url('https://designshack.net/wp-content/uploads/black-texture-background-368x245.jpg'); /* הוספת תמונת רקע */
+  flex: 7; /* 7/8 מהחלק השמאלי */
+  background-image: url('https://img.freepik.com/premium-photo/full-frame-shot-old-paper_1048944-6592711.jpg'); /* הוספת תמונת רקע */
   background-size: cover; /* התאמה לרוחב ולגובה הקונטיינר */
   background-position: center; /* מיקום התמונה במרכז */
   background-repeat: no-repeat; /* מניעת חזרה על התמונה */
@@ -127,7 +129,6 @@ export default {
   text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
-
 
 /* שכבת חפיפה */
 .top-left-container::before {
@@ -148,8 +149,7 @@ export default {
 }
 
 .bottom-left-container {
-  flex: 1;
-  height: 30%; /* קיצור גובה הקונטיינר */
+  flex: 1; /* 1/8 מהחלק השמאלי */
   background-color: #eaf7f7;
   border: 2px solid #004d40;
   border-radius: 10px;
