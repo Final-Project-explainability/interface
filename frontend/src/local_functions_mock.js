@@ -1,23 +1,22 @@
-    export function MockGetPatientPredictXGBOOST(id) {
-      return 86.7; // Return example mortality percentage
-    }
+import patientDetails from './JSON/patient_details_mock.json';
+import predictionExplain from './JSON/patient_prediction_explain_mock.json';
 
-    export function MockGetPatientPredictDecisionTree(id) {
-      return 20.8; // Return example mortality percentage
-    }
+export function MockGetPatientDeatails(id) {
+  return patientDetails; // החזרת נתוני המטופל
+}
 
-    export function MockGetPatientPredictLogisticRegression(id) {
-      return 64.7; // Return example mortality percentage
-    }
+export function MockGetPatientPredictXGBOOST(id) {
+  return 86.7; // אחוזי תמותה לדוגמה
+}
 
-    export function MockGetPatientDeatails(id) {
-        const patientDetails = require('./JSON/patient_details_mock.json');
-        return patientDetails;
-    }
+export function MockGetPatientPredictDecisionTree(id) {
+  return 20.8; // אחוזי תמותה לדוגמה
+}
 
+export function MockGetPatientPredictLogisticRegression(id) {
+  return 64.7; // אחוזי תמותה לדוגמה
+}
 
-   export function MockGetPatientExplanaition(id) {
-        const predictionExplain = require('./JSON/patient_prediction_explain_mock.json');
-        return predictionExplain;
-    }
-
+export function MockGetPatientExplanaition(id) {
+  return predictionExplain; // החזרת נתוני הסבר
+}
