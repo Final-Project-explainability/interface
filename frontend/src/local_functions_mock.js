@@ -1,19 +1,22 @@
     function MockGetPatientPredictXGBOOST(id) {
-      return 86; // Return example mortality percentage
+      return 86.7; // Return example mortality percentage
     }
 
     function MockGetPatientPredictDecisionTree(id) {
-      return 20; // Return example mortality percentage
+      return 50.8; // Return example mortality percentage
     }
 
     function MockGetPatientPredictLogisticRegression(id) {
-      return 64; // Return example mortality percentage
+      return 64.7; // Return example mortality percentage
     }
 
     function MockGetPatientDeatails(id) {
-      return 64; // Return example mortality percentage
+        const patientDetails = require('./JSON/patient_details_mock.json');
+        return patientDetails;
     }
+
 
     function MockGetPatientExplanaition(id) {
       return 64; // Return example mortality percentage
     }
+
