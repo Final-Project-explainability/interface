@@ -1,111 +1,164 @@
 <template>
   <div class="local-page">
-    <!-- Top Menu -->
+    <!-- Menu Bar -->
     <MenuBar />
 
-    <!-- Page Content -->
-    <main class="local-content">
-      <h1>Personal Patient Data</h1>
-      <p>
-        Welcome to the Personal Patient Data page. Here you can view and
-        analyze patient-specific data and insights.
-      </p>
+    <div class="content-layout">
+      <!-- Left Section -->
+      <div class="left-section">
+        <!-- Top Left Container -->
+        <div class="top-left-container">
+          <MortalityRisk
+            :fetchMortalityRisk="fetchMortalityRisk"
+            :mortalityPercentage="mortalityPercentage"
+            v-model:selectedModel="selectedModel"
+          />
+        </div>
 
-      <div class="patient-data-container">
-        <h2>Example Patient Details</h2>
-        <ul>
-          <li>
-            <strong>Name:</strong> John Doe
-          </li>
-          <li>
-            <strong>Age:</strong> 45
-          </li>
-          <li>
-            <strong>Condition:</strong> Stable
-          </li>
-          <li>
-            <strong>Last Visit:</strong> Dec 20, 2024
-          </li>
-        </ul>
+        <!-- Bottom Left Container -->
+        <div class="bottom-left-container">
+          <h2>Latest Visit</h2>
+          <p>Details of the latest appointment...</p>
+        </div>
       </div>
-    </main>
+
+      <!-- Right Section -->
+      <div class="right-section">
+        <h2>Patient Insights</h2>
+        <p>This section displays deeper insights about the patient...</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import MenuBar from "../components/MenuBar.vue";
+import MortalityRisk from "../components/MortalityRisk.vue";
 
 export default {
   name: "LocalPage",
   components: {
     MenuBar,
+    MortalityRisk,
+  },
+  data() {
+    return {
+      selectedModel: "XGBOOST", // Default model
+      mortalityPercentage: 86, // Default mortality percentage
+    };
+  },
+  watch: {
+    // Watch for changes in selectedModel and call fetchMortalityRisk
+    selectedModel() {
+      this.fetchMortalityRisk();
+    },
+  },
+  methods: {
+    MockGetPatientPredictXGBOOST() {
+      return 86; // Return example mortality percentage
+    },
+    MockGetPatientPredictDecisionTree() {
+      return 20; // Return example mortality percentage
+    },
+    MockGetPatientPredictLogisticRegression() {
+      return 64; // Return example mortality percentage
+    },
+    fetchMortalityRisk() {
+      if (this.selectedModel === "XGBOOST") {
+        this.mortalityPercentage = this.MockGetPatientPredictXGBOOST();
+      } else if (this.selectedModel === "DecisionTree") {
+        this.mortalityPercentage = this.MockGetPatientPredictDecisionTree();
+      } else if (this.selectedModel === "LogisticRegression") {
+        this.mortalityPercentage = this.MockGetPatientPredictLogisticRegression();
+      }
+    },
+  },
+  mounted() {
+    this.fetchMortalityRisk(); // Initialize the percentage based on default model
   },
 };
 </script>
 
-<!--<style scoped>-->
-<!--/* Local Page Styles */-->
-<!--.local-page {-->
-<!--  display: flex;-->
-<!--  flex-direction: column;-->
-<!--  min-height: 100vh;-->
-<!--  background-color: #f8f9fa; /* Light gray background */-->
-<!--  font-family: Arial, sans-serif;-->
-<!--}-->
 
-<!--.local-content {-->
-<!--  padding: 20px;-->
-<!--  max-width: 800px;-->
-<!--  margin: 0 auto;-->
-<!--}-->
+<style scoped>
+/* כל שאר העיצוב נשאר כפי שהיה */
+.local-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+}
 
-<!--.local-content h1 {-->
-<!--  font-size: 28px;-->
-<!--  color: #004d4d;-->
-<!--  margin-bottom: 10px;-->
-<!--  text-align: center;-->
-<!--}-->
+.content-layout {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  gap: 20px;
+}
 
-<!--.local-content p {-->
-<!--  font-size: 16px;-->
-<!--  color: #555;-->
-<!--  line-height: 1.6;-->
-<!--  margin-bottom: 20px;-->
-<!--  text-align: center;-->
-<!--}-->
+.left-section {
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  gap: 20px;
+}
 
-<!--.patient-data-container {-->
-<!--  background-color: #ffffff;-->
-<!--  border: 2px solid #004d4d;-->
-<!--  border-radius: 10px;-->
-<!--  padding: 20px;-->
-<!--  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);-->
-<!--}-->
+/* קונטיינר עליון שמאלי */
+.top-left-container {
+  position: relative; /* כדי שנוכל להשתמש ב-::before */
+  flex: 3;
+  //background-image: url("https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHV3eno2a2F4aDRraHpibzF2cTI0NHM4MGdqOGl4eTByZWswZzY3dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TTWnfO964s245vzY4e/giphy.webp");
+  //background-image: url("https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzhzODh5bGZ2M2t1YnRpZnhyZ3JsbjByeWpsa20zMDRvNG8ydndwcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3bc8pP1rVdfgN1uoMV/giphy.webp");
+  background-size: cover;
+  background-position: center;
+  border: 2px solid #004d40;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white; /* טקסט לבן */
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
+  overflow: hidden; /* מוודא שהשכבה לא תחרוג מגבולות הקונטיינר */
+}
 
-<!--.patient-data-container h2 {-->
-<!--  font-size: 24px;-->
-<!--  color: #004d4d;-->
-<!--  margin-bottom: 15px;-->
-<!--}-->
+/* שכבת חפיפה */
+.top-left-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  //background: rgba(164, 164, 164, 0.4); /* שכבה דהויה בצבע שחור עם שקיפות */
+  border-radius: 10px; /* מתאימה את הצורה לשוליים המעוגלים */
+  z-index: 1; /* גורמת לשכבה להיות מעל הרקע */
+}
 
-<!--.patient-data-container ul {-->
-<!--  list-style: none;-->
-<!--  padding: 0;-->
-<!--  margin: 0;-->
-<!--}-->
+/* תוכן בתוך הקונטיינר */
+.top-left-container > * {
+  position: relative; /* התוכן יהיה מעל שכבת החפיפה */
+  z-index: 2;
+}
 
-<!--.patient-data-container li {-->
-<!--  font-size: 16px;-->
-<!--  color: #333;-->
-<!--  margin-bottom: 10px;-->
-<!--}-->
+.bottom-left-container {
+  flex: 1;
+  background-color: #eaf7f7;
+  border: 2px solid #004d40;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 
-<!--.patient-data-container strong {-->
-<!--  color: #004d4d;-->
-<!--}-->
-<!--</style>-->
-
-
-<style>
-@import "../styles/Local.css";
+.right-section {
+  flex: 2;
+  background-color: #ffffff;
+  border: 2px solid #004d40;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 </style>

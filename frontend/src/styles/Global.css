@@ -2,29 +2,39 @@
 .global-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh; /* גובה מלא של הדף */
   background-color: #eaf7f9; /* רקע תכלת */
   font-family: Arial, sans-serif;
+  overflow: hidden; /* מונע גלילה חיצונית */
 }
 
 /* אזור התוכן הראשי */
 .main-content {
   display: flex;
-  justify-content: space-between;
-  padding: 20px;
+  flex-grow: 1; /* ממלא את כל הגובה הזמין */
+  justify-content: space-between; /* ריווח בין צד שמאל לימין */
   gap: 20px;
-}
-
-/* תיבת Feature Metric */
-.feature-metric {
-  flex: 1;
-  background-color: #ffffff;
-  border: 2px solid #004d40;
-  border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: calc(100% - 40px); /* גובה הדף פחות הפדינג */
+  overflow: hidden; /* מונע גלילה חיצונית */
 }
 
+/* צד שמאלי (Feature Metric) */
+/*.feature-metric {*/
+/*  flex: 1; !* יחס גודל של צד שמאל *!*/
+/*  background-color: #ffffff;*/
+/*  border: 2px solid #004d40;*/
+/*  border-radius: 10px;*/
+/*  padding: 20px;*/
+/*  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
+/*  display: flex;*/
+/*  flex-direction: column; !* עיצוב פנימי אנכי *!*/
+/*  height: calc(100% - 20px); !* מעט יותר קטן מהגובה הכולל *!*/
+/*  max-height: 95%; !* מגבלת גובה לקיצור נוסף *!*/
+/*  overflow: auto; !* גלילה פנימית *!*/
+/*}*/
+
+/* כותרת וטקסט ב-Feature Metric */
 .feature-metric h2 {
   font-size: 24px;
   color: #004d40;
@@ -37,14 +47,14 @@
 }
 
 /* מתג Agreement */
-.toggle-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  font-size: 16px;
-  color: #004d40;
-}
+/*.toggle-container {*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*  gap: 10px;*/
+/*  margin-bottom: 20px;*/
+/*  font-size: 16px;*/
+/*  color: #004d40;*/
+/*}*/
 
 .switch {
   position: relative;
@@ -91,44 +101,43 @@ input:checked + .slider:before {
   transform: translateX(14px);
 }
 
-/* תיבת Graph Container */
+/* צד ימני (Graph Container) */
 .graph-container {
-  flex: 2;
+  flex: 2; /* יחס גודל של צד ימין */
   background-color: #ffffff;
   border: 2px solid #004d40;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column; /* עיצוב פנימי אנכי */
+  height: calc(100% - 20px); /* מעט יותר קטן מהגובה הכולל */
+  max-height: 95%; /* מגבלת גובה לקיצור נוסף */
+  overflow: hidden; /* גלילה פנימית */
 }
 
-.graph-container h2 {
-  font-size: 24px;
-  color: #004d40;
-  margin-bottom: 10px;
+/* תוכן בתוך ה-Graph Container */
+.chart-wrapper {
+  flex: 1; /* ממלא את שטח התיבה */
+  overflow: auto; /* גלילה במקרה שהגרף גדול מדי */
 }
 
-.graph-container p {
-  font-size: 16px;
-  color: #555;
+.chart {
+  width: 100%;
+  height: 100%;
 }
 
-/* שורת כפתורי גרף */
+/* כפתורים ותפריט */
 .graph-buttons-container {
   display: flex;
   justify-content: space-between; /* כפתורי גרפים משמאל, כפתור מסך מלא מימין */
-  align-items: center; /* יישור הכפתורים לגובה אחיד */
+  align-items: center; /* יישור כפתורים לגובה אחיד */
+  padding: 10px;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #ddd;
   margin-bottom: 20px;
 }
 
-/* שורת כפתורי גרף */
-.graph-buttons-container {
-  display: flex;
-  justify-content: space-between; /* כפתורי גרפים משמאל, כפתור מסך מלא מימין */
-  align-items: center; /* יישור הכפתורים לגובה אחיד */
-  margin-bottom: 20px;
-}
-
-/* כפתורי גרפים */
 .graph-buttons {
   display: flex;
   gap: 10px; /* ריווח בין כפתורים */
@@ -136,9 +145,9 @@ input:checked + .slider:before {
 
 .graph-button {
   padding: 8px 16px;
-  border: 2px solid #004d40;
   border-radius: 20px;
   background-color: #e0f7fa;
+  border: 2px solid #004d40;
   color: #004d40;
   font-size: 14px;
   font-weight: bold;
@@ -190,3 +199,114 @@ input:checked + .slider:before {
   fill: #ffffff; /* צבע אייקון משתנה ללבן בעת מעבר */
 }
 
+
+
+
+
+
+
+.controls {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.controls button {
+  padding: 5px 10px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.controls button:hover {
+  background-color: #2980b9;
+}
+
+
+/* מבנה של האזור הראשי */
+.main-content {
+  display: flex;
+  flex-grow: 1; /* ממלא את כל הגובה הזמין */
+  justify-content: space-between; /* ריווח בין צד שמאל לימין */
+  gap: 20px;
+  padding: 20px;
+  height: calc(100% - 40px); /* גובה הדף פחות הפדינג */
+  overflow: hidden; /* מונע גלילה חיצונית */
+}
+
+/* אזור הגרף (Graph Section) */
+.graph-section {
+  flex: 2; /* יחס גודל לצד ימין */
+  display: flex;
+  flex-direction: column; /* אנכי: כפתורים מעל הגרף */
+  background-color: #ffffff;
+  border: 2px solid #004d40;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: calc(100% - 20px); /* מעט יותר קטן מהגובה הכולל */
+  max-height: 95%; /* מגבלת גובה לקיצור נוסף */
+  overflow: hidden;
+}
+
+/* קונטיינר הכפתורים מעל הגרף */
+.graph-buttons-container {
+  display: flex;
+  justify-content: flex-start; /* כפתורים בצד שמאל */
+  align-items: center;
+  margin-bottom: 20px; /* רווח בין הכפתורים לגרף */
+  background-color: transparent; /* מסיר את הרקע */
+  border-bottom: none; /* מסיר גבול תחתון אם קיים */
+}
+
+.graph-buttons {
+  display: flex;
+  gap: 10px; /* ריווח בין כפתורים */
+}
+
+.graph-button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background-color: #e0f7fa;
+  border: 2px solid #004d40;
+  color: #004d40;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.graph-button:hover {
+  background-color: #004d40;
+  color: #ffffff;
+  transform: scale(1.05); /* הגדלה עדינה */
+}
+
+.graph-button.active {
+  background-color: #004d40;
+  color: #ffffff;
+}
+
+
+/* אזור ריק כאשר הגרף לא מיושם */
+.empty-graph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* תופס את כל שטח הקונטיינר */
+  color: #777;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+
+.graph-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}

@@ -5,11 +5,17 @@
 
     <!-- Main Content -->
     <div class="main-content">
-      <!-- Feature Metric Component -->
       <FeatureMetric />
 
-      <!-- Graph Container Component -->
-      <GraphContainer :data="data" />
+      <!-- Graph Section -->
+      <div class="graph-section">
+        <GraphControls
+          :graphTypes="graphTypes"
+          :activeType="activeGraphType"
+          @updateType="updateGraphType"
+        />
+        <GraphContainer :type="activeGraphType" :data="filteredData" />
+      </div>
     </div>
   </div>
 </template>
@@ -18,7 +24,10 @@
 import MenuBar from "../components/MenuBar.vue";
 import FeatureMetric from "../components/FeatureMetric.vue";
 import GraphContainer from "../components/GraphContainer.vue";
-import data from "../JSON/global graph data.json"; // Import JSON data
+import GraphControls from "../components/GraphControls.vue";
+import data from "../JSON/global graph data.json";
+import limeData from "../JSON/lime_feature_importance_normalized.json";
+
 
 export default {
   name: "GlobalPage",
@@ -26,33 +35,34 @@ export default {
     MenuBar,
     FeatureMetric,
     GraphContainer,
+    GraphControls,
   },
   data() {
     return {
-      data, // Assign imported JSON data to the component's data property
+      graphTypes: ["Bar", "Line", "LIME", "Pie", "Radar"],
+      activeGraphType: "Bar", // ברירת מחדל
+      graphData: {
+        Bar: data, // נתונים ל-Bar
+        Line: data, // נתונים ל-Line
+        LIME: limeData, // נתונים ל-LIME
+        Pie: data, // נתונים ל-Pie
+        Radar: data, // נתונים ל-Scatter
+      },
     };
   },
+  computed: {
+    filteredData() {
+      return this.graphData[this.activeGraphType]; // מחזיר את הנתונים לפי סוג הגרף הפעיל
+    },
+  },
+  methods: {
+    updateGraphType(type) {
+      this.activeGraphType = type; // מעדכן את סוג הגרף הפעיל
+    },
+  },
 };
+
 </script>
-
-<!--<style scoped>-->
-<!--/* Styles for the Global Page */-->
-<!--.global-page {-->
-<!--  display: flex;-->
-<!--  flex-direction: column;-->
-<!--  min-height: 100vh;-->
-<!--  background-color: #eaf7f9; /* Light blue background */-->
-<!--  font-family: Arial, sans-serif;-->
-<!--}-->
-
-<!--.main-content {-->
-<!--  display: flex;-->
-<!--  justify-content: space-between;-->
-<!--  padding: 20px;-->
-<!--  gap: 20px;-->
-<!--}-->
-<!--</style>-->
-
 
 <style>
 @import "../styles/Global.css";
