@@ -16,7 +16,8 @@
     }
 
 
-    export function MockGetPatientExplanaition(id) {
-      return 64; // Return example mortality percentage
+   export function MockGetPatientExplanaition(id) {
+        const predictionExplain = require('./JSON/patient_prediction_explain_mock.json');
+        return predictionExplain;
     }
 
