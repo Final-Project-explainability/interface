@@ -183,7 +183,7 @@ export default {
 
 /* בורר המודל */
 .model-selector {
-  margin-top: 20px;
+  margin-top: -15px;
 }
 
 .model-selector label {

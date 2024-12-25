@@ -34,16 +34,14 @@ export default {
     initChart() {
       if (!this.data || !this.$refs.chart) return; // אם אין נתונים, אין צורך לאתחל
 
-      // סידור נתונים
-      const sortedData = this.sortDataDescending(this.data);
-      const categories = Object.keys(sortedData.SHAP);
+      // קבלת קטגוריות וערכים מתוך הנתונים, ללא מיון
+      const categories = Object.keys(this.data.SHAP); // שמות הקטגוריות לפי הסדר של ה-JSON
       const seriesData = {
-        SHAP: Object.values(sortedData.SHAP),
-        FBT: Object.values(sortedData.FBT),
-        "Logistic Regression": Object.values(
-          sortedData["Logistic Regression"]
-        ),
-        "Decision Tree": Object.values(sortedData["Decision Tree"]),
+        SHAP: Object.values(this.data.SHAP),
+        FBT: Object.values(this.data.FBT),
+        "Logistic Regression": Object.values(this.data["Logistic Regression"]),
+        "Decision Tree": Object.values(this.data["Decision Tree"]),
+        Lime: Object.values(this.data.Lime), // הוספת LIME
       };
 
       // יצירת גובה דינמי
@@ -55,24 +53,25 @@ export default {
 
       // הגדרות הגרף
       const option = {
-        tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+        tooltip: {trigger: "axis", axisPointer: {type: "shadow"}},
         legend: {
-          data: ["SHAP", "FBT", "Logistic Regression", "Decision Tree"],
+          data: ["SHAP", "FBT", "Logistic Regression", "Decision Tree", "Lime"], // הוספת LIME ל-legend
           top: "10px",
         },
-        grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
-        xAxis: { type: "value", boundaryGap: [0, 0.01] },
-        yAxis: { type: "category", data: categories },
+        grid: {left: "3%", right: "4%", bottom: "3%", containLabel: true},
+        xAxis: {type: "value", boundaryGap: [0, 0.01]},
+        yAxis: {type: "category", data: categories}, // קטגוריות לפי הסדר מה-JSON
         series: [
-          { name: "SHAP", type: "bar", data: seriesData.SHAP, itemStyle: { color: "#f39c12" } },
-          { name: "FBT", type: "bar", data: seriesData.FBT, itemStyle: { color: "#8e44ad" } },
+          {name: "SHAP", type: "bar", data: seriesData.SHAP, itemStyle: {color: "#f39c12"}},
+          {name: "FBT", type: "bar", data: seriesData.FBT, itemStyle: {color: "#8e44ad"}},
           {
             name: "Logistic Regression",
             type: "bar",
             data: seriesData["Logistic Regression"],
-            itemStyle: { color: "#c0392b" },
+            itemStyle: {color: "#c0392b"}
           },
-          { name: "Decision Tree", type: "bar", data: seriesData["Decision Tree"], itemStyle: { color: "#3498db" } },
+          {name: "Decision Tree", type: "bar", data: seriesData["Decision Tree"], itemStyle: {color: "#3498db"}},
+          {name: "Lime", type: "bar", data: seriesData.Lime, itemStyle: {color: "#2ecc71"}}, // הוספת LIME
         ],
         dataZoom: [
           {
@@ -89,7 +88,6 @@ export default {
       this.chart.setOption(option);
     },
     zoomIn() {
-      console.log("Zoom In clicked"); // דיבאג
       if (this.chart) {
         const zoomEnd = this.chart.getOption().dataZoom[0].end;
         this.chart.dispatchAction({
@@ -100,7 +98,6 @@ export default {
       }
     },
     zoomOut() {
-      console.log("Zoom Out clicked"); // דיבאג
       if (this.chart) {
         const zoomEnd = this.chart.getOption().dataZoom[0].end;
         this.chart.dispatchAction({
@@ -118,34 +115,6 @@ export default {
         this.chart.dispose(); // הסרת גרף
         this.chart = null;
       }
-    },
-    sortDataDescending(data) {
-      const categories = Object.keys(data.SHAP).map((key) => ({
-        category: key,
-        shap: data.SHAP[key],
-        fbt: data.FBT[key],
-        lr: data["Logistic Regression"][key],
-        dt: data["Decision Tree"][key],
-      }));
-      categories.sort((a, b) => b.shap - a.shap);
-      return {
-        SHAP: categories.reduce((acc, item) => {
-          acc[item.category] = item.shap;
-          return acc;
-        }, {}),
-        FBT: categories.reduce((acc, item) => {
-          acc[item.category] = item.fbt;
-          return acc;
-        }, {}),
-        "Logistic Regression": categories.reduce((acc, item) => {
-          acc[item.category] = item.lr;
-          return acc;
-        }, {}),
-        "Decision Tree": categories.reduce((acc, item) => {
-          acc[item.category] = item.dt;
-          return acc;
-        }, {}),
-      };
     },
   },
 };
@@ -175,7 +144,7 @@ export default {
   padding: 12px; /* ריווח גדול יותר */
   border: none;
   border-radius: 12px; /* פינות מעוגלות */
-  background: linear-gradient(135deg, #007a78, #00a8a6); /* צבע Gradient תכלת כהה-טורקיז כהה */
+  background: linear-gradient(135deg, #007a78, #00a8a6); /* צבע Gradient */
   color: #ffffff; /* צבע טקסט לבן */
   font-size: 20px; /* גודל טקסט */
   display: flex;
@@ -193,15 +162,14 @@ export default {
 .zoom-button:hover {
   transform: scale(1.1); /* הגדלה עדינה */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* צל מוגבר */
-  background: linear-gradient(135deg, #006666, #008a88); /* הפוך את ה-Gradient לכהה יותר */
+  background: linear-gradient(135deg, #006666, #008a88); /* Gradient כהה יותר */
 }
 
 .zoom-button:active {
   transform: scale(0.95); /* הקטנה עדינה בזמן לחיצה */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* צל קטן יותר */
-  background: linear-gradient(135deg, #005252, #006c6a); /* צבע כהה יותר בזמן לחיצה */
+  background: linear-gradient(135deg, #005252, #006c6a); /* כהה בזמן לחיצה */
 }
-
 
 .chart {
   flex: 1;

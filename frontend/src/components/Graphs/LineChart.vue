@@ -36,7 +36,7 @@ export default {
 
       const categories = Object.keys(this.data.SHAP);
 
-      // יצירת סדרות של כל המודלים
+      // יצירת סדרות של כל המודלים (כולל Lime)
       const series = [
         {
           name: "SHAP",
@@ -70,6 +70,14 @@ export default {
           lineStyle: { color: "#9b59b6" },
           itemStyle: { color: "#9b59b6" },
         },
+        {
+          name: "Lime", // הוספת המודל LIME
+          type: "line",
+          data: Object.values(this.data.Lime),
+          smooth: true,
+          lineStyle: { color: "#f1c40f" },
+          itemStyle: { color: "#f1c40f" },
+        },
       ];
 
       this.chart = echarts.init(this.$refs.chart);
@@ -79,7 +87,7 @@ export default {
         tooltip: { trigger: "axis" },
         legend: {
           top: "10px",
-          data: ["SHAP", "FBT", "Logistic Regression", "Decision Tree"],
+          data: ["SHAP", "FBT", "Logistic Regression", "Decision Tree", "Lime"], // הוספת LIME ל-legend
         },
         grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
         xAxis: {

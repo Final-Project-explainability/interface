@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       chart: null,
-      selectedFeatures: 30, // Default: 5 features
+      selectedFeatures: 30, // Default: 30 features
     };
   },
   mounted() {
@@ -45,11 +45,11 @@ export default {
     createRadarChart(featureCount) {
       // Sort data and limit to the selected number of features
       const sortedFeatures = Object.entries(this.data.SHAP)
-          .sort(([, a], [, b]) => b - a)
-          .slice(0, featureCount);
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, featureCount);
 
       const categories = sortedFeatures.map(([key]) => key);
-      const indicators = categories.map((key) => ({name: key, max: 1}));
+      const indicators = categories.map((key) => ({ name: key, max: 1 }));
 
       const seriesData = [
         {
@@ -63,13 +63,20 @@ export default {
         {
           name: "Logistic Regression",
           value: Object.values(this.data["Logistic Regression"]).slice(
-              0,
-              featureCount
+            0,
+            featureCount
           ),
         },
         {
           name: "Decision Tree",
-          value: Object.values(this.data["Decision Tree"]).slice(0, featureCount),
+          value: Object.values(this.data["Decision Tree"]).slice(
+            0,
+            featureCount
+          ),
+        },
+        {
+          name: "Lime", // הוספת Lime
+          value: Object.values(this.data.Lime).slice(0, featureCount),
         },
       ];
 
@@ -83,7 +90,7 @@ export default {
         legend: {
           top: "5%",
           left: "center",
-          data: ["SHAP", "FBT", "Logistic Regression", "Decision Tree"],
+          data: ["SHAP", "FBT", "Logistic Regression", "Decision Tree", "Lime"], // הוספת Lime ל-Legend
           textStyle: {
             fontSize: 14,
             color: "#333",
@@ -128,7 +135,7 @@ export default {
             symbolSize: 6,
           },
         ],
-        color: ["#3498db", "#e74c3c", "#2ecc71", "#9b59b6"],
+        color: ["#3498db", "#e74c3c", "#2ecc71", "#9b59b6", "#f1c40f"], // הוספת צבע עבור Lime
       };
 
       this.chart.setOption(option);

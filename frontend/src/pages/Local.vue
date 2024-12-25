@@ -88,6 +88,7 @@ export default {
   height: 100vh;
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
+  overflow: hidden; /* מונע גלילה כללית */
 }
 
 .content-layout {
@@ -95,6 +96,7 @@ export default {
   flex: 1;
   padding: 20px;
   gap: 20px;
+  height: calc(100vh - 80px); /* התאמת הגובה למסך ללא גלילה */
 }
 
 .left-section {
@@ -102,16 +104,17 @@ export default {
   flex-direction: column;
   width: 30%;
   gap: 20px;
+  height: 96%;
 }
 
-/* קונטיינר עליון שמאלי */
 .top-left-container {
-  position: relative; /* כדי שנוכל להשתמש ב-::before */
+  position: relative;
   flex: 3;
-  //background-image: url("https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHV3eno2a2F4aDRraHpibzF2cTI0NHM4MGdqOGl4eTByZWswZzY3dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TTWnfO964s245vzY4e/giphy.webp");
-  //background-image: url("https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzhzODh5bGZ2M2t1YnRpZnhyZ3JsbjByeWpsa20zMDRvNG8ydndwcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3bc8pP1rVdfgN1uoMV/giphy.webp");
-  background-size: cover;
-  background-position: center;
+  height: 50%; /* הגדרת גובה מוגבל */
+  //background-image: url('https://designshack.net/wp-content/uploads/black-texture-background-368x245.jpg'); /* הוספת תמונת רקע */
+  background-size: cover; /* התאמה לרוחב ולגובה הקונטיינר */
+  background-position: center; /* מיקום התמונה במרכז */
+  background-repeat: no-repeat; /* מניעת חזרה על התמונה */
   border: 2px solid #004d40;
   border-radius: 10px;
   padding: 20px;
@@ -122,8 +125,9 @@ export default {
   align-items: center;
   color: white; /* טקסט לבן */
   text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
-  overflow: hidden; /* מוודא שהשכבה לא תחרוג מגבולות הקונטיינר */
+  overflow: hidden;
 }
+
 
 /* שכבת חפיפה */
 .top-left-container::before {
@@ -133,19 +137,19 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  //background: rgba(164, 164, 164, 0.4); /* שכבה דהויה בצבע שחור עם שקיפות */
-  border-radius: 10px; /* מתאימה את הצורה לשוליים המעוגלים */
-  z-index: 1; /* גורמת לשכבה להיות מעל הרקע */
+  border-radius: 10px;
+  z-index: 1;
 }
 
 /* תוכן בתוך הקונטיינר */
 .top-left-container > * {
-  position: relative; /* התוכן יהיה מעל שכבת החפיפה */
+  position: relative;
   z-index: 2;
 }
 
 .bottom-left-container {
   flex: 1;
+  height: 30%; /* קיצור גובה הקונטיינר */
   background-color: #eaf7f7;
   border: 2px solid #004d40;
   border-radius: 10px;
@@ -155,10 +159,12 @@ export default {
 
 .right-section {
   flex: 2;
+  height: 90%; /* קיצור גובה הקונטיינר */
   background-color: #ffffff;
   border: 2px solid #004d40;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* מניעת גלילה */
 }
 </style>
