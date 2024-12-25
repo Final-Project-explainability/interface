@@ -17,81 +17,88 @@
 
         <!-- Bottom Left Container -->
         <div class="bottom-left-container">
-          <h2>Latest Visit</h2>
-          <p>Details of the latest appointment...</p>
+          <h2 class="section-title">Patient Information</h2>
+          <div class="patient-info">
+            <span class="patient-label">Patient ID:</span>
+            <span class="patient-value">{{ patientId }}</span>
+          </div>
         </div>
       </div>
 
       <!-- Right Section -->
       <div class="right-section">
-        <h2>Patient Insights</h2>
-        <p>This section displays deeper insights about the patient...</p>
+        <PatientDetails :patientData="patientDetails" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// ייבוא הקומפוננטות
+// ייבוא קומפוננטות
 import MenuBar from "../components/MenuBar.vue";
 import MortalityRisk from "../components/MortalityRisk.vue";
+import PatientDetails from "../components/PatientDetails.vue";
 
-// ייבוא הפונקציות מתוך local_functions.js
+// ייבוא פונקציות המוק
 import {
+  MockGetPatientDeatails,
   MockGetPatientPredictXGBOOST,
   MockGetPatientPredictDecisionTree,
   MockGetPatientPredictLogisticRegression,
-  MockGetPatientDeatails,
-  MockGetPatientExplanaition,
-} from "../local_functions.js";
+} from "../local_functions_mock.js";
 
 export default {
   name: "LocalPage",
   components: {
     MenuBar,
     MortalityRisk,
+    PatientDetails,
   },
   data() {
     return {
       selectedModel: "XGBOOST", // ברירת מחדל: מודל XGBOOST
       mortalityPercentage: 0, // אחוז תמותה ראשוני
+      patientDetails: {}, // פרטי המטופל
+      patientId: "123456789", // מזהה מטופל לדוגמה
     };
   },
+  methods: {
+    fetchPatientDetails() {
+      // קריאה לפונקציית המוק לטעינת נתוני המטופל
+      this.patientDetails = MockGetPatientDeatails(this.patientId);
+    },
+    fetchMortalityRisk() {
+      // עדכון ערכי אחוזי התמותה לפי המודל הנבחר
+      if (this.selectedModel === "XGBOOST") {
+        this.mortalityPercentage = MockGetPatientPredictXGBOOST(this.patientId);
+      } else if (this.selectedModel === "DecisionTree") {
+        this.mortalityPercentage = MockGetPatientPredictDecisionTree(this.patientId);
+      } else if (this.selectedModel === "LogisticRegression") {
+        this.mortalityPercentage = MockGetPatientPredictLogisticRegression(this.patientId);
+      }
+    },
+  },
   watch: {
-    // צפייה בשינוי המודל הנבחר
+    // צפייה בשינוי המודל הנבחר ועדכון האחוזים בהתאם
     selectedModel() {
       this.fetchMortalityRisk();
     },
   },
-  methods: {
-    fetchMortalityRisk() {
-      console.log("Selected Model:", this.selectedModel); // דיבאג
-      if (this.selectedModel === "XGBOOST") {
-        this.mortalityPercentage = MockGetPatientPredictXGBOOST();
-      } else if (this.selectedModel === "DecisionTree") {
-        this.mortalityPercentage = MockGetPatientPredictDecisionTree();
-      } else if (this.selectedModel === "LogisticRegression") {
-        this.mortalityPercentage = MockGetPatientPredictLogisticRegression();
-      }
-      console.log("Mortality Percentage:", this.mortalityPercentage); // דיבאג
-    },
-  },
   mounted() {
-    this.fetchMortalityRisk(); // קריאה ראשונית בעת טעינת הקומפוננטה
+    this.fetchPatientDetails(); // קריאה לפרטי המטופל בעת טעינת הקומפוננטה
+    this.fetchMortalityRisk(); // קריאה לפרטי אחוזי תמותה בעת טעינת הקומפוננטה
   },
 };
 </script>
 
-
 <style scoped>
-/* כל שאר העיצוב נשאר כפי שהיה */
 .local-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
-  overflow: hidden; /* מונע גלילה כללית */
+  overflow: hidden;
 }
 
 .content-layout {
@@ -99,7 +106,7 @@ export default {
   flex: 1;
   padding: 20px;
   gap: 20px;
-  height: calc(100vh - 80px); /* התאמת הגובה למסך ללא גלילה */
+  height: calc(100vh - 80px);
 }
 
 .left-section {
@@ -111,12 +118,10 @@ export default {
 }
 
 .top-left-container {
-  position: relative;
-  flex: 7; /* 7/8 מהחלק השמאלי */
-  background-image: url('https://img.freepik.com/premium-photo/full-frame-shot-old-paper_1048944-6592711.jpg'); /* הוספת תמונת רקע */
-  background-size: cover; /* התאמה לרוחב ולגובה הקונטיינר */
-  background-position: center; /* מיקום התמונה במרכז */
-  background-repeat: no-repeat; /* מניעת חזרה על התמונה */
+  flex: 7;
+  background-image: url('https://img.freepik.com/premium-photo/full-frame-shot-old-paper_1048944-6592711.jpg');
+  background-size: cover;
+  background-position: center;
   border: 2px solid #004d40;
   border-radius: 10px;
   padding: 20px;
@@ -125,46 +130,56 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: white; /* טקסט לבן */
+  color: white;
   text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
 
-/* שכבת חפיפה */
-.top-left-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 10px;
-  z-index: 1;
-}
-
-/* תוכן בתוך הקונטיינר */
-.top-left-container > * {
-  position: relative;
-  z-index: 2;
-}
-
 .bottom-left-container {
-  flex: 1; /* 1/8 מהחלק השמאלי */
-  background-color: #eaf7f7;
-  border: 2px solid #004d40;
+  flex: 1;
+  background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+  border: 2px solid #00796b;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #004d40;
+  text-align: center;
+}
+
+.patient-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.patient-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #00796b;
+}
+
+.patient-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #004d40;
+}
+
 .right-section {
   flex: 2;
-  height: 90%; /* קיצור גובה הקונטיינר */
+  height: 90%;
   background-color: #ffffff;
   border: 2px solid #004d40;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden; /* מניעת גלילה */
+  overflow: hidden;
 }
 </style>
