@@ -85,11 +85,11 @@ export default {
       let baseColor;
       if (value < 0) {
         // שלילי = ירוק כהה יותר ככל שיותר שלילי
-        const greenStrength = Math.min(100, Math.abs(value) * 2); // מגבלת מקסימום 100
+        const greenStrength = Math.min(100, Math.abs(value) * 5); // מגבלת מקסימום 100
         baseColor = `hsl(120, ${greenStrength}%, 50%)`; // ירוק בגוון משתנה
       } else {
         // חיובי = אדום כהה יותר ככל שיותר חיובי
-        const redStrength = Math.min(100, value * 2); // מגבלת מקסימום 100
+        const redStrength = Math.min(100, value * 5); // מגבלת מקסימום 100
         baseColor = `hsl(0, ${redStrength}%, 50%)`; // אדום בגוון משתנה
       }
 

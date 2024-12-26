@@ -1,5 +1,15 @@
 <template>
   <div class="bar-chart-container">
+    <!-- שורת חיפוש -->
+    <div class="search-bar">
+      <input
+        type="text"
+        v-model="searchQuery"
+        @input="filterChart"
+        placeholder="Search Feature..."
+        class="search-input"
+      />
+    </div>
     <!-- כפתורי זום -->
     <div class="controls">
       <button @click="zoomIn" class="zoom-button">
@@ -22,7 +32,14 @@ export default {
   props: {
     data: Object, // הנתונים לגרף
   },
+  data() {
+    return {
+      searchQuery: "", // ערך החיפוש
+      filteredData: null, // נתונים מסוננים להצגה
+    };
+  },
   mounted() {
+    this.filteredData = { ...this.data }; // אתחול נתונים מסוננים
     this.initChart(); // אתחול הגרף
     window.addEventListener("resize", this.resizeChart); // רספונסיביות
   },
@@ -32,20 +49,22 @@ export default {
   },
   methods: {
     initChart() {
-      if (!this.data || !this.$refs.chart) return; // אם אין נתונים, אין צורך לאתחל
+      if (!this.filteredData || !this.$refs.chart) return;
 
-      // קבלת קטגוריות וערכים מתוך הנתונים, ללא מיון
-      const categories = Object.keys(this.data.SHAP); // שמות הקטגוריות לפי הסדר של ה-JSON
+      // קבלת קטגוריות וערכים מתוך הנתונים המסוננים
+      const categories = Object.keys(this.filteredData.SHAP);
       const seriesData = {
-        SHAP: Object.values(this.data.SHAP),
-        FBT: Object.values(this.data.FBT),
-        "Logistic Regression": Object.values(this.data["Logistic Regression"]),
-        "Decision Tree": Object.values(this.data["Decision Tree"]),
-        Lime: Object.values(this.data.Lime), // הוספת LIME
+        SHAP: Object.values(this.filteredData.SHAP),
+        FBT: Object.values(this.filteredData.FBT),
+        "Logistic Regression": Object.values(
+          this.filteredData["Logistic Regression"]
+        ),
+        "Decision Tree": Object.values(this.filteredData["Decision Tree"]),
+        Lime: Object.values(this.filteredData.Lime),
       };
 
       // יצירת גובה דינמי
-      const chartHeight = Math.max(categories.length * 25, 400); // מינימום גובה 400px
+      const chartHeight = Math.max(categories.length * 25, 400);
       this.$refs.chart.style.height = `${chartHeight}px`;
 
       // אתחול הגרף
@@ -53,33 +72,53 @@ export default {
 
       // הגדרות הגרף
       const option = {
-        tooltip: {trigger: "axis", axisPointer: {type: "shadow"}},
+        tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
         legend: {
-          data: ["SHAP", "FBT", "Logistic Regression", "Decision Tree", "Lime"], // הוספת LIME ל-legend
+          data: ["SHAP", "FBT", "Logistic Regression", "Decision Tree", "Lime"],
           top: "10px",
         },
-        grid: {left: "3%", right: "4%", bottom: "3%", containLabel: true},
-        xAxis: {type: "value", boundaryGap: [0, 0.01]},
-        yAxis: {type: "category", data: categories}, // קטגוריות לפי הסדר מה-JSON
+        grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
+        xAxis: { type: "value", boundaryGap: [0, 0.01] },
+        yAxis: { type: "category", data: categories },
         series: [
-          {name: "SHAP", type: "bar", data: seriesData.SHAP, itemStyle: {color: "#f39c12"}},
-          {name: "FBT", type: "bar", data: seriesData.FBT, itemStyle: {color: "#8e44ad"}},
+          {
+            name: "SHAP",
+            type: "bar",
+            data: seriesData.SHAP,
+            itemStyle: { color: "#c0392b" },
+          },
+          {
+            name: "FBT",
+            type: "bar",
+            data: seriesData.FBT,
+            itemStyle: { color: "#8e44ad" },
+          },
           {
             name: "Logistic Regression",
             type: "bar",
             data: seriesData["Logistic Regression"],
-            itemStyle: {color: "#c0392b"}
+            itemStyle: { color: "#f39c12" },
           },
-          {name: "Decision Tree", type: "bar", data: seriesData["Decision Tree"], itemStyle: {color: "#3498db"}},
-          {name: "Lime", type: "bar", data: seriesData.Lime, itemStyle: {color: "#2ecc71"}}, // הוספת LIME
+          {
+            name: "Decision Tree",
+            type: "bar",
+            data: seriesData["Decision Tree"],
+            itemStyle: { color: "#3498db" },
+          },
+          {
+            name: "Lime",
+            type: "bar",
+            data: seriesData.Lime,
+            itemStyle: { color: "#2ecc71" },
+          },
         ],
         dataZoom: [
           {
-            type: "slider", // פס גלילה
-            yAxisIndex: 0, // מפעיל את הגלילה על ציר ה-Y
-            filterMode: "filter", // מצמצם את הדאטה המוצג
-            start: 0, // התחלה של הגרף
-            end: 3, // סוף הגרף
+            type: "slider",
+            yAxisIndex: 0,
+            filterMode: "filter",
+            start: 0,
+            end: 5,
           },
         ],
       };
@@ -87,13 +126,43 @@ export default {
       // טעינת האופציות לגרף
       this.chart.setOption(option);
     },
+    filterChart() {
+      if (!this.data) return;
+
+      // סינון קטגוריות לפי החיפוש
+      const query = this.searchQuery.toLowerCase();
+      const categories = Object.keys(this.data.SHAP).filter((key) =>
+        key.toLowerCase().includes(query)
+      );
+
+      // סינון הנתונים בכל הסדרות
+      this.filteredData = {
+        SHAP: this.filterSeries(this.data.SHAP, categories),
+        FBT: this.filterSeries(this.data.FBT, categories),
+        "Logistic Regression": this.filterSeries(
+          this.data["Logistic Regression"],
+          categories
+        ),
+        "Decision Tree": this.filterSeries(this.data["Decision Tree"], categories),
+        Lime: this.filterSeries(this.data.Lime, categories),
+      };
+
+      // עדכון הגרף עם הנתונים המסוננים
+      this.initChart();
+    },
+    filterSeries(series, categories) {
+      return categories.reduce((filtered, category) => {
+        filtered[category] = series[category];
+        return filtered;
+      }, {});
+    },
     zoomIn() {
       if (this.chart) {
         const zoomEnd = this.chart.getOption().dataZoom[0].end;
         this.chart.dispatchAction({
           type: "dataZoom",
           start: 0,
-          end: Math.max(zoomEnd - 10, 0), // מקטין את התצוגה
+          end: Math.max(zoomEnd - 5, 0),
         });
       }
     },
@@ -103,22 +172,24 @@ export default {
         this.chart.dispatchAction({
           type: "dataZoom",
           start: 0,
-          end: Math.min(zoomEnd + 10, 100), // מגדיל את התצוגה
+          end: Math.min(zoomEnd + 5, 100),
         });
       }
     },
     resizeChart() {
-      if (this.chart) this.chart.resize(); // עדכון גודל הגרף
+      if (this.chart) this.chart.resize();
     },
     destroyChart() {
       if (this.chart) {
-        this.chart.dispose(); // הסרת גרף
+        this.chart.dispose();
         this.chart = null;
       }
     },
   },
 };
 </script>
+
+
 
 <style>
 .bar-chart-container {
@@ -176,4 +247,26 @@ export default {
   width: 100%;
   height: 100%;
 }
+
+.search-bar {
+  margin: 10px 0;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.search-input {
+  width: 300px;
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #007a78;
+  box-shadow: 0 0 5px rgba(0, 122, 120, 0.5);
+}
+
 </style>
