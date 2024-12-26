@@ -2,7 +2,7 @@
   <div class="mortality-risk">
     <h2 class="mortality-title">Mortality Risk</h2>
     <div class="circle-chart">
-      <svg class="progress-ring" width="300" height="300">
+      <svg class="progress-ring" viewBox="0 0 300 300">
         <!-- מעגל פנימי שמשמש כרקע -->
         <circle
           class="progress-ring__background"
@@ -50,6 +50,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 export default {
@@ -118,8 +119,9 @@ export default {
   gap: 20px;
   padding: 30px;
   border-radius: 20px;
-  max-width: 400px;
+  max-width: 100%; /* מתאים למסכים קטנים */
   margin: 0 auto;
+  //box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* צל עדין */
 }
 
 /* כותרת */
@@ -135,8 +137,9 @@ export default {
 /* מעגל */
 .circle-chart {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 100%; /* התאמה למסכים קטנים */
+  max-width: 300px; /* מגבלת גודל למסכים גדולים */
+  height: auto; /* גובה אוטומטי */
   margin-bottom: 20px;
 }
 
@@ -147,7 +150,7 @@ export default {
   cy: 150;
 }
 
-/* רקע טבעת חיצוני */
+/* רקע טבעת חיצונית */
 .progress-ring__background-outer {
   stroke: #e0e0e0;
   stroke-width: 15;
@@ -157,6 +160,8 @@ export default {
 /* טבעת ה-SVG */
 .progress-ring {
   transform: rotate(-90deg); /* Rotate to start from top */
+  width: 100%; /* להתאים לגודל הקונטיינר */
+  height: auto; /* גובה אוטומטי */
 }
 
 /* מעגל התקדמות */
@@ -175,11 +180,12 @@ export default {
 }
 
 .percentage {
-  font-size: 60px;
+  font-size: 2.5vw; /* גודל טקסט יחסי לרוחב המסך */
   font-weight: 900;
   color: #000;
   text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
+
 
 /* בורר המודל */
 .model-selector {
@@ -207,4 +213,34 @@ export default {
   border-color: #888;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
+
+/* התאמות רספונסיביות */
+@media (max-width: 768px) {
+  .circle-chart {
+    max-width: 200px; /* מעגל קטן יותר למסכים קטנים */
+  }
+
+  .percentage {
+    font-size: 2rem; /* גודל טקסט קטן יותר */
+  }
+
+  .mortality-title {
+    font-size: 24px; /* כותרת קטנה יותר */
+  }
+}
+
+@media (max-width: 480px) {
+  .circle-chart {
+    max-width: 150px; /* מעגל קטן עוד יותר למסכים קטנים מאוד */
+  }
+
+  .percentage {
+    font-size: 1.5rem;
+  }
+
+  .mortality-title {
+    font-size: 20px;
+  }
+}
+
 </style>

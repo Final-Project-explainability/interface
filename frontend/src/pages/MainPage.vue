@@ -5,12 +5,12 @@
       <Dashboard
         v-if="isLoggedIn"
         :user="userDetails"
-        @logout="handleLogout" />
-      <Login v-else @login="handleLogin" />
+        @logout="handleLogout"/>
+      <Login v-else @login="handleLogin"/>
     </div>
     <div class="right-panel">
       <!-- InfoPanel for global and local navigation -->
-      <InfoPanel :isLoggedIn="isLoggedIn" />
+      <InfoPanel :isLoggedIn="isLoggedIn"/>
     </div>
   </div>
 </template>

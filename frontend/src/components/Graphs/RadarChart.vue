@@ -45,11 +45,11 @@ export default {
     createRadarChart(featureCount) {
       // Sort data and limit to the selected number of features
       const sortedFeatures = Object.entries(this.data.SHAP)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, featureCount);
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, featureCount);
 
       const categories = sortedFeatures.map(([key]) => key);
-      const indicators = categories.map((key) => ({ name: key, max: 1 }));
+      const indicators = categories.map((key) => ({name: key, max: 1}));
 
       const seriesData = [
         {
@@ -63,15 +63,15 @@ export default {
         {
           name: "Logistic Regression",
           value: Object.values(this.data["Logistic Regression"]).slice(
-            0,
-            featureCount
+              0,
+              featureCount
           ),
         },
         {
           name: "Decision Tree",
           value: Object.values(this.data["Decision Tree"]).slice(
-            0,
-            featureCount
+              0,
+              featureCount
           ),
         },
         {

@@ -42,7 +42,7 @@ export default {
     // מחזיר את רשימת הפיצ'רים להצגה לפי מצב הטוגל
     displayedFeatures() {
       return this.features.sort((a, b) =>
-        this.showAgreement ? b.agreement - a.agreement : b.disagreement - a.disagreement
+          this.showAgreement ? b.agreement - a.agreement : b.disagreement - a.disagreement
       );
     }
   }

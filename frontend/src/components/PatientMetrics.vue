@@ -16,13 +16,13 @@ export default {
   data() {
     return {
       metrics: [
-        { name: "Heart Rate", value: "75 bpm" },
-        { name: "Blood Pressure", value: "120/80" },
-        { name: "BMI", value: "21.5" },
-        { name: "Age", value: "43" },
-        { name: "Fever", value: "36.8°C" },
-        { name: "Weight", value: "81 kg" },
-        { name: "Gender", value: "Male" },
+        {name: "Heart Rate", value: "75 bpm"},
+        {name: "Blood Pressure", value: "120/80"},
+        {name: "BMI", value: "21.5"},
+        {name: "Age", value: "43"},
+        {name: "Fever", value: "36.8°C"},
+        {name: "Weight", value: "81 kg"},
+        {name: "Gender", value: "Male"},
       ],
     };
   },

@@ -42,7 +42,7 @@ export default {
 .patient-details-container {
   background: #f4f6f8; /* צבע רקע בהיר */
   border-radius: 12px;
-  padding: 15px;
+  padding: 10px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* צל עדין */
   margin-bottom: 20px;
 }
@@ -53,6 +53,7 @@ export default {
   text-align: left;
   color: #333333;
   margin-bottom: 10px;
+  margin-top: 0;
 }
 
 .details-slider {

@@ -22,15 +22,15 @@ export default {
         {
           name: "SHAP",
           features: [
-            { name: "Heart Rate", value: 81 },
-            { name: "Blood Pressure", value: 56 },
+            {name: "Heart Rate", value: 81},
+            {name: "Blood Pressure", value: 56},
           ],
         },
         {
           name: "Lime",
           features: [
-            { name: "Heart Rate", value: 71 },
-            { name: "Blood Pressure", value: 60 },
+            {name: "Heart Rate", value: 71},
+            {name: "Blood Pressure", value: 60},
           ],
         },
       ],
