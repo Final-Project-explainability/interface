@@ -36,28 +36,32 @@
         <span class="percentage">{{ mortalityPercentage }}%</span>
       </div>
     </div>
-    <div class="model-selector">
-      <label for="model">Choose Model:</label>
-      <select
-        id="model"
-        :value="selectedModel"
-        @change="$emit('update:selectedModel', $event.target.value)"
-      >
-        <option value="XGBOOST">XGBOOST</option>
-        <option value="LogisticRegression">Logistic Regression</option>
-        <option value="DecisionTree">Decision Tree</option>
-      </select>
-    </div>
+
+    <!-- קומפוננטת ModelSelector -->
+    <ModelSelector
+      :selectedModel="selectedModel"
+      :models="availableModels"
+      @update:selectedModel="$emit('update:selectedModel', $event)"
+    />
   </div>
 </template>
 
-
 <script>
+import ModelSelector from "./ModelSelector.vue";
+
 export default {
   name: "MortalityRisk",
+  components: {
+    ModelSelector, // ייבוא קומפוננטת בחירת המודל
+  },
   props: {
     selectedModel: String,
     mortalityPercentage: Number,
+  },
+  data() {
+    return {
+      availableModels: ["XGBOOST", "LogisticRegression", "DecisionTree"], // רשימת המודלים
+    };
   },
   computed: {
     // עיצוב למעגל החיצוני

@@ -62,4 +62,6 @@ export default {
   border-color: #888;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
+
+
 </style>
