@@ -1,7 +1,7 @@
 <template>
   <div :class="['card', { disabled }]">
-    <div :class="['card-image', imageClass]"></div>
     <h3>{{ title }}</h3>
+    <div :class="['card-image', imageClass]"></div>
     <button @click="onClick" :disabled="disabled">
       {{ buttonText }}
     </button>

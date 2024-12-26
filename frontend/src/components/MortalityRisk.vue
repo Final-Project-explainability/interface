@@ -121,7 +121,6 @@ export default {
   border-radius: 20px;
   max-width: 100%; /* מתאים למסכים קטנים */
   margin: 0 auto;
-  //box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* צל עדין */
 }
 
 /* כותרת */
@@ -177,15 +176,24 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
+  width: 90%; /* הגבלת הרוחב */
+  height: 90%; /* הגבלת הגובה */
+  display: flex; /* עיצוב גמיש */
+  justify-content: center; /* מרכז אופקי */
+  align-items: center; /* מרכז אנכי */
+  overflow: hidden; /* למנוע גלישה */
 }
 
 .percentage {
-  font-size: 2.5vw; /* גודל טקסט יחסי לרוחב המסך */
+  font-size: calc(2.5vw); /* גודל טקסט יחסי לרוחב המסך */
   font-weight: 900;
   color: #000;
   text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+  white-space: nowrap; /* מניעת שבירת שורה */
+  overflow: hidden; /* מניעת גלישה */
+  text-overflow: ellipsis; /* הצגת "..." אם יש גלישה */
+  line-height: 1; /* מניעת ריווח מוגזם */
 }
-
 
 /* בורר המודל */
 .model-selector {
@@ -218,10 +226,11 @@ export default {
 @media (max-width: 768px) {
   .circle-chart {
     max-width: 200px; /* מעגל קטן יותר למסכים קטנים */
+    height: auto; /* גובה אוטומטי */
   }
 
   .percentage {
-    font-size: 2rem; /* גודל טקסט קטן יותר */
+    font-size: calc(4vw); /* טקסט קטן יותר למסכים קטנים */
   }
 
   .mortality-title {
@@ -232,15 +241,17 @@ export default {
 @media (max-width: 480px) {
   .circle-chart {
     max-width: 150px; /* מעגל קטן עוד יותר למסכים קטנים מאוד */
+    height: auto;
   }
 
   .percentage {
-    font-size: 1.5rem;
+    font-size: calc(5vw); /* טקסט קטן יותר למסכים קטנים מאוד */
   }
 
   .mortality-title {
-    font-size: 20px;
+    font-size: 20px; /* כותרת קטנה יותר למסכים קטנים מאוד */
   }
 }
+
 
 </style>

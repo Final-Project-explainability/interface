@@ -20,3 +20,10 @@ export function MockGetPatientPredictLogisticRegression(id) {
 export function MockGetPatientExplanaition(id) {
   return predictionExplain; // החזרת נתוני הסבר
 }
+
+export function MockIsPatientExist(id) {
+  if (id === "0000") {
+    return false;
+  }
+  return true;
+}
