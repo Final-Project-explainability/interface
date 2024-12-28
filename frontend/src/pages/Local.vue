@@ -29,11 +29,11 @@
 
         <!-- החלק התחתון -->
         <div>
-          <!-- הצגת פרטי המטופל רק אם בוצע חיפוש -->
+          <!-- הצגת פרטי המטופל רק אם קיימים נתונים -->
           <PatientInfo v-if="isDataVisible" :patientId="patientId" />
-          <!-- הודעת ברירת מחדל אם לא בוצע חיפוש -->
+          <!-- הודעת ברירת מחדל אם לא קיימים נתונים -->
           <div v-else class="info-message">
-            Please enter a patient's ID to display details.
+            {{ loadingMessage }}
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@
         <PatientDetails v-if="isDataVisible" :patientData="patientDetails" />
         <PredictionExplanations v-if="isDataVisible" />
         <div v-else class="centered-message">
-          Please enter a patient's ID in the search bar to display information.
+          {{ loadingMessage }}
         </div>
       </div>
     </div>
@@ -80,17 +80,17 @@ export default {
     return {
       searchQuery: "", // ערך תיבת החיפוש
       selectedModel: "XGBOOST",
-      mortalityPercentage: 0, // אחוזי תמותה ברירת מחדל (0%)
+      mortalityPercentage: 0, // אחוזי תמותה ברירת מחדל
       patientDetails: {
-        // ערכי ברירת מחדל לנתוני מטופל
         name: "No Data",
         age: 0,
         gender: "Unknown",
         diagnosis: "No Data",
       },
-      patientId: "", // מזהה מטופל (מתחיל כריק)
-      isDataVisible: false, // מצב ראשוני: הסתרת פרטי מטופל ו-SHAP/LIME
-      errorMessage: "", // הודעת שגיאה למקרה של ID לא תקין
+      patientId: "", // מזהה מטופל
+      isDataVisible: false, // האם להציג נתונים
+      errorMessage: "", // הודעת שגיאה
+      loadingMessage: "Please search for a patient.", // הודעת טעינה
     };
   },
   methods: {
@@ -107,25 +107,29 @@ export default {
       }
     },
     handlePatientSearch(query) {
-      console.log("Searching for patient:", query); // לוגיקת החיפוש
-      this.patientId = query; // עדכון מזהה המטופל
+      console.log("Searching for patient:", query);
+      this.patientId = query;
 
-      // בדיקה אם המטופל קיים
       if (!MockIsPatientExist(this.patientId)) {
-        this.errorMessage = "Patient with the given ID does not exist."; // הודעת שגיאה
-        this.isDataVisible = false; // מסתיר נתונים
-        this.mortalityPercentage = 0; // מאפס את אחוזי התמותה
-        this.searchQuery = ""; // מנקה את תיבת החיפוש
-        return; // מפסיק את ביצוע הפונקציה
+        this.errorMessage = "Patient with the given ID does not exist.";
+        this.isDataVisible = false;
+        this.mortalityPercentage = 0;
+        this.searchQuery = "";
+        return;
       }
-      // אם המטופל קיים, ממשיכים לטעינת הנתונים
-      this.errorMessage = ""; // מנקה הודעת שגיאה
 
-      this.fetchPatientDetails(); // עדכון נתוני המטופל
-      this.fetchMortalityRisk(); // עדכון נתוני המורטליטי
-      this.isDataVisible = true; // הפיכת המידע לנראה
-      this.searchQuery = ""; // מנקה את תיבת החיפוש
+      this.errorMessage = "";
+      this.fetchPatientDetails();
+      this.fetchMortalityRisk();
+      this.isDataVisible = true;
     },
+  },
+  created() {
+    const query = this.$route.query;
+    if (query.patientId) {
+      this.patientId = query.patientId;
+      this.handlePatientSearch(query.patientId);
+    }
   },
   watch: {
     selectedModel() {
