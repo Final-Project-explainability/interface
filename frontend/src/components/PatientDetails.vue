@@ -42,9 +42,9 @@ export default {
 .patient-details-container {
   background: #f4f6f8; /* צבע רקע בהיר */
   border-radius: 12px;
-  padding: 10px;
+  padding: 0px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* צל עדין */
-  margin-bottom: 20px;
+  margin-bottom: 0px;
 }
 
 .section-title {

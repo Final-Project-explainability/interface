@@ -1,15 +1,12 @@
 <template>
   <div class="model-section">
-    <!-- Model Title -->
     <h3 class="model-title">{{ modelName }}</h3>
-
-    <!-- Circular Features -->
     <div class="model-items">
       <CircularFeature
-        v-for="(value, key) in modelData"
-        :key="key"
-        :feature="key"
-        :value="value"
+        v-for="(feature, index) in modelData"
+        :key="index"
+        :feature="feature.name"
+        :value="feature.percentage"
       />
     </div>
   </div>
@@ -29,7 +26,7 @@ export default {
       required: true,
     },
     modelData: {
-      type: Object,
+      type: Array,
       required: true,
     },
   },
@@ -37,28 +34,38 @@ export default {
 </script>
 
 <style scoped>
-/* Individual Model Section */
 .model-section {
-  min-width: 300px; /* מינימום רוחב לכל סקשן */
-  margin-bottom: 5px;
+  min-width: 300px;
+  margin-bottom: 0px; /* רווח בין מודלים */
   text-align: left;
 }
 
-/* Model Title */
 .model-title {
   font-size: 18px;
   font-weight: bold;
   color: #34495e;
-  margin-bottom: 10px;
-  margin-top: 0;
+  margin-bottom: 0px;
 }
 
-/* Model Items */
 .model-items {
   display: flex;
-  gap: 15px;
-  justify-content: center; /* למרכז את העיגולים */
+  gap: 15px; /* רווח בין הפריטים */
+  justify-content: flex-start; /* מיושר לשמאל */
+  overflow-x: auto; /* גלילה אופקית במידה ויש יותר מדי פריטים */
+  white-space: nowrap; /* פריטים נשארים באותה שורה */
+  padding: 10px 0; /* רווח פנימי למראה נעים */
 }
 
+.model-items::-webkit-scrollbar {
+  height: 8px; /* גובה גלילה אופקית */
+}
 
+.model-items::-webkit-scrollbar-thumb {
+  background: #c0c0c0; /* צבע גלילה */
+  border-radius: 4px; /* קצוות מעוגלים */
+}
+
+.model-items::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0; /* צבע גלילה בהובר */
+}
 </style>
