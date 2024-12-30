@@ -64,6 +64,8 @@ import {
   MockIsPatientExist,
 } from "../local_functions_mock.js";
 
+import {GetPatientPredictXGBOOST, GetPatientPredictDecisionTree, GetPatientPredictLogisticRegression, GetPatientDetails} from "../local_functions.js";
+
 export default {
   name: "LocalPage",
   components: {

@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import csv from 'csv-parser';
 
-function GetPatientPredictXGBOOST(patient_id) {
+export function GetPatientPredictXGBOOST(patient_id) {
   const filePath = path.resolve(__dirname, 'data', 'model_predictions.csv');
 
   return new Promise((resolve, reject) => {
@@ -82,7 +82,7 @@ export function GetPatientPredictLogisticRegression(patient_id) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function GetPatientDetails(patient_id) {
+export function GetPatientDetails(patient_id) {
   const filePath = path.resolve(__dirname, 'data', 'example_test_data.csv');
 
   return new Promise((resolve, reject) => {
@@ -109,21 +109,21 @@ function GetPatientDetails(patient_id) {
 }
 
 // Test the functions
-// GetPatientDetails(125998)
-//   .then((data) => {
-//     console.log('Patient details:', data);
-//   })
-//   .catch((error) => {
-//     console.error('Error:', error.message);
-//   });
-//
-// GetPatientPredictXGBOOST(115540)
-//   .then((prediction) => {
-//     console.log('XGBoost Prediction:', prediction);
-//   })
-//   .catch((error) => {
-//     console.error('Error:', error.message);
-//   });
+GetPatientDetails(125998)
+  .then((data) => {
+    console.log('Patient details:', data);
+  })
+  .catch((error) => {
+    console.error('Error:', error.message);
+  });
+
+GetPatientPredictXGBOOST(115540)
+  .then((prediction) => {
+    console.log('XGBoost Prediction:', prediction);
+  })
+  .catch((error) => {
+    console.error('Error:', error.message);
+  });
 //
 // GetPatientPredictDecisionTree(115540)
 //   .then((prediction) => {
