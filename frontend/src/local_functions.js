@@ -1,4 +1,4 @@
-// פונקציה לטעינת נתונים מקובץ JSON
+//  JSON
 async function loadJsonFile(filePath) {
   const response = await fetch(filePath);
   if (!response.ok) {
@@ -7,7 +7,7 @@ async function loadJsonFile(filePath) {
   return response.json();
 }
 
-// פונקציה לקבלת תחזית ממודל XGBoost
+//  XGBoost
 export async function GetPatientPredictXGBOOST(patient_id) {
   const modelPredictions = await loadJsonFile('/data/model_predictions.json');
   const patient = modelPredictions.find(p => p.patient_id === patient_id.toString());
@@ -18,7 +18,7 @@ export async function GetPatientPredictXGBOOST(patient_id) {
   }
 }
 
-// פונקציה לקבלת תחזית ממודל DecisionTree
+//  DecisionTree
 export async function GetPatientPredictDecisionTree(patient_id) {
   const modelPredictions = await loadJsonFile('/data/model_predictions.json');
   const patient = modelPredictions.find(p => p.patient_id === patient_id.toString());
@@ -29,7 +29,7 @@ export async function GetPatientPredictDecisionTree(patient_id) {
   }
 }
 
-// פונקציה לקבלת תחזית ממודל LogisticRegression
+//  LogisticRegression
 export async function GetPatientPredictLogisticRegression(patient_id) {
   const modelPredictions = await loadJsonFile('/data/model_predictions.json');
   const patient = modelPredictions.find(p => p.patient_id === patient_id.toString());
@@ -40,7 +40,7 @@ export async function GetPatientPredictLogisticRegression(patient_id) {
   }
 }
 
-// פונקציה לקבלת פרטי מטופל
+// Get Patient Details
 export async function GetPatientDetails(patient_id) {
   const patientDetails = await loadJsonFile('/data/example_test_data.json');
   const patient = patientDetails.find(p => p.patient_id === patient_id.toString());
@@ -51,16 +51,16 @@ export async function GetPatientDetails(patient_id) {
   }
 }
 
-// בדיקות
+// tests
 (async () => {
   try {
     const patientId = '125998';
 
-    // בדיקת פרטי מטופל
+
     const patientDetails = await GetPatientDetails(patientId);
     console.log('Patient Details:', patientDetails);
 
-    // בדיקת תחזיות
+
     const xgboostPrediction = await GetPatientPredictXGBOOST(patientId);
     console.log('XGBoost Prediction:', xgboostPrediction);
 
@@ -75,7 +75,7 @@ export async function GetPatientDetails(patient_id) {
 })();
 
 
-// דוגמאות נוספות
+
 // GetPatientPredictDecisionTree(115540)
 //   .then((prediction) => {
 //     console.log('DecisionTree Prediction:', prediction);
