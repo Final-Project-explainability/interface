@@ -621,6 +621,29 @@ body {
     transform: translateY(-5px); /* Subtle movement for interactivity */
 }
 
+
+/* כפתור "Manage Users" */
+.admin-button {
+    background: linear-gradient(90deg, #ffd700, #ffef9f); /* זהב עד צהוב בהיר */
+    color: #004d66;
+    border: 2px solid #e3b800; /* מסגרת זהובה כהה */
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-button:hover {
+    background: linear-gradient(90deg, #e3b800, #ffca28); /* זהב כהה יותר */
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(227, 184, 0, 0.3); /* צל זהוב */
+}
+
+
+
+
 .logout-button {
     background: linear-gradient(90deg, #ff6f61, #ff867c); /* Soft gradient in red tones */
     color: white; /* White text for good contrast */

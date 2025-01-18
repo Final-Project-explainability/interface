@@ -25,45 +25,50 @@
         </div>
         <button type="submit" class="login-button">Login</button>
       </form>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
-    <div class="register-section">
-      <span>Don't have an account yet?</span>
-      <a href="#" class="register-link">Register</a>
-    </div>
+<!--    <div class="register-section">-->
+<!--      <span>Don't have an account yet?</span>-->
+<!--      <a href="#" class="register-link">Register</a>-->
+<!--    </div>-->
   </div>
 </template>
 
 <script>
 import { ref } from "vue";
+import { login } from "@/data/authService"; // שירות שמנהל את בדיקת ההתחברות
 
 export default {
   name: "Login",
-  props: {
-    onLogin: {
-      type: Function,
-      required: true,
-    },
-  },
-  setup(props) {
+  emits: ["login"], // מאפשר שליחת אירוע התחברות ל-parent
+  setup(_, { emit }) {
     const username = ref("");
     const password = ref("");
+    const errorMessage = ref(""); // הודעת שגיאה במקרה של כשל
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       if (username.value && password.value) {
-        props.onLogin(username.value);
+        const result = await login(username.value, password.value); // בדיקת התחברות
+        if (result.success) {
+          emit("login", result.user); // שולח את פרטי המשתמש ל-parent
+        } else {
+          errorMessage.value = result.message; // מציג הודעת שגיאה
+        }
       } else {
-        alert("Please fill in both fields");
+        errorMessage.value = "Please fill in both fields.";
       }
     };
 
     return {
       username,
       password,
+      errorMessage,
       handleSubmit,
     };
   },
 };
 </script>
+
 
 <!--<style scoped>-->
 <!--/* General Styling */-->

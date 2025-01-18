@@ -39,12 +39,12 @@ export default {
   },
   data() {
     return {
-      graphTypes: ["Bar", "Line", "LIME", "Pie", "Radar"],
+      graphTypes: ["Bar", "Line", "Pie", "Radar"],
       activeGraphType: "Bar", // ברירת מחדל
       graphData: {
         Bar: data, // נתונים ל-Bar
         Line: data, // נתונים ל-Line
-        LIME: limeData, // נתונים ל-LIME
+        // LIME: limeData, // נתונים ל-LIME
         Pie: data, // נתונים ל-Pie
         Radar: data, // נתונים ל-Scatter
       },

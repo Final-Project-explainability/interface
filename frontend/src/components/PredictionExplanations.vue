@@ -8,12 +8,19 @@
       <div class="vertical-scroll-container">
         <!-- Scrollable Vertical Container -->
         <div class="models-wrapper">
-          <ModelExplainableSection
-            v-for="(filteredModelData, modelName) in filteredPredictionData"
-            :key="modelName"
-            :model-name="modelName"
-            :model-data="filteredModelData"
-          />
+          <!-- מציגים את כל הקבוצות של המודל -->
+          <div v-for="modelGroup in filteredPredictionData" :key="modelGroup.group">
+<!--            &lt;!&ndash; כותרת הקבוצה &ndash;&gt;-->
+<!--            <h3 class="group-title">{{ modelGroup.group }}</h3>-->
+
+            <!-- רשימת הפיצ'רים -->
+            <div class="features-list">
+              <ModelExplainableSection
+                :model-name="modelGroup.group"
+                :model-data="modelGroup.features"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -31,93 +38,90 @@ export default {
     ModelExplainableSection,
     FilterAndSearch,
   },
+  props: {
+    patientId: {
+      type: String,
+      required: true,
+    },
+    selectedModel: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
-      predictionData: {}, // נתוני התחזיות מהמוק
-      filteredPredictionData: {}, // נתונים לאחר סינון
+      predictionData: [], // נתוני התחזיות הגולמיים עבור המודל שנבחר
+      filteredPredictionData: [], // נתונים לאחר סינון
     };
   },
   methods: {
     loadPredictionData() {
-      const rawData = MockGetPatientExplanaition();
+      // קריאה לפונקציה עם patientId ו-selectedModel
+      const rawData = MockGetPatientExplanaition(this.patientId, this.selectedModel);
+      console.log("Raw data from MockGetPatientExplanaition:", rawData);
 
-      // המרה למבנה המתאים
-      this.predictionData = Object.keys(rawData).reduce((acc, modelName) => {
-        acc[modelName] = Object.entries(rawData[modelName]).map(([name, percentage]) => ({
+      // עיבוד המידע: המרה למערך של אובייקטים עם קבוצות ופיצ'רים
+      this.predictionData = Object.entries(rawData || {}).map(([group, features]) => ({
+        group, // למשל: SHAP, Lime, Inherent
+        features: Object.entries(features).map(([name, percentage]) => ({
           name,
           percentage,
-        }));
-        return acc;
-      }, {});
+        })),
+      }));
 
-      // שכפול המידע לצורך סינון
-      this.filteredPredictionData = { ...this.predictionData };
+      console.log("Processed predictionData:", this.predictionData);
+
+      // שמירת המידע כנתונים מסוננים
+      this.filteredPredictionData = [...this.predictionData];
     },
     applyFilters({ filterType, sortOrder, searchQuery }) {
-      let filteredData = { ...this.predictionData };
+      let filteredData = [...this.predictionData]; // שמירת המבנה הבסיסי
 
-      if (filterType === "red") {
-        filteredData = this.filterByColor(filteredData, "red");
-      } else if (filterType === "green") {
-        filteredData = this.filterByColor(filteredData, "green");
-      }
+      filteredData = filteredData.map((group) => {
+        // סינון הפיצ'רים בתוך כל קבוצה
+        let features = [...group.features];
 
-      if (searchQuery) {
-        filteredData = this.filterBySearch(filteredData, searchQuery);
-      }
+        // סינון לפי צבע
+        if (filterType === "red") {
+          features = features.filter((feature) => feature.percentage > 0);
+        } else if (filterType === "green") {
+          features = features.filter((feature) => feature.percentage < 0);
+        }
 
-      if (sortOrder === "desc") {
-        filteredData = this.sortByPercentage(filteredData, "desc");
-      } else if (sortOrder === "asc") {
-        filteredData = this.sortByPercentage(filteredData, "asc");
-      } else if (sortOrder === "abc") {
-        filteredData = this.sortByABC(filteredData);
-      }
+        // חיפוש לפי שם
+        if (searchQuery) {
+          features = features.filter((feature) =>
+            feature.name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        }
+
+        // מיון
+        if (sortOrder === "desc") {
+          features.sort((a, b) => Math.abs(b.percentage) - Math.abs(a.percentage));
+        } else if (sortOrder === "asc") {
+          features.sort((a, b) => Math.abs(a.percentage) - Math.abs(b.percentage));
+        } else if (sortOrder === "abc") {
+          features.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        // החזרת הקבוצה עם הפיצ'רים המסוננים
+        return {
+          ...group,
+          features,
+        };
+      });
 
       this.filteredPredictionData = filteredData;
     },
-    filterByColor(data, color) {
-      const filteredData = {};
-      Object.entries(data).forEach(([modelName, features]) => {
-        filteredData[modelName] = features.filter((feature) => {
-          return color === "red"
-            ? feature.percentage > 0 // אדום: ערכים חיוביים
-            : feature.percentage < 0; // ירוק: ערכים שליליים
-        });
-      });
-      return filteredData;
-    },
-    filterBySearch(data, query) {
-      const filteredData = {};
-      Object.entries(data).forEach(([modelName, features]) => {
-        filteredData[modelName] = features.filter((feature) =>
-          feature.name.toLowerCase().includes(query.toLowerCase())
-        );
-      });
-      return filteredData;
-    },
-    sortByPercentage(data, order) {
-      const sortedData = {};
-      Object.entries(data).forEach(([modelName, features]) => {
-        sortedData[modelName] = [...features].sort((a, b) => {
-          const diff = Math.abs(b.percentage) - Math.abs(a.percentage);
-          return order === "desc" ? diff : -diff;
-        });
-      });
-      return sortedData;
-    },
-    sortByABC(data) {
-      const sortedData = {};
-      Object.entries(data).forEach(([modelName, features]) => {
-        sortedData[modelName] = [...features].sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-      });
-      return sortedData;
-    },
+  },
+  watch: {
+    // ניטור שינויים ב-patientId או ב-selectedModel
+    patientId: "loadPredictionData",
+    selectedModel: "loadPredictionData",
   },
   mounted() {
-    this.loadPredictionData(); // טעינת הנתונים בזמן הרצת הקומפוננטה
+    // טעינת המידע בזמן עליית הקומפוננטה
+    this.loadPredictionData();
   },
 };
 </script>

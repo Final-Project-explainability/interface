@@ -75,7 +75,10 @@ export default {
   },
   methods: {
     formatFeature(feature) {
-      // שינוי פורמט של שם המאפיין
+      // בדיקה האם feature הוא מחרוזת
+      if (!feature || typeof feature !== "string") {
+        return ""; // אם הערך אינו מחרוזת או ריק, נחזיר מחרוזת ריקה
+      }
       return feature
         .replace(/_/g, " ") // החלפת "_" ברווח
         .replace(/\b[a-z]/g, (char) => char.toUpperCase()); // אות ראשונה גדולה בכל מילה

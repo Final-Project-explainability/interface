@@ -41,15 +41,46 @@ export async function GetPatientPredictLogisticRegression(patient_id) {
 }
 
 // Get Patient Details
-export async function GetPatientDetails(patient_id) {
+// export async function GetPatientDetails(patient_id) {
+//   const patientDetails = await loadJsonFile('/data/example_test_data.json');
+//   const patient = patientDetails.find(p => p.patient_id === patient_id.toString());
+//   if (patient) {
+//     return patient;
+//   } else {
+//     throw new Error('Patient not found');
+//   }
+// }
+
+
+export async function GetPatientDetails(patient_id, dictionaryFilePath) {
+  // טוען את פרטי המטופלים מהקובץ
   const patientDetails = await loadJsonFile('/data/example_test_data.json');
+
+  // מוצא את המטופל לפי ה-ID
   const patient = patientDetails.find(p => p.patient_id === patient_id.toString());
-  if (patient) {
-    return patient;
-  } else {
+  if (!patient) {
     throw new Error('Patient not found');
   }
+
+  // טוען את המילון
+  const dictionary = await loadJsonFile('/data/variable_mapping.json');
+
+  // מעדכן את שמות המפתחות באמצעות המילון
+  const updateKeys = (data, dictionary) => {
+    const updatedData = {};
+    for (const key in data) {
+      const newKey = dictionary[key] || key; // מחפש את המפתח במילון; אם לא נמצא, שומר את המפתח הקיים
+      updatedData[newKey] = data[key]; // שומר את הערך תחת המפתח החדש
+    }
+    return updatedData;
+  };
+
+  // מעדכן את המפתחות בפרטי המטופל
+  const updatedPatient = updateKeys(patient, dictionary);
+
+  return updatedPatient;
 }
+
 
 // tests
 (async () => {

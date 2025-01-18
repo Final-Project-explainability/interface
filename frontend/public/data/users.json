@@ -1,0 +1,72 @@
+[
+  {
+    "username": "admin",
+    "fullName": "System Administrator",
+    "title": "None",
+    "licenseId": null,
+    "specialty": "System Admin",
+    "phoneNumber": null,
+    "status": "active",
+    "gender": "male",
+    "email": "admin@system.com",
+    "profilePictureUrl": null,
+    "isAdmin": true,
+    "password": "852056"
+  },
+  {
+    "username": "adam",
+    "fullName": "Adam Smith",
+    "title": "Dr.",
+    "licenseId": "123456789",
+    "specialty": "Cardiologist",
+    "phoneNumber": "123-456-7890",
+    "status": "active",
+    "gender": "male",
+    "email": "adam.smith@hospital.com",
+    "profilePictureUrl": "https://example.com/images/adam.jpg",
+    "isAdmin": false,
+    "password": "123456"
+  },
+  {
+    "username": "sarah",
+    "fullName": "Sarah Johnson",
+    "title": "Prof.",
+    "licenseId": "321654987",
+    "specialty": "Surgery",
+    "phoneNumber": "987-654-3210",
+    "status": "active",
+    "gender": "female",
+    "email": "sarah.johnson@university.com",
+    "profilePictureUrl": "https://example.com/images/sarah.jpg",
+    "isAdmin": false,
+    "password": "professor123"
+  },
+  {
+    "username": "daniel",
+    "fullName": "Daniel Brown",
+    "title": "Dr.",
+    "licenseId": "987654321",
+    "specialty": "Neurologist",
+    "phoneNumber": "555-666-7777",
+    "status": "inactive",
+    "gender": "male",
+    "email": "daniel.brown@hospital.com",
+    "profilePictureUrl": "https://example.com/images/daniel.jpg",
+    "isAdmin": false,
+    "password": "password456"
+  },
+  {
+    "username": "lisa",
+    "fullName": "Lisa White",
+    "title": "Ms.",
+    "licenseId": null,
+    "specialty": null,
+    "phoneNumber": "444-555-6666",
+    "status": "active",
+    "gender": "female",
+    "email": "lisa.white@office.com",
+    "profilePictureUrl": "https://example.com/images/lisa.jpg",
+    "isAdmin": false,
+    "password": "secretary456"
+  }
+]

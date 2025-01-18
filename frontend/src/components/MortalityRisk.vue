@@ -1,12 +1,53 @@
 <template>
   <div class="mortality-risk">
     <h2 class="mortality-title">Mortality Risk</h2>
-    <div class="circle-chart">
+
+    <!-- כאשר נבחר "All" -->
+<div v-if="selectedModel === 'All'" class="circle-list">
+  <div
+    v-for="(model, index) in allModelsData"
+    :key="index"
+    class="circle-item"
+    :style="{ backgroundColor: adjustBackgroundColor(model.percentage) }"
+  >
+    <!-- עיגול מתקדם -->
+    <div class="circle-container">
+      <svg class="circle-svg" viewBox="0 0 50 50">
+        <!-- טבעת רקע -->
+        <circle
+          class="circle-background"
+          cx="25"
+          cy="25"
+          r="20"
+        ></circle>
+        <!-- טבעת התקדמות -->
+        <circle
+          class="circle-progress"
+          cx="25"
+          cy="25"
+          r="20"
+          :style="circleProgressStyle(model.percentage)"
+        ></circle>
+      </svg>
+      <span class="circle-percentage">{{ model.formattedPercentage }}%</span>
+    </div>
+
+    <!-- שם המודל -->
+    <div class="model-details">
+      <span class="model-name">{{ model.name }}</span>
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- במצב רגיל הצג עיגול יחיד -->
+    <div v-else class="circle-chart">
       <svg class="progress-ring" viewBox="0 0 300 300">
         <!-- מעגל פנימי שמשמש כרקע -->
         <circle
           class="progress-ring__background"
-          :style="innerCircleStyle"
+          :style="innerCircleStyle(mortalityPercentage)"
           r="100"
           cx="150"
           cy="150"
@@ -29,11 +70,11 @@
           r="130"
           cx="150"
           cy="150"
-          :style="outerCircleStyle"
+          :style="outerCircleStyle(mortalityPercentage)"
         />
       </svg>
       <div class="center-content">
-        <span class="percentage">{{ mortalityPercentage }}%</span>
+        <span class="percentage">{{ formattedMortalityPercentage }}%</span>
       </div>
     </div>
 
@@ -52,55 +93,83 @@ import ModelSelector from "./ModelSelector.vue";
 export default {
   name: "MortalityRisk",
   components: {
-    ModelSelector, // ייבוא קומפוננטת בחירת המודל
+    ModelSelector,
   },
   props: {
     selectedModel: String,
-    mortalityPercentage: Number,
+    mortalityPercentage: Number, // אחוזי התמותה למודל הנוכחי
+    fetchMortalityRisk: Function, // פונקציה שמביאה נתוני סיכון
   },
   data() {
     return {
-      availableModels: ["XGBOOST", "LogisticRegression", "DecisionTree"], // רשימת המודלים
+      availableModels: ["XGBOOST", "LogisticRegression", "DecisionTree", "All"], // כולל All
+      modelPercentages: {}, // אחוזי תמותה לכל מודל
     };
   },
   computed: {
-    // עיצוב למעגל החיצוני
-    outerCircleStyle() {
-      const percentage = this.mortalityPercentage;
-      const radius = 130; // Radius of the circle
-      const circumference = 2 * Math.PI * radius; // Circumference of the circle
-      const offset = circumference - (percentage / 100) * circumference; // Calculate offset based on percentage
-      const color = this.getColor(percentage); // Get color based on percentage
-      return {
-        strokeDasharray: `${circumference} ${circumference}`, // Full circle
-        strokeDashoffset: offset, // Offset for the animation
-        stroke: color, // Dynamic stroke color
-        transition: "stroke-dashoffset 1.5s ease-out, stroke 1.5s ease-out", // Smooth animation
-      };
+    // ערך מעוגל להצגה במצב רגיל
+    formattedMortalityPercentage() {
+      return (this.mortalityPercentage * 100).toFixed(1);
     },
-    // עיצוב למעגל הפנימי
-    innerCircleStyle() {
-      const color = this.getColor(this.mortalityPercentage, true); // Faded color
-      return {
-        fill: color, // Set the faded fill color
-      };
+    // נתונים עבור כל המודלים כאשר נבחר "All"
+    allModelsData() {
+      return Object.entries(this.modelPercentages).map(([name, percentage]) => ({
+        name,
+        percentage,
+        formattedPercentage: (percentage * 100).toFixed(1),
+      }));
     },
   },
   methods: {
-    // פונקציה שמחזירה צבע לפי אחוזים
+    // צבע עבור מעגל חיצוני
+    outerCircleStyle(percentage) {
+      const radius = 130;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (percentage * circumference);
+      const color = this.getColor(percentage * 100); // הכפלה ב-100
+      return {
+        strokeDasharray: `${circumference} ${circumference}`,
+        strokeDashoffset: offset,
+        stroke: color,
+        transition: "stroke-dashoffset 1.5s ease-out, stroke 1.5s ease-out",
+      };
+    },
+      circleProgressStyle(percentage) {
+    const radius = 20; // רדיוס העיגול
+    const circumference = 2 * Math.PI * radius; // היקף העיגול
+    const offset = circumference - percentage * circumference;
+
+    return {
+      strokeDasharray: `${circumference} ${circumference}`,
+      strokeDashoffset: offset,
+      stroke: this.getColor(percentage * 100),
+      transition: "stroke-dashoffset 1.5s ease-out, stroke 1.5s ease-out",
+    };
+  },
+    // צבע עבור מעגל פנימי
+    innerCircleStyle(percentage) {
+      const color = this.getColor(percentage * 100, true); // צבע דהוי
+      return {
+        fill: color,
+      };
+    },
+    // צבע לפי אחוזים
     getColor(percentage, faded = false) {
       let color;
-      if (percentage <= 33) color = "#4caf50"; // Green for low risk
-      else if (percentage <= 66) color = "#ff9800"; // Orange for medium risk
-      else color = "#f44336"; // Red for high risk
+      if (percentage <= 33) color = "#4caf50"; // ירוק
+      else if (percentage <= 66) color = "#ff9800"; // כתום
+      else color = "#f44336"; // אדום
 
-      // אם אנחנו רוצים צבע דהוי
       if (faded) {
-        return this.adjustColorOpacity(color, 0.3); // Faded version
+        return this.adjustColorOpacity(color, 0.3);
       }
       return color;
     },
-    // פונקציה ליצירת צבע דהוי
+      adjustBackgroundColor(percentage) {
+    const baseColor = this.getColor(percentage * 100); // קבלת הצבע הבסיסי לפי אחוזים
+    return this.adjustColorOpacity(baseColor, 0.1); // הוספת שקיפות 10%
+  },
+    // יוצר צבע דהוי
     adjustColorOpacity(hexColor, opacity) {
       const bigint = parseInt(hexColor.replace("#", ""), 16);
       const r = (bigint >> 16) & 255;
@@ -108,9 +177,29 @@ export default {
       const b = bigint & 255;
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
+    async fetchAllModels() {
+      // קבלת נתוני תמותה לכל המודלים
+      const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
+      const percentages = {};
+      for (const model of models) {
+        percentages[model] = await this.fetchMortalityRisk(model);
+      }
+      this.modelPercentages = percentages;
+    },
+  },
+  watch: {
+    selectedModel: {
+      immediate: true,
+      async handler(newValue) {
+        if (newValue === "All") {
+          await this.fetchAllModels();
+        }
+      },
+    },
   },
 };
 </script>
+
 
 <style scoped>
 /* קונטיינר כללי */
@@ -226,22 +315,6 @@ export default {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* התאמות רספונסיביות */
-@media (max-width: 768px) {
-  .circle-chart {
-    max-width: 200px; /* מעגל קטן יותר למסכים קטנים */
-    height: auto; /* גובה אוטומטי */
-  }
-
-  .percentage {
-    font-size: calc(4vw); /* טקסט קטן יותר למסכים קטנים */
-  }
-
-  .mortality-title {
-    font-size: 24px; /* כותרת קטנה יותר */
-  }
-}
-
 @media (max-width: 480px) {
   .circle-chart {
     max-width: 150px; /* מעגל קטן עוד יותר למסכים קטנים מאוד */
@@ -256,6 +329,67 @@ export default {
     font-size: 20px; /* כותרת קטנה יותר למסכים קטנים מאוד */
   }
 }
+
+/* רשימה עיצובית עבור All */
+.circle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.circle-item {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 1px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* צל עדין */
+  transition: background-color 0.3s ease; /* מעבר חלק בצבע */
+}
+
+.circle-container {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.circle-svg {
+  transform: rotate(-90deg);
+  width: 50px;
+  height: 50px;
+}
+
+.circle-background {
+  fill: transparent;
+  stroke: #e0e0e0;
+  stroke-width: 5;
+}
+
+.circle-progress {
+  fill: transparent;
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s ease-out;
+}
+
+.circle-percentage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.model-details {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000000;
+}
+
+
 
 
 </style>

@@ -39,7 +39,11 @@
       <!-- צד ימין -->
       <div class="right-section">
         <PatientDetails v-if="isDataVisible" :patientData="patientDetails" />
-        <PredictionExplanations v-if="isDataVisible" />
+        <PredictionExplanations
+          v-if="isDataVisible"
+          :selectedModel="selectedModel"
+          :patientId="patientId"
+        />
         <div v-else class="centered-message">
           {{ loadingMessage }}
         </div>
@@ -78,6 +82,7 @@ export default {
       searchQuery: "", // ערך תיבת החיפוש
       selectedModel: "XGBOOST", // מודל ברירת מחדל
       mortalityPercentage: 0, // אחוזי תמותה ברירת מחדל
+      modelPercentages: {}, // אחוזים עבור כל המודלים
       patientDetails: {
         name: "No Data",
         age: 0,
@@ -91,6 +96,7 @@ export default {
     };
   },
   methods: {
+    // מביא פרטי מטופל לפי מזהה
     async fetchPatientDetails() {
       try {
         const details = await GetPatientDetails(this.patientId);
@@ -99,21 +105,38 @@ export default {
         this.errorMessage = "Failed to fetch patient details: " + error.message;
       }
     },
-    async fetchMortalityRisk() {
+
+    // מביא את נתוני סיכון התמותה
+    async fetchMortalityRisk(model) {
       try {
-        let prediction;
-        if (this.selectedModel === "XGBOOST") {
-          prediction = await GetPatientPredictXGBOOST(this.patientId);
-        } else if (this.selectedModel === "DecisionTree") {
-          prediction = await GetPatientPredictDecisionTree(this.patientId);
-        } else if (this.selectedModel === "LogisticRegression") {
-          prediction = await GetPatientPredictLogisticRegression(this.patientId);
+        if (model === "XGBOOST") {
+          return await GetPatientPredictXGBOOST(this.patientId);
+        } else if (model === "DecisionTree") {
+          return await GetPatientPredictDecisionTree(this.patientId);
+        } else if (model === "LogisticRegression") {
+          return await GetPatientPredictLogisticRegression(this.patientId);
         }
-        this.mortalityPercentage = prediction;
       } catch (error) {
         this.errorMessage = "Failed to fetch mortality risk: " + error.message;
+        return 0;
       }
     },
+
+    // מביא את כל הנתונים עבור שלושת המודלים
+    async fetchAllModels() {
+      try {
+        const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
+        const percentages = {};
+        for (const model of models) {
+          percentages[model] = await this.fetchMortalityRisk(model);
+        }
+        this.modelPercentages = percentages;
+      } catch (error) {
+        this.errorMessage = "Failed to fetch model data: " + error.message;
+      }
+    },
+
+    // מטפל בחיפוש מטופל
     async handlePatientSearch(query) {
       this.patientId = query;
       this.errorMessage = "";
@@ -121,7 +144,13 @@ export default {
 
       try {
         await this.fetchPatientDetails();
-        await this.fetchMortalityRisk();
+        if (this.selectedModel === "All") {
+          await this.fetchAllModels();
+        } else {
+          this.mortalityPercentage = await this.fetchMortalityRisk(
+            this.selectedModel
+          );
+        }
         this.isDataVisible = true;
       } catch (error) {
         this.errorMessage = "Error during patient search: " + error.message;
@@ -137,9 +166,13 @@ export default {
     }
   },
   watch: {
-    async selectedModel() {
+    async selectedModel(newValue) {
       if (this.isDataVisible) {
-        await this.fetchMortalityRisk();
+        if (newValue === "All") {
+          await this.fetchAllModels();
+        } else {
+          this.mortalityPercentage = await this.fetchMortalityRisk(newValue);
+        }
       }
     },
   },

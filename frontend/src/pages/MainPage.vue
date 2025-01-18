@@ -1,16 +1,18 @@
 <template>
   <div class="main-container">
     <div class="left-panel">
-      <!-- Show Dashboard if logged in, otherwise show Login -->
       <Dashboard
         v-if="isLoggedIn"
         :user="userDetails"
-        @logout="handleLogout"/>
-      <Login v-else @login="handleLogin"/>
+        @logout="handleLogout"
+      />
+      <Login
+        v-else
+        @login="handleLogin"
+      />
     </div>
     <div class="right-panel">
-      <!-- InfoPanel for global and local navigation -->
-      <InfoPanel :isLoggedIn="isLoggedIn"/>
+      <InfoPanel :isLoggedIn="isLoggedIn" />
     </div>
   </div>
 </template>
@@ -29,17 +31,13 @@ export default {
   },
   data() {
     return {
-      isLoggedIn: false, // Track login status
-      userDetails: null, // Store user details
+      isLoggedIn: false, // מעקב אחרי מצב התחברות
+      userDetails: null, // שמירת פרטי המשתמש המחובר
     };
   },
   methods: {
-    handleLogin(username) {
-      this.userDetails = {
-        name: username,
-        licenseId: "123465",
-        specialty: "ER Physician",
-      };
+    handleLogin(user) {
+      this.userDetails = user; // שמירת פרטי המשתמש שהתקבלו מ-Login
       this.isLoggedIn = true;
     },
     handleLogout() {
@@ -49,35 +47,6 @@ export default {
   },
 };
 </script>
-
-<!--<style scoped>-->
-<!--.main-container {-->
-<!--  display: flex;-->
-<!--  width: 100%;-->
-<!--  height: 100vh;-->
-<!--}-->
-
-<!--.left-panel {-->
-<!--  flex: 6;-->
-<!--  background-color: #004d4d;-->
-<!--  color: #ffffff;-->
-<!--  padding: 60px;-->
-<!--  display: flex;-->
-<!--  flex-direction: column;-->
-<!--  justify-content: center;-->
-<!--  align-items: center;-->
-<!--}-->
-
-<!--.right-panel {-->
-<!--  flex: 3;-->
-<!--  background-color: #ffffff;-->
-<!--  padding: 40px;-->
-<!--  display: flex;-->
-<!--  flex-direction: column;-->
-<!--  justify-content: center;-->
-<!--  align-items: center;-->
-<!--}-->
-<!--</style>-->
 
 <style>
 @import "../styles.css";

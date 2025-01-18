@@ -60,7 +60,7 @@ export default {
   methods: {
     async fetchPatients() {
       try {
-        const response = await fetch("/project_data/training_v2.csv");
+        const response = await fetch("/project_data/example_test_data.csv");
         if (!response.ok) {
           throw new Error("Failed to fetch patient data");
         }
