@@ -118,9 +118,9 @@ export async function GetPatientDetails(patient_id, dictionaryFilePath) {
 export async function GetPatientExplanation(patientId, modelName) {
   try {
     const data = await import(`./JSON/patient_contributions/patient_${patientId}_explanation.json`);
-    if (modelName in data) {
+    try {
       return data[modelName];
-    } else {
+    } catch (error) {
       console.error(`Model name '${modelName}' not found for patient ${patientId}.`);
       return null;
     }
