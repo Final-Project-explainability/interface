@@ -1,4 +1,6 @@
 //  JSON
+import predictionExplain from "@/JSON/patient_prediction_explain_mock.json";
+
 async function loadJsonFile(filePath) {
   const response = await fetch(filePath);
   if (!response.ok) {
@@ -104,6 +106,30 @@ export async function GetPatientDetails(patient_id, dictionaryFilePath) {
     console.error('Error during tests:', error.message);
   }
 })();
+
+
+/**
+ * Retrieves the explanation data for a specific patient and model.
+ *
+ * @param {number} patientId - The unique identifier for the patient.
+ * @param {string} modelName - The name of the prediction model.
+ * @returns {object|null} - The explanation data as a JSON object, or null if not found.
+ */
+export async function GetPatientExplanation(patientId, modelName) {
+  try {
+    const data = await import(`./JSON/patient_contributions/patient_${patientId}_explanation.json`);
+    if (modelName in data) {
+      return data[modelName];
+    } else {
+      console.error(`Model name '${modelName}' not found for patient ${patientId}.`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error importing explanation for patient ${patientId}:`, error);
+    return null;
+  }
+}
+
 
 
 

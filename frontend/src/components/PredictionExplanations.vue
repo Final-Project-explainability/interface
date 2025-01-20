@@ -29,6 +29,7 @@
 
 <script>
 import { MockGetPatientExplanaition } from "../local_functions_mock";
+import { GetPatientExplanation} from "../local_functions";
 import ModelExplainableSection from "./ModelExplainableSection.vue";
 import FilterAndSearch from "./FilterAndSearch.vue";
 
@@ -55,9 +56,9 @@ export default {
     };
   },
   methods: {
-    loadPredictionData() {
+    async loadPredictionData() {
       // קריאה לפונקציה עם patientId ו-selectedModel
-      const rawData = MockGetPatientExplanaition(this.patientId, this.selectedModel);
+      const rawData = await GetPatientExplanation(this.patientId, this.selectedModel);
       console.log("Raw data from MockGetPatientExplanaition:", rawData);
 
       // עיבוד המידע: המרה למערך של אובייקטים עם קבוצות ופיצ'רים
