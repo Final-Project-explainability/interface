@@ -59,6 +59,7 @@ export default {
     async loadPredictionData() {
       // קריאה לפונקציה עם patientId ו-selectedModel
       const rawData = await GetPatientExplanation(this.patientId, this.selectedModel);
+      // const rawData = await MockGetPatientExplanaition(this.patientId, this.selectedModel);
       console.log("Raw data from MockGetPatientExplanaition:", rawData);
 
       // עיבוד המידע: המרה למערך של אובייקטים עם קבוצות ופיצ'רים

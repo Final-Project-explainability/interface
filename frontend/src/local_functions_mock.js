@@ -1,5 +1,6 @@
 import patientDetails from './JSON/patient_details_mock.json';
 import predictionExplain from './JSON/patient_prediction_explain_mock.json';
+// import predictionExplain from './JSON/patient_contributions/patient_1428_explanation.json';
 
 export function MockGetPatientDeatails(id) {
   return patientDetails; // החזרת נתוני המטופל

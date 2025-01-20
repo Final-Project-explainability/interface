@@ -117,7 +117,9 @@ export async function GetPatientDetails(patient_id, dictionaryFilePath) {
  */
 export async function GetPatientExplanation(patientId, modelName) {
   try {
-    const data = await import(`./JSON/patient_contributions/patient_${patientId}_explanation.json`);
+    // const data = await import(`./JSON/patient_contributions/patient_${patientId}_explanation.json`);
+    const data = await loadJsonFile(`/data/patient_contributions/patient_${patientId}_explanation.json`);
+    console.log('Patient Explanation:', data[modelName]);
     try {
       return data[modelName];
     } catch (error) {
