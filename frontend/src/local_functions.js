@@ -56,7 +56,7 @@ export async function GetPatientPredictLogisticRegression(patient_id) {
 
 export async function GetPatientDetails(patient_id, dictionaryFilePath) {
   // טוען את פרטי המטופלים מהקובץ
-  const patientDetails = await loadJsonFile('/data/example_test_data.json');
+  const patientDetails = await loadJsonFile('/data/patients_details.json');
 
   // מוצא את המטופל לפי ה-ID
   const patient = patientDetails.find(p => p.patient_id === patient_id.toString());
