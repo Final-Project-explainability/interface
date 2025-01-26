@@ -3,15 +3,21 @@
 // שליפת רשימת כל המשתמשים
 export async function getUsers() {
   try {
+    const token = localStorage.getItem("token"); // שליפת ה-JWT מ-localStorage
+    if (!token) throw new Error("User is not authenticated");
+
     const response = await fetch("http://localhost:3000/users", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // שליחת הטוקן ב-Header
       },
     });
+
     if (!response.ok) {
       throw new Error("Failed to fetch users");
     }
+
     return await response.json();
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -22,36 +28,72 @@ export async function getUsers() {
 // כניסת משתמש (Login)
 export async function login(username, password) {
   try {
-    const users = await getUsers();
-    const user = users.find(
-      (u) => u.username === username && u.password === password
-    );
+    const response = await fetch("http://localhost:3000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
 
-    if (!user) {
-      return { success: false, message: "Invalid username or password" };
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Login failed");
     }
 
-    if (user.status !== "active") {
-      return {
-        success: false,
-        message: "User account is inactive. Please contact the admin.",
-      };
-    }
+    const data = await response.json();
 
-    return { success: true, user };
+    // שמירת ה-JWT ב-localStorage
+    localStorage.setItem("token", data.token);
+
+    return { success: true, user: data.user, token: data.token };
   } catch (error) {
     console.error("Error during login:", error);
-    return { success: false, message: "An error occurred during login." };
+    return { success: false, message: error.message || "Login failed" };
   }
+}
+
+// אימות משתמש מחובר
+export async function verifyAuth() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return { isAuthenticated: false };
+
+    const response = await fetch("http://localhost:3000/auth/verify", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // שליחת הטוקן ל-Backend
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Token is invalid");
+    }
+
+    const data = await response.json();
+    return { isAuthenticated: true, user: data.user };
+  } catch (error) {
+    console.error("Error verifying authentication:", error);
+    localStorage.removeItem("token"); // מחיקת token אם אינו תקף
+    return { isAuthenticated: false };
+  }
+}
+
+// יציאת משתמש (Logout)
+export function logout() {
+  localStorage.removeItem("token"); // הסרת הטוקן מ-localStorage
 }
 
 // הוספת משתמש חדש
 export async function addUser(newUser) {
   try {
+    const token = localStorage.getItem("token"); // טוקן לאימות
     const response = await fetch("http://localhost:3000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // שליחת הטוקן
       },
       body: JSON.stringify(newUser),
     });
@@ -71,10 +113,12 @@ export async function addUser(newUser) {
 // עדכון סטטוס משתמש (פעיל/מושעה)
 export async function toggleUserStatus(userId) {
   try {
+    const token = localStorage.getItem("token"); // טוקן לאימות
     const response = await fetch(`http://localhost:3000/users/${userId}/status`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // שליחת הטוקן
       },
     });
 
@@ -93,10 +137,12 @@ export async function toggleUserStatus(userId) {
 // מחיקת משתמש
 export async function deleteUser(userId) {
   try {
+    const token = localStorage.getItem("token"); // טוקן לאימות
     const response = await fetch(`http://localhost:3000/users/${userId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // שליחת הטוקן
       },
     });
 

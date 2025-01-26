@@ -59,32 +59,42 @@ export default {
 };
 </script>
 
-<!--<style scoped>-->
-<!--.info-panel {-->
-<!--  text-align: center;-->
-<!--  max-width: 700px;-->
-<!--  margin: 0 auto;-->
-<!--}-->
+<style scoped>
+.info-panel {
+  display: flex; /* שימוש ב-Flexbox */
+  flex-direction: column; /* סידור אנכי של התוכן */
+  justify-content: center; /* מרכז תוכן אנכית */
+  align-items: stretch; /* מתיחת התוכן לרוחב */
+  text-align: center; /* ממרכז טקסט */
+  height: 100%; /* כיסוי מלא של הגובה */
+  width: 100%; /* כיסוי מלא של הרוחב */
+  padding: 0px; /* מרווח פנימי */
+  box-sizing: border-box; /* כלול Padding בתוך המידות */
+}
 
-<!--.info-panel h2 {-->
-<!--  font-size: 28px;-->
-<!--  margin-bottom: 20px;-->
-<!--  color: #004d4d;-->
-<!--}-->
+.info-panel h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #004d4d;
+}
 
-<!--.info-panel p {-->
-<!--  font-size: 16px;-->
-<!--  color: #555555;-->
-<!--  line-height: 1.6;-->
-<!--  margin-bottom: 30px;-->
-<!--}-->
+.info-panel p {
+  font-size: 16px;
+  color: #555555;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
 
-<!--.card-container {-->
-<!--  display: flex;-->
-<!--  justify-content: center;-->
-<!--  gap: 40px;-->
-<!--  margin-top: 20px;-->
-<!--}-->
-<!--</style>-->
+.card-container {
+  display: flex; /* שימוש ב-Flexbox */
+  justify-content: center; /* מרכז כרטיסים אופקית */
+  align-items: center; /* מרכז כרטיסים אנכית */
+  gap: 40px; /* רווחים בין כרטיסים */
+  flex-grow: 1; /* מאפשר לכרטיסים לגדול ולמלא את המרחב */
+  width: 100%; /* כיסוי מלא לרוחב */
+  box-sizing: border-box;
+}
+
+</style>
 
 

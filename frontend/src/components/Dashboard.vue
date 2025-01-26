@@ -1,16 +1,11 @@
 <template>
   <div class="user-profile">
+    <!-- אווטאר ופרטי משתמש -->
     <div class="user-avatar"> </div>
-<!--    <div class="user-avatar" v-if="user.profilePictureUrl">-->
-<!--      <img :src="user.profilePictureUrl" alt="User Avatar" />-->
-<!--    </div>-->
-<!--    <div v-else class="user-avatar-placeholder">-->
-<!--      <p>No Avatar</p>-->
-<!--    </div>-->
     <div class="separator"></div>
     <div class="user-details">
       <h2>
-        Hello, {{ user.title !== 'None' ? user.title + ' ' : '' }}{{ user.fullName }}!
+        Hello, {{ user.title !== "None" ? user.title + " " : "" }}{{ user.fullName }}!
       </h2>
       <p v-if="user.licenseId">
         <strong>Medical License ID:</strong> {{ user.licenseId || "N/A" }}
@@ -19,30 +14,38 @@
         <strong>Medical Specialties:</strong> {{ user.specialty || "N/A" }}
       </p>
     </div>
+
     <div class="separator"></div>
+
+    <!-- כפתורי ניווט -->
     <div class="action-buttons">
-      <button class="action-button" @click="openPatientModal">Patient List</button>
-      <button class="action-button" @click="navigateTo('personalArea')">
+      <button class="action-button" @click="navigateTo('Home')">
+        Home
+      </button>
+      <button class="action-button" @click="navigateTo('PatientList')">
+        Patient List
+      </button>
+      <button class="action-button" @click="navigateTo('PersonalArea')">
         Personal Area
       </button>
       <button
         v-if="user.isAdmin"
         class="action-button admin-button"
-        @click="openAdminModal"
+        @click="navigateTo('AdminPanel')"
       >
         <i class="fa fa-tools" aria-hidden="true"></i> Manage Users
       </button>
       <button class="logout-button" @click="onLogout">Logout</button>
     </div>
 
-    <!-- Modal for displaying patient list -->
+    <!-- מודל רשימת מטופלים -->
     <PatientModal
       v-if="showPatientModal"
       :showModal="showPatientModal"
       @onClose="closePatientModal"
     />
 
-    <!-- Modal for Admin Panel -->
+    <!-- מודל ניהול משתמשים -->
     <AdminPanelModal
       v-if="showAdminModal"
       :showModal="showAdminModal"
@@ -80,7 +83,7 @@ export default {
   },
   methods: {
     navigateTo(section) {
-      this.$emit("navigate", section);
+      this.$emit("navigate", section); // שליחת מצב נוכחי ל-MainPage
     },
     openPatientModal() {
       this.showPatientModal = true;

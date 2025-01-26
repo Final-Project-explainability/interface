@@ -27,7 +27,7 @@ body {
 
 /* Left panel */
 .left-panel {
-    flex: 6; /* Takes 6 parts of the container */
+    flex: 1; /* Takes 6 parts of the container */
     background-color: #004d4d; /* Teal background */
     color: #ffffff; /* White text */
     padding: 60px; /* Inner spacing */
@@ -62,43 +62,57 @@ body {
     top: -50px; /* Moves title above login box */
 }
 
-/* Right panel */
+/*!* Right panel *!*/
 .right-panel {
-    flex: 3; /* Takes 3 parts of the container */
+    flex: 2; /* Takes 3 parts of the container */
     background-color: #ffffff; /* White background */
     padding: 40px; /* Inner spacing */
     display: flex; /* Flexbox layout */
     flex-direction: column; /* Stacks children vertically */
     justify-content: center; /* Centers content vertically */
-    align-items: center; /* Centers content horizontally */
+    align-items: stretch; /* Centers content horizontally */
 }
 
-.info-panel {
-    text-align: center; /* Centers text */
-    max-width: 700px; /* Maximum width */
-    margin-bottom: 30px; /* Spacing below panel */
+
+
+/* תוכן בתוך הפאנלים */
+.content-container {
+  width: 100%; /* רוחב מלא */
+  height: 100%; /* גובה מלא */
+  display: flex; /* שימוש ב-Flexbox */
+  flex-direction: column; /* יישור אנכי */
+  justify-content: flex-start; /* התחלה למעלה */
+  align-items: center; /* מרכז */
+  overflow-y: auto; /* גלילה אנכית אם יש יותר מדי תוכן */
 }
 
-.info-panel h2 {
-    font-size: 28px; /* Large font size */
-    margin-bottom: 20px; /* Spacing below heading */
-    color: #004d4d; /* Teal color */
-}
+/*.info-panel {*/
+/*    text-align: center; !* Centers text *!*/
+/*    max-width: 700px; !* Maximum width *!*/
+/*    margin-bottom: 30px; !* Spacing below panel *!*/
+/*    margin-left: 20px;*/
+/*}*/
 
-.info-panel p {
-    font-size: 16px; /* Medium font size */
-    color: #555555; /* Gray text color */
-    line-height: 1.6; /* Line spacing */
-    margin-bottom: 30px; /* Spacing below paragraph */
-}
+/*.info-panel h2 {*/
+/*    font-size: 28px; !* Large font size *!*/
+/*    margin-bottom: 20px; !* Spacing below heading *!*/
+/*    color: #004d4d; !* Teal color *!*/
+/*}*/
 
-/* Card container */
-.card-container {
-    display: flex; /* Flexbox layout */
-    justify-content: center; /* Centers children horizontally */
-    gap: 40px; /* Space between cards */
-    margin-top: 20px; /* Spacing above cards */
-}
+/*.info-panel p {*/
+/*    font-size: 16px; !* Medium font size *!*/
+/*    color: #555555; !* Gray text color *!*/
+/*    line-height: 1.6; !* Line spacing *!*/
+/*    margin-bottom: 30px; !* Spacing below paragraph *!*/
+/*}*/
+
+/*!* Card container *!*/
+/*.card-container {*/
+/*    display: flex; !* Flexbox layout *!*/
+/*    justify-content: center; !* Centers children horizontally *!*/
+/*    gap: 40px; !* Space between cards *!*/
+/*    margin-top: 20px; !* Spacing above cards *!*/
+/*}*/
 
 .card {
     background-color: #f9f9f9; /* Light gray background */
@@ -565,8 +579,8 @@ body {
 }
 
 .user-avatar {
-    width: 250px;
-    height: 250px;
+    width: 180px;
+    height: 180px;
     border-radius: 50%; /* Ensures the image is circular */
     border: 4px solid #4db6ac; /* Soft green border for highlighting */
     background-image: url('https://t4.ftcdn.net/jpg/06/32/90/79/360_F_632907942_M6CVHD1ivhUrWK1X49PkBlSH3ooNPsog.jpg'); /* URL for profile image */
@@ -668,6 +682,18 @@ body {
 }
 
 
+/* סגנונות עבור רכיב Dashboard */
+/*.dashboard-container {*/
+/*  display: flex;*/
+/*  flex-direction: column;*/
+/*  justify-content: center; !* או flex-start אם רוצים שהתוכן יתחיל מלמעלה *!*/
+/*  align-items: center;*/
+/*  height: 100%; !* תופס את כל הגובה *!*/
+/*  width: 115%; !* מתאים לרוחב הקונטיינר *!*/
+/*  padding: 20px;*/
+/*  box-sizing: border-box; !* כולל padding בחישוב הגודל *!*/
+/*  overflow: hidden; !* מאפשר גלילה אם יש יותר מדי תוכן *!*/
+/*}*/
 
 
 

@@ -3,27 +3,42 @@ import MainPage from "../pages/MainPage.vue";
 import Global from "../pages/Global.vue";
 import Local from "../pages/Local.vue";
 
+
 const routes = [
   {
     path: "/",
     name: "Main",
     component: MainPage,
+    meta: { requiresAuth: true }, // נתיב מוגן - דורש התחברות
   },
   {
     path: "/global",
     name: "Global",
     component: Global,
+    meta: { requiresAuth: true }, // נתיב מוגן
   },
   {
     path: "/local",
     name: "Local",
     component: Local,
+    meta: { requiresAuth: true }, // נתיב מוגן
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+// Middleware: הגנה על נתיבים
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem("token"); // בדיקה אם המשתמש מחובר (קיים JWT)
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next({ name: "Login" }); // הפניה למסך התחברות
+  } else {
+    next(); // אישור מעבר לנתיב
+  }
 });
 
 export default router;

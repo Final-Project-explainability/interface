@@ -22,8 +22,18 @@
             </button>
           </div>
 
+          <!-- Error Message -->
+          <div v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+          </div>
+
+          <!-- Loading Indicator -->
+          <div v-if="isLoading" class="loading-indicator">
+            Loading users...
+          </div>
+
           <!-- User List -->
-          <div class="user-list">
+          <div v-if="!isLoading && filteredUsers.length" class="user-list">
             <div
               v-for="user in filteredUsers"
               :key="user._id"
@@ -41,86 +51,60 @@
               </div>
 
               <!-- User Details -->
-              <!-- User Details -->
               <div v-if="selectedUser?._id === user._id" class="user-details">
-                <!-- הצגת פרטים עם בדיקת null או סטרינג ריק -->
-                <div
-                  class="detail-item"
-                  v-if="user.fullName"
-                >
+                <div class="detail-item" v-if="user.fullName">
                   <p>
-                    <i class="fas fa-user"></i>
-                    <strong> Full Name:</strong> {{ user.fullName }}
+                    <strong>Full Name:</strong> {{ user.fullName }}
                   </p>
                 </div>
-                <div
-                  class="detail-item"
-                  v-if="user.email"
-                >
+                <div class="detail-item" v-if="user.email">
                   <p>
-                    <i class="fas fa-envelope"></i>
-                    <strong> Email:</strong> {{ user.email }}
+                    <strong>Email:</strong> {{ user.email }}
                   </p>
                 </div>
-                <div
-                  class="detail-item"
-                  v-if="user.phoneNumber"
-                >
+                <div class="detail-item" v-if="user.phoneNumber">
                   <p>
-                    <i class="fas fa-phone"></i>
-                    <strong> Phone:</strong> {{ user.phoneNumber }}
+                    <strong>Phone:</strong> {{ user.phoneNumber }}
                   </p>
                 </div>
-                <div
-                  class="detail-item"
-                  v-if="user.gender"
-                >
+                <div class="detail-item" v-if="user.gender">
                   <p>
-                    <i class="fas fa-venus-mars"></i>
-                    <strong> Gender:</strong> {{ user.gender }}
+                    <strong>Gender:</strong> {{ user.gender }}
                   </p>
                 </div>
-                <div
-                  class="detail-item"
-                  v-if="user.title"
-                >
+                <div class="detail-item" v-if="user.title">
                   <p>
-                    <i class="fas fa-id-badge"></i>
-                    <strong> Title:</strong> {{ user.title }}
+                    <strong>Title:</strong> {{ user.title }}
                   </p>
                 </div>
-                <div
-                  class="detail-item"
-                  v-if="user.specialty"
-                >
+                <div class="detail-item" v-if="user.specialty">
                   <p>
-                    <i class="fas fa-briefcase"></i>
-                    <strong> Specialty:</strong> {{ user.specialty }}
+                    <strong>Specialty:</strong> {{ user.specialty }}
                   </p>
                 </div>
 
-                <!-- כפתורי פעולה -->
+                <!-- Action Buttons -->
                 <div class="actions">
                   <button
                     class="status-button"
-                    @click="toggleStatus(user._id)"
+                    @click="handleToggleStatus(user._id)"
                   >
-                    <i
-                      class="fas"
-                      :class="user.status === 'active' ? 'fa-toggle-on' : 'fa-toggle-off'"
-                    ></i>
                     {{ user.status === "active" ? "Suspend" : "Activate" }}
                   </button>
                   <button
                     class="delete-button"
-                    @click="deleteUser(user._id)"
+                    @click="handleDeleteUser(user._id)"
                   >
-                    <i class="fas fa-trash-alt"></i>
                     Delete
                   </button>
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- No Users Found -->
+          <div v-if="!isLoading && !filteredUsers.length" class="no-users">
+            No users found.
           </div>
         </div>
       </div>
@@ -137,6 +121,7 @@
 
 <script>
 import AddUserModal from "./AddUserModal.vue";
+import { getUsers, toggleUserStatus, deleteUser } from "@/data/authService.js"; // Import API methods
 
 export default {
   name: "ManageUsersModal",
@@ -150,11 +135,13 @@ export default {
       selectedUser: null, // Currently selected user
       searchQuery: "", // Search bar input
       showAddUserModal: false, // Whether the AddUserModal is shown
+      isLoading: false, // Loading state
+      errorMessage: "", // Error message
     };
   },
   computed: {
     filteredUsers() {
-      // Filter users based on search query
+      if (!Array.isArray(this.users)) return [];
       return this.users.filter(
         (user) =>
           user.username.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
@@ -167,54 +154,55 @@ export default {
   },
   methods: {
     toggleDetails(user) {
-      // Toggle user details display
       this.selectedUser = this.selectedUser?._id === user._id ? null : user;
     },
-    async deleteUser(userId) {
+    async handleDeleteUser(userId) {
       try {
-        const response = await fetch(`http://localhost:3000/users/${userId}`, {
-          method: "DELETE",
-        });
-        if (!response.ok) throw new Error("Failed to delete user");
-        this.fetchUsers();
+        const result = await deleteUser(userId); // Use the deleteUser function from api.js
+        if (result.success) {
+          this.refreshUsers(); // Refresh user list
+        } else {
+          this.errorMessage = result.message || "Failed to delete user.";
+        }
       } catch (error) {
         console.error("Error deleting user:", error);
+        this.errorMessage = "Failed to delete user. Please try again.";
       }
     },
-    async toggleStatus(userId) {
+    async handleToggleStatus(userId) {
       try {
-        const response = await fetch(
-          `http://localhost:3000/users/${userId}/status`,
-          {
-            method: "PATCH",
-          }
-        );
-        if (!response.ok) throw new Error("Failed to toggle status");
-        this.fetchUsers();
+        const result = await toggleUserStatus(userId); // Use the toggleUserStatus function from api.js
+        if (result.success) {
+          this.refreshUsers(); // Refresh user list
+        } else {
+          this.errorMessage = result.message || "Failed to toggle user status.";
+        }
       } catch (error) {
         console.error("Error toggling user status:", error);
+        this.errorMessage = "Failed to update user status. Please try again.";
       }
     },
     async fetchUsers() {
-      // Fetch the list of users from the API
+      this.isLoading = true;
+      this.errorMessage = ""; // Clear any existing error messages
       try {
-        const response = await fetch("http://localhost:3000/users");
-        const data = await response.json();
+        const data = await getUsers(); // Use the getUsers function from api.js
         this.users = data;
       } catch (error) {
         console.error("Failed to fetch users:", error);
+        this.errorMessage = "Failed to load users. Please try again.";
+        this.users = [];
+      } finally {
+        this.isLoading = false;
       }
     },
     openAddUserModal() {
-      // Open AddUserModal
       this.showAddUserModal = true;
     },
     closeAddUserModal() {
-      // Close AddUserModal
       this.showAddUserModal = false;
     },
     refreshUsers() {
-      // Refresh the list of users after adding a new user
       this.fetchUsers();
     },
   },
