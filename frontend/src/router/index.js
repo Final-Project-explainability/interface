@@ -9,13 +9,13 @@ const routes = [
     path: "/",
     name: "Main",
     component: MainPage,
-    meta: { requiresAuth: true }, // נתיב מוגן - דורש התחברות
+    // meta: { requiresAuth: true }, // נתיב מוגן - דורש התחברות
   },
   {
     path: "/global",
     name: "Global",
     component: Global,
-    meta: { requiresAuth: true }, // נתיב מוגן
+    // meta: { requiresAuth: true }, // נתיב מוגן
   },
   {
     path: "/local",
