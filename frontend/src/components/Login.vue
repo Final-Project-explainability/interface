@@ -46,18 +46,31 @@ export default {
     const password = ref("");
     const errorMessage = ref(""); // הודעת שגיאה במקרה של כשל
 
-    const handleSubmit = async () => {
-      if (username.value && password.value) {
-        const result = await login(username.value, password.value); // בדיקת התחברות
-        if (result.success) {
-          emit("login", result.user); // שולח את פרטי המשתמש ל-parent
-        } else {
-          errorMessage.value = result.message; // מציג הודעת שגיאה
-        }
+
+  const handleSubmit = async () => {
+    if (username.value.trim() && password.value) {
+      const cleanedUsername = username.value.trim().toLowerCase();
+
+      console.log("📢 Attempting login with:", cleanedUsername, password.value); // בדיקה
+
+      const result = await login(cleanedUsername, password.value); // קריאה ל-API
+      console.log("✅ Login response:", result); // בדיקה
+
+      if (result.success) {
+        console.log("📢 Saving user data:", result.user);
+
+        localStorage.setItem("token", result.token); // ✅ שמירת הטוקן
+        localStorage.setItem("userId", result.user._id); // ✅ שמירת ה-ID
+
+        emit("login", result.user); // שולח את פרטי המשתמש ל-parent
       } else {
-        errorMessage.value = "Please fill in both fields.";
+        errorMessage.value = result.message; // מציג הודעת שגיאה
       }
-    };
+    } else {
+      errorMessage.value = "Please fill in both fields.";
+    }
+  };
+
 
     return {
       username,

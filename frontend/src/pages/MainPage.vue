@@ -37,7 +37,7 @@ import Dashboard from "../components/Dashboard.vue";
 import InfoPanel from "../components/InfoPanel.vue";
 import PatientList from "../components/PatientList.vue";
 import AdminPanel from "@/components/AdminPanel.vue";
-// import PersonalArea from "../components/PersonalArea.vue";
+import PersonalArea from "../components/PersonalArea.vue";
 
 export default {
   name: "MainPage",
@@ -47,7 +47,7 @@ export default {
     Dashboard,
     InfoPanel,
     PatientList,
-    // PersonalArea,
+    PersonalArea,
   },
   data() {
     return {

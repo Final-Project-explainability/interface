@@ -88,6 +88,7 @@ app.post("/login", async (req, res) => {
     res.json({
       token,
       user: {
+        _id: user._id,
         licenseId: user.licenseId,
         username: user.username,
         fullName: user.fullName,
@@ -201,9 +202,30 @@ app.delete("/users/:id", authenticateToken, async (req, res) => {
 });
 
 
+// ROUTE: קבלת פרטי משתמש ספציפי לפי ID
+app.get("/user/:id", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params; // קבלת ה-ID מה-URL
+    const user = await User.findById(id).select("-password"); // שולף משתמש ומסתיר את הסיסמה
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(user); // שליחת הנתונים ל-Frontend
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res.status(500).json({ error: "Failed to fetch user details" });
+  }
+});
+
+
 
 // הפעלת השרת
 const PORT = 3000;
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
+
+
+

@@ -1,5 +1,8 @@
 // api.js
 
+import axios from "axios";
+
+
 // שליפת רשימת כל המשתמשים
 export async function getUsers() {
   try {
@@ -157,3 +160,32 @@ export async function deleteUser(userId) {
     return { success: false, message: "An error occurred while deleting the user." };
   }
 }
+
+
+
+
+// שליפת פרטי משתמש לפי ID
+export const getUserProfile = async (userId, token) => {
+  try {
+    const response = await axios.get(`http://localhost:3000/user/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw error;
+  }
+};
+
+// עדכון פרטי המשתמש
+export const updateUserProfile = async (userId, updatedData, token) => {
+  try {
+    const response = await axios.patch(`http://localhost:3000/users/${userId}`, updatedData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    throw error;
+  }
+};
