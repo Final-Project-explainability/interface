@@ -1,7 +1,11 @@
 <template>
   <div class="user-profile">
     <!-- אווטאר ופרטי משתמש -->
-    <div class="user-avatar"> </div>
+<!--    <div class="user-avatar"> </div>-->
+    <div
+      class="user-avatar"
+      :style="{ backgroundImage: `url(${user.profilePictureUrl || defaultAvatar})` }"
+    ></div>
     <div class="separator"></div>
     <div class="user-details">
       <h2>
@@ -77,6 +81,9 @@ export default {
   },
   data() {
     return {
+      // תמונת ברירת מחדל במקרה שאין תמונה
+      defaultAvatar:
+        "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg",
       showPatientModal: false,
       showAdminModal: false,
     };

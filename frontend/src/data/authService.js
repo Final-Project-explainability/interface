@@ -177,11 +177,15 @@ export const getUserProfile = async (userId, token) => {
   }
 };
 
-// עדכון פרטי המשתמש
+
+// Update user profile
 export const updateUserProfile = async (userId, updatedData, token) => {
   try {
-    const response = await axios.patch(`http://localhost:3000/users/${userId}`, updatedData, {
-      headers: { Authorization: `Bearer ${token}` },
+    const response = await axios.patch(`http://localhost:3000/users/${userId}/updateDetails`, updatedData, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
     });
     return response.data;
   } catch (error) {
@@ -189,3 +193,98 @@ export const updateUserProfile = async (userId, updatedData, token) => {
     throw error;
   }
 };
+
+
+export const changeUserPassword = async (userId, currentPassword, newPassword) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await axios.patch(`http://localhost:3000/users/${userId}/password`, {
+      currentPassword,
+      newPassword
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    return response.data; // אמור להחזיר { success: true, message: "..." }
+  } catch (error) {
+    console.error("Error changing password:", error);
+    throw error.response?.data || { success: false, message: "Server error" };
+  }
+};
+
+
+// פונקציה לבדיקת שם משתמש בלייב
+export async function checkUsernameAvailability(username) {
+  try {
+    const response = await fetch(`http://localhost:3000/users/check-username/${username}`);
+    if (!response.ok) throw new Error("Failed to check username");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error checking username:", error);
+    return { available: false, message: "Error checking username" };
+  }
+}
+
+export async function checkLicenseAvailability(licenseId, userId = null) {
+  try {
+    let url = `http://localhost:3000/users/check-license/${licenseId}`;
+    if (userId) url += `?userId=${userId}`;
+
+    const response = await fetch(url);
+    return await response.json(); // { available: true/false }
+  } catch (error) {
+    console.error("Error checking license ID:", error);
+    return { available: false };
+  }
+}
+
+
+
+
+export const resetUserPassword = async (userId, newPassword) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await axios.patch(
+      `http://localhost:3000/users/${userId}/reset-password`,
+      { newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return { success: false, message: "Failed to reset password." };
+  }
+};
+
+
+
+export async function updateUser(userId, userData) {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axios.patch(
+      `http://localhost:3000/users/${userId}/updateDetails`,
+      userData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return { success: true, user: response.data.user };
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return { success: false, message: "Failed to update user." };
+  }
+}
+
+

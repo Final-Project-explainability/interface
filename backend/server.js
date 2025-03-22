@@ -29,7 +29,11 @@ mongoose
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   fullName: { type: String, required: true },
-  title: { type: String, enum: ["Dr.", "Prof.", "Mr.", "Ms.", "None"], default: "None" },
+  title: {
+    type: String,
+    enum: ["Dr.", "Prof.", "Mr.", "Ms.", "Mrs.", "Miss", "Rev.", "Rabbi", "Fr.", "Eng.", "Adv.", "Hon.", "Sir", "Dame", "None"],
+    default: "None"
+  },
   licenseId: { type: String, default: null },
   specialty: { type: String, default: null },
   phoneNumber: { type: String, default: null },
@@ -138,27 +142,33 @@ app.post("/users", async (req, res) => {
 app.patch("/users/:id/password", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    const user = await User.findByIdAndUpdate(
-      id,
-      { password: hashedPassword },
-      { new: true }
-    );
-
+    const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    res.json({ message: "Password updated successfully" });
+    // בדיקת סיסמה נוכחית
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Incorrect current password" });
+    }
+
+    // רק מגדירים את הסיסמה החדשה - בלי הצפנה
+    user.password = newPassword;
+
+    // פה ה-pre('save') של mongoose כבר יצפין עבורך
+    await user.save();
+
+    res.json({ success: true, message: "Password updated successfully" });
   } catch (error) {
-    console.error("Error updating password:", error);
-    res.status(500).json({ error: "Failed to update password" });
+    console.error("❌ Error updating password:", error);
+    res.status(500).json({ success: false, message: "Failed to update password" });
   }
 });
+
+
 
 
 app.patch("/users/:id/status", authenticateToken, async (req, res) => {
@@ -181,6 +191,29 @@ app.patch("/users/:id/status", authenticateToken, async (req, res) => {
   }
 });
 
+// Update user profile (protected)
+app.patch("/users/:id/updateDetails", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body; // Get the updated data from the request body
+
+    // Prevent updating the password directly here for security reasons
+    if (updates.password) {
+      return res.status(400).json({ error: "Password update is not allowed here" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true }).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "User updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ error: "Failed to update user profile" });
+  }
+});
 
 
 // ROUTE: מחיקת משתמש
@@ -219,6 +252,68 @@ app.get("/user/:id", authenticateToken, async (req, res) => {
   }
 });
 
+
+// ROUTE: בדיקת זמינות שם משתמש (Case-Insensitive)
+app.get("/users/check-username/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    // חיפוש שם משתמש בלי תלות באותיות קטנות/גדולות
+    const existingUser = await User.findOne({ username: { $regex: `^${username}$`, $options: "i" } });
+
+    if (existingUser) {
+      return res.json({ available: false, message: "Username is already taken" });
+    }
+
+    res.json({ available: true, message: "Username is available" });
+  } catch (error) {
+    console.error("Error checking username:", error);
+    res.status(500).json({ error: "Server error while checking username" });
+  }
+});
+
+
+app.get("/users/check-license/:licenseId", async (req, res) => {
+  try {
+    const { licenseId } = req.params;
+    const { userId } = req.query;
+
+    if (!licenseId) {
+      return res.status(400).json({ error: "License ID is required" });
+    }
+
+    const existingUser = await User.findOne({ licenseId });
+
+    if (existingUser && existingUser._id.toString() !== userId) {
+      return res.json({ available: false, message: "License ID is already taken" });
+    }
+
+    res.json({ available: true, message: "License ID is available" });
+  } catch (error) {
+    console.error("Error checking license ID:", error);
+    res.status(500).json({ error: "Server error while checking license ID" });
+  }
+});
+
+
+// אדמין משנה סיסמה למשתמש
+app.patch("/users/:id/reset-password", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    user.password = newPassword; // mongoose pre('save') יצפין
+    await user.save();
+
+    res.json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({ success: false, message: "Failed to reset password" });
+  }
+});
 
 
 // הפעלת השרת
