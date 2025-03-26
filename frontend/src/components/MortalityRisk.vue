@@ -1,200 +1,165 @@
 <template>
-  <div class="mortality-risk">
-    <h2 class="mortality-title">Mortality Risk</h2>
+  <div class="mortality-risk-card" :style="getCardBoxShadow(mortalityPercentage)">
+    <h3 class="mortality-risk-title">Mortality Risk</h3>
 
-    <!-- כאשר נבחר "All" -->
-<div v-if="selectedModel === 'All'" class="circle-list">
-  <div
-    v-for="(model, index) in allModelsData"
-    :key="index"
-    class="circle-item"
-    :style="{ backgroundColor: adjustBackgroundColor(model.percentage) }"
-  >
-    <!-- עיגול מתקדם -->
-    <div class="circle-container">
-      <svg class="circle-svg" viewBox="0 0 50 50">
-        <!-- טבעת רקע -->
-        <circle
-          class="circle-background"
-          cx="25"
-          cy="25"
-          r="20"
-        ></circle>
-        <!-- טבעת התקדמות -->
-        <circle
-          class="circle-progress"
-          cx="25"
-          cy="25"
-          r="20"
-          :style="circleProgressStyle(model.percentage)"
-        ></circle>
-      </svg>
-      <span class="circle-percentage">{{ model.formattedPercentage }}%</span>
-    </div>
-
-    <!-- שם המודל -->
-    <div class="model-details">
-      <span class="model-name">{{ model.name }}</span>
-    </div>
-  </div>
-</div>
-
-
-
-    <!-- במצב רגיל הצג עיגול יחיד -->
-    <div v-else class="circle-chart">
-      <svg class="progress-ring" viewBox="0 0 300 300">
-        <!-- מעגל פנימי שמשמש כרקע -->
-        <circle
-          class="progress-ring__background"
-          :style="innerCircleStyle(mortalityPercentage)"
-          r="100"
-          cx="150"
-          cy="150"
-        />
-        <!-- רקע טבעת חיצונית -->
-        <circle
-          class="progress-ring__background-outer"
-          stroke="#e0e0e0"
-          stroke-width="15"
-          fill="transparent"
-          r="130"
-          cx="150"
-          cy="150"
-        />
-        <!-- מעגל התקדמות -->
-        <circle
-          class="progress-ring__circle"
-          stroke-width="15"
-          fill="transparent"
-          r="130"
-          cx="150"
-          cy="150"
-          :style="outerCircleStyle(mortalityPercentage)"
-        />
-      </svg>
-      <div class="center-content">
-        <span class="percentage">{{ formattedMortalityPercentage }}%</span>
+    <!-- תצוגת מודל בודד -->
+    <div v-if="selectedModelLocal !== 'All'" class="single-risk-box">
+      <div class="neovital-ring">
+        <svg viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="neoGradient" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0%" :stop-color="startColor" />
+              <stop offset="100%" :stop-color="endColor" />
+            </linearGradient>
+          </defs>
+          <circle class="circle-bg" cx="60" cy="60" r="50" />
+          <circle
+            class="circle-fg"
+            cx="60"
+            cy="60"
+            r="50"
+            :stroke-dasharray="circumference"
+            :stroke-dashoffset="dashOffset"
+            stroke="url(#neoGradient)"
+          />
+        </svg>
+        <div class="center-text" :key="formattedRisk">
+          <div class="percent">{{ formattedRisk }}%</div>
+          <div class="subtitle">Risk Level</div>
+        </div>
       </div>
     </div>
 
-    <!-- קומפוננטת ModelSelector -->
-    <ModelSelector
-      :selectedModel="selectedModel"
-      :models="availableModels"
-      @update:selectedModel="$emit('update:selectedModel', $event)"
-    />
+    <!-- מצב "הכל" -->
+    <div v-else class="multi-risk-box">
+      <div v-for="(value, model) in modelPercentages" :key="model" class="model-item">
+        <div class="model-name">{{ model }}</div>
+        <div class="model-progress-bar">
+          <div class="progress" :style="getProgressBarStyle(value)"></div>
+        </div>
+        <div class="model-percentage">{{ formatRisk(value) }}%</div>
+      </div>
+    </div>
+
+    <div class="model-selector">
+      <label for="modelSelect">Model:</label>
+      <select id="modelSelect" v-model="selectedModelLocal">
+        <option v-for="model in availableModels" :key="model" :value="model">
+          {{ model }}
+        </option>
+      </select>
+    </div>
   </div>
 </template>
 
-<script>
-import ModelSelector from "./ModelSelector.vue";
 
+
+<script>
 export default {
   name: "MortalityRisk",
-  components: {
-    ModelSelector,
-  },
   props: {
     selectedModel: String,
-    mortalityPercentage: Number, // אחוזי התמותה למודל הנוכחי
-    fetchMortalityRisk: Function, // פונקציה שמביאה נתוני סיכון
+    mortalityPercentage: Number,
+    fetchMortalityRisk: Function,
   },
+  emits: ["update:selectedModel"],
   data() {
     return {
-      availableModels: ["XGBOOST", "LogisticRegression", "DecisionTree", "All"], // כולל All
-      modelPercentages: {}, // אחוזי תמותה לכל מודל
+      selectedModelLocal: this.selectedModel,
+      modelPercentages: {},
+      availableModels: ["XGBOOST", "DecisionTree", "LogisticRegression", "All"],
     };
   },
   computed: {
-    // ערך מעוגל להצגה במצב רגיל
-    formattedMortalityPercentage() {
-      return (this.mortalityPercentage * 100).toFixed(1);
+    formattedRisk() {
+      const value = Number(this.mortalityPercentage);
+      return isNaN(value) ? "0.0" : (value * 100).toFixed(1);
     },
-    // נתונים עבור כל המודלים כאשר נבחר "All"
-    allModelsData() {
-      return Object.entries(this.modelPercentages).map(([name, percentage]) => ({
-        name,
-        percentage,
-        formattedPercentage: (percentage * 100).toFixed(1),
-      }));
+    percentageDecimal() {
+      return isNaN(this.mortalityPercentage)
+        ? 0
+        : Math.min(Math.max(this.mortalityPercentage, 0), 1);
     },
-  },
-  methods: {
-    // צבע עבור מעגל חיצוני
-    outerCircleStyle(percentage) {
-      const radius = 130;
-      const circumference = 2 * Math.PI * radius;
-      const offset = circumference - (percentage * circumference);
-      const color = this.getColor(percentage * 100); // הכפלה ב-100
-      return {
-        strokeDasharray: `${circumference} ${circumference}`,
-        strokeDashoffset: offset,
-        stroke: color,
-        transition: "stroke-dashoffset 1.5s ease-out, stroke 1.5s ease-out",
-      };
+    circumference() {
+      return 2 * Math.PI * 50;
     },
-      circleProgressStyle(percentage) {
-    const radius = 20; // רדיוס העיגול
-    const circumference = 2 * Math.PI * radius; // היקף העיגול
-    const offset = circumference - percentage * circumference;
-
-    return {
-      strokeDasharray: `${circumference} ${circumference}`,
-      strokeDashoffset: offset,
-      stroke: this.getColor(percentage * 100),
-      transition: "stroke-dashoffset 1.5s ease-out, stroke 1.5s ease-out",
-    };
-  },
-    // צבע עבור מעגל פנימי
-    innerCircleStyle(percentage) {
-      const color = this.getColor(percentage * 100, true); // צבע דהוי
-      return {
-        fill: color,
-      };
+    dashOffset() {
+      return this.circumference * (1 - this.percentageDecimal);
     },
-    // צבע לפי אחוזים
-    getColor(percentage, faded = false) {
-      let color;
-      if (percentage <= 33) color = "#4caf50"; // ירוק
-      else if (percentage <= 66) color = "#ff9800"; // כתום
-      else color = "#f44336"; // אדום
-
-      if (faded) {
-        return this.adjustColorOpacity(color, 0.3);
-      }
-      return color;
+    startColor() {
+      return this.getColor(this.percentageDecimal * 100, true);
     },
-      adjustBackgroundColor(percentage) {
-    const baseColor = this.getColor(percentage * 100); // קבלת הצבע הבסיסי לפי אחוזים
-    return this.adjustColorOpacity(baseColor, 0.1); // הוספת שקיפות 10%
-  },
-    // יוצר צבע דהוי
-    adjustColorOpacity(hexColor, opacity) {
-      const bigint = parseInt(hexColor.replace("#", ""), 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-    },
-    async fetchAllModels() {
-      // קבלת נתוני תמותה לכל המודלים
-      const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
-      const percentages = {};
-      for (const model of models) {
-        percentages[model] = await this.fetchMortalityRisk(model);
-      }
-      this.modelPercentages = percentages;
+    endColor() {
+      return this.getColor(this.percentageDecimal * 100, false);
     },
   },
   watch: {
-    selectedModel: {
-      immediate: true,
-      async handler(newValue) {
-        if (newValue === "All") {
-          await this.fetchAllModels();
-        }
-      },
+    async selectedModelLocal(newVal) {
+      this.$emit("update:selectedModel", newVal);
+      if (newVal === "All") {
+        await this.fetchAllModelRisks();
+      }
+    },
+  },
+  mounted() {
+    if (this.selectedModelLocal === "All") {
+      this.fetchAllModelRisks();
+    }
+  },
+  methods: {
+    getCardBoxShadow(value) {
+      const percentage = value * 100;
+      let boxShadow = '0 0 20px rgba(0, 0, 255, 0.7)'; // הילה כחולה עבור "הכל"
+
+      // אם המודל הוא "הכל", נוודא שההילה כחולה
+      if (this.selectedModelLocal === 'All') {
+        boxShadow = '0 0 25px rgba(0, 0, 255, 0.7)'; // כחול בהיר עבור "הכל"
+      } else if (percentage <= 33) {
+        boxShadow = '0 0 25px 5px rgba(76, 175, 80, 0.8)'; // ירוק (סיכון נמוך)
+      } else if (percentage <= 66) {
+        boxShadow = '0 0 25px 5px rgba(255, 152, 0, 0.8)'; // כתום (סיכון בינוני)
+      } else {
+        boxShadow = '0 0 25px 5px rgba(244, 67, 54, 0.8)'; // אדום (סיכון גבוה)
+      }
+
+      return {
+        boxShadow: boxShadow, // החלת ההילה
+      };
+    },
+    getProgressBarStyle(value) {
+      const percentage = value * 100;
+      let color = '#4caf50'; // Default color (Green)
+
+      if (percentage <= 33) {
+        color = '#4caf50';  // ירוק
+      } else if (percentage <= 66) {
+        color = '#ff9800';  // כתום
+      } else {
+        color = '#f44336';  // אדום
+      }
+
+      return {
+        width: this.formatRisk(value) + '%',
+        backgroundColor: color,  // צבע הקו משתנה בהתאם לאחוזים
+      };
+    },
+    async fetchAllModelRisks() {
+      const models = ["XGBOOST", "DecisionTree", "LogisticRegression"];
+      const results = {};
+      for (const model of models) {
+        const val = await this.fetchMortalityRisk(model);
+        results[model] = val;
+      }
+      this.modelPercentages = results;
+    },
+    formatRisk(val) {
+      const num = Number(val);
+      return isNaN(num) ? "0.0" : (num * 100).toFixed(1);
+    },
+    getColor(percentage, isStart) {
+      if (percentage <= 33) return isStart ? "#4cd964" : "#34c759"; // Blue
+      else if (percentage <= 66) return isStart ? "#ffe259" : "#ffa751"; // Yellow-orange
+      else return isStart ? "#ff5f6d" : "#ffc371"; // Red-orange
     },
   },
 };
@@ -202,194 +167,192 @@ export default {
 
 
 <style scoped>
-/* קונטיינר כללי */
-.mortality-risk {
-  text-align: center;
+.mortality-risk-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 300px;
+  min-height: 250px;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  gap: 10px;
+  text-align: center;
+  overflow: visible;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+
+
+/* תצוגת "מודל בודד" עם הילה */
+.single-risk-box {
+  display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  padding: 30px;
-  border-radius: 20px;
-  max-width: 100%; /* מתאים למסכים קטנים */
-  margin: 0 auto;
+  padding-top: 0px;
+  overflow: visible;
+  flex: 1;
+  height: 100%;
 }
 
-/* כותרת */
-.mortality-title {
-  font-size: 28px;
-  font-weight: bold;
-  color: #333;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-  text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+
+.mortality-risk-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0px;
+  margin-top: 0px;
 }
 
-/* מעגל */
-.circle-chart {
-  position: relative;
-  width: 100%; /* התאמה למסכים קטנים */
-  max-width: 300px; /* מגבלת גודל למסכים גדולים */
-  height: auto; /* גובה אוטומטי */
-  margin-bottom: 20px;
-}
-
-/* רקע מעגל פנימי */
-.progress-ring__background {
-  r: 120; /* רדיוס פנימי */
-  cx: 150;
-  cy: 150;
-}
-
-/* רקע טבעת חיצונית */
-.progress-ring__background-outer {
-  stroke: #e0e0e0;
-  stroke-width: 15;
-  fill: transparent;
-}
-
-/* טבעת ה-SVG */
-.progress-ring {
-  transform: rotate(-90deg); /* Rotate to start from top */
-  width: 100%; /* להתאים לגודל הקונטיינר */
-  height: auto; /* גובה אוטומטי */
-}
-
-/* מעגל התקדמות */
-.progress-ring__circle {
-  stroke-linecap: round; /* קצוות מעוגלים */
-  transition: stroke-dashoffset 1.5s ease-out; /* אנימציה חלקה */
-}
-
-/* תוכן מרכז המעגל */
-.center-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  width: 90%; /* הגבלת הרוחב */
-  height: 90%; /* הגבלת הגובה */
-  display: flex; /* עיצוב גמיש */
-  justify-content: center; /* מרכז אופקי */
-  align-items: center; /* מרכז אנכי */
-  overflow: hidden; /* למנוע גלישה */
-}
-
-.percentage {
-  font-size: calc(2.5vw); /* גודל טקסט יחסי לרוחב המסך */
-  font-weight: 900;
-  color: #000;
-  text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-  white-space: nowrap; /* מניעת שבירת שורה */
-  overflow: hidden; /* מניעת גלישה */
-  text-overflow: ellipsis; /* הצגת "..." אם יש גלישה */
-  line-height: 1; /* מניעת ריווח מוגזם */
-}
-
-/* בורר המודל */
 .model-selector {
-  margin-top: -15px;
-}
-
-.model-selector label {
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  margin-right: 10px;
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: #004d40;
 }
 
 .model-selector select {
-  padding: 10px;
-  font-size: 14px;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  background: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 6px 15px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 10px;
+  background-color: #f8f8f8;
+  border: 1px solid #bbb;
   transition: all 0.3s ease;
 }
 
 .model-selector select:hover {
-  border-color: #888;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  background-color: #e0e0e0;
 }
 
-@media (max-width: 480px) {
-  .circle-chart {
-    max-width: 150px; /* מעגל קטן עוד יותר למסכים קטנים מאוד */
-    height: auto;
-  }
-
-  .percentage {
-    font-size: calc(5vw); /* טקסט קטן יותר למסכים קטנים מאוד */
-  }
-
-  .mortality-title {
-    font-size: 20px; /* כותרת קטנה יותר למסכים קטנים מאוד */
-  }
+.model-selector select:focus {
+  border-color: #004d40;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-/* רשימה עיצובית עבור All */
-.circle-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 600px;
-  margin: 0 auto;
-}
 
-.circle-item {
-  display: flex;
-  align-items: center;
-  gap: 1px;
-  padding: 1px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* צל עדין */
-  transition: background-color 0.3s ease; /* מעבר חלק בצבע */
-}
 
-.circle-container {
+.neovital-ring {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 140px;
+  height: 140px;
+  margin: auto;
+  overflow: visible; /* זה מאפשר להילה לצאת מחוץ לתחום שלה */
 }
 
-.circle-svg {
+
+.neovital-ring svg {
+  width: 140px;
+  height: 140px;
   transform: rotate(-90deg);
-  width: 50px;
-  height: 50px;
 }
 
-.circle-background {
-  fill: transparent;
-  stroke: #e0e0e0;
-  stroke-width: 5;
+.circle-bg {
+  fill: none;
+  stroke: rgba(200, 200, 200, 0.3);
+  stroke-width: 10;
 }
 
-.circle-progress {
-  fill: transparent;
-  stroke-width: 5;
+.circle-fg {
+  fill: none;
+  stroke-width: 10;
   stroke-linecap: round;
-  transition: stroke-dashoffset 1.5s ease-out;
+  transition: stroke-dashoffset 1s ease, stroke 1s ease;
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.2));
 }
 
-.circle-percentage {
+.center-text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 12px;
-  font-weight: bold;
+  text-align: center;
 }
 
-.model-details {
-  font-size: 16px;
+.center-text .percent {
+  font-size: 26px;
   font-weight: bold;
-  color: #000000;
+  color: #222;
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
+  transition: opacity 0.5s ease-in-out;  /* מעבר חלק בזמן שינוי אחוז הסיכון */
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 
 
+.center-text .subtitle {
+  font-size: 13px;
+  color: #888;
+  margin-top: 2px;
+}
+
+
+
+
+
+
+
+
+
+.multi-risk-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+
+
+
+
+
+
+
+/* הגדרת הילה חדה */
+.model-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.1); /* צל רגיל */
+  font-size: 14px;
+  transition: box-shadow 0.3s ease-in-out; /* שינוי הילה */
+}
+
+.model-name {
+  font-weight: bold;
+  color: #004d40;
+}
+
+.model-progress-bar {
+  flex: 1;
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  margin-left: 10px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease-out;
+}
+
+.model-percentage {
+  font-weight: bold;
+  color: #00796b;
+  margin-left: 10px;
+}
 
 </style>

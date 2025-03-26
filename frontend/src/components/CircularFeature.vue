@@ -174,3 +174,6 @@ export default {
   cursor: help; /* שינוי הסמן */
 }
 </style>
+
+
+

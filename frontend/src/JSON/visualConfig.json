@@ -1,0 +1,123 @@
+{
+  "Patient Id": {
+    "icon": "🆔",
+    "backgroundColor": "linear-gradient(135deg, #d4f5dc, #eafaf1)"
+  },
+  "Hospital Id": {
+    "icon": "🏥"
+  },
+  "Gender": {
+    "icon": "👤"
+  },
+  "Age": {
+    "icon": "🎂"
+  },
+  "Weight": {
+    "icon": "⚖️"
+  },
+  "Height": {
+    "icon": "📏"
+  },
+  "Bmi": {
+    "icon": "📊"
+  },
+  "Ethnicity": {
+    "icon": "🌍"
+  },
+  "Hospital Admit Source": {
+    "icon": "🚑"
+  },
+  "Icu Admit Type": {
+    "icon": "🚨"
+  },
+  "Icu Stay Type": {
+    "icon": "🛏️"
+  },
+  "Readmission Status": {
+    "icon": "🔁"
+  },
+  "Hospital Death": {
+    "icon": "☠️"
+  },
+  "Heart Rate Apache": {
+    "icon": "❤️"
+  },
+  "Oxygen": {
+    "icon": "🫁"
+  },
+  "Ventilated Apache": {
+    "icon": "💨"
+  },
+  "Intubated Apache": {
+    "icon": "🗣️"
+  },
+  "Creatinine Apache": {
+    "icon": "🧪"
+  },
+  "Bilirubin Apache": {
+    "icon": "🧫"
+  },
+  "Glucose Apache": {
+    "icon": "🍬"
+  },
+  "Sodium Apache": {
+    "icon": "🧂"
+  },
+  "Potassium Apache": {
+    "icon": "🧃"
+  },
+  "Temp Apache": {
+    "icon": "🌡️"
+  },
+  "Resprate Apache": {
+    "icon": "😮‍💨"
+  },
+  "Gcs Eyes Apache": {
+    "icon": "👁️"
+  },
+  "Gcs Motor Apache": {
+    "icon": "💪"
+  },
+  "Gcs Verbal Apache": {
+    "icon": "🗣️"
+  },
+  "Urineoutput Apache": {
+    "icon": "🚽"
+  },
+  "Solid Tumor With Metastasis": {
+    "icon": "🧬"
+  },
+  "Leukemia": {
+    "icon": "🩸"
+  },
+  "Lymphoma": {
+    "icon": "🧫"
+  },
+  "Diabetes Mellitus": {
+    "icon": "🍩"
+  },
+  "Cirrhosis": {
+    "icon": "🧃"
+  },
+  "Aids": {
+    "icon": "🧬"
+  },
+  "Immunosuppression": {
+    "icon": "🛡️"
+  },
+  "Apache 4A Hospital Death Prob": {
+    "icon": "📉"
+  },
+  "Apache 4A Icu Death Prob": {
+    "icon": "📈"
+  },
+  "Apache 3J Diagnosis": {
+    "icon": "📋"
+  },
+  "Apache 2 Diagnosis": {
+    "icon": "📋"
+  },
+  "Diagnosis": {
+    "icon": "📝"
+  }
+}

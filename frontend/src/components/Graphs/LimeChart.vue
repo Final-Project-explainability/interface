@@ -163,24 +163,6 @@ export default {
   z-index: 10;
 }
 
-.zoom-button {
-  padding: 10px;
-  border: none;
-  border-radius: 50%;
-  background-color: #3498db;
-  color: white;
-  cursor: pointer;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.zoom-button:hover {
-  background-color: #2980b9;
-  transform: scale(1.1);
-}
 
 .chart {
   width: 100%;

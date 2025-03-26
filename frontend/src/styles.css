@@ -440,11 +440,11 @@ body {
 
 /* Image container for the logo */
 .logo-image-container {
-    width: 150px; /* Fixed width for the logo */
-    height: 150px; /* Fixed height for the logo */
-    margin: -60px auto 0; /* Adds space above the logo */
+    width: 260px; /* Fixed width for the logo */
+    height: 260px; /* Fixed height for the logo */
+    margin: -50px auto 0; /* Adds space above the logo */
     margin-bottom: 0px; /* Removes margin below */
-    background-image: url('../public/images/logo_image.png'); /* Logo image */
+    background-image: url('../public/images/MediClear-logoName.png'); /* Logo image */
     background-size: contain; /* Ensures the logo fits the container */
     background-repeat: no-repeat; /* Prevents repeating of the logo */
     background-position: center; /* Centers the logo inside the container */

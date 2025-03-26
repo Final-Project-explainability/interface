@@ -1,6 +1,6 @@
 <template>
   <div class="login-section">
-    <h1 class="login-title">ICU MediClear</h1>
+<!--    <h1 class="login-title">ICU MediClear</h1>-->
     <div class="logo-image-container"></div>
     <div class="login-background">
       <form @submit.prevent="handleSubmit" class="login-form">

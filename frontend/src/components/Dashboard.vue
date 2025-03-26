@@ -1,21 +1,22 @@
 <template>
   <div class="user-profile">
     <!-- אווטאר ופרטי משתמש -->
-<!--    <div class="user-avatar"> </div>-->
     <div
       class="user-avatar"
       :style="{ backgroundImage: `url(${user.profilePictureUrl || defaultAvatar})` }"
     ></div>
+
     <div class="separator"></div>
+
     <div class="user-details">
       <h2>
         Hello, {{ user.title !== "None" ? user.title + " " : "" }}{{ user.fullName }}!
       </h2>
       <p v-if="user.licenseId">
-        <strong>Medical License ID:</strong> {{ user.licenseId || "N/A" }}
+        <strong>Medical License ID:</strong> {{ user.licenseId }}
       </p>
       <p v-if="user.specialty">
-        <strong>Medical Specialties:</strong> {{ user.specialty || "N/A" }}
+        <strong>Medical Specialties:</strong> {{ user.specialty }}
       </p>
     </div>
 
@@ -23,33 +24,29 @@
 
     <!-- כפתורי ניווט -->
     <div class="action-buttons">
-      <button class="action-button" @click="navigateTo('Home')">
-        Home
-      </button>
-      <button class="action-button" @click="navigateTo('PatientList')">
-        Patient List
-      </button>
-      <button class="action-button" @click="navigateTo('PersonalArea')">
-        Personal Area
-      </button>
+      <button class="action-button" @click="navigateTo('Home')">Home</button>
+      <button class="action-button" @click="navigateTo('PatientList')">Patient List</button>
+      <button class="action-button" @click="navigateTo('PersonalArea')">Personal Area</button>
+
       <button
         v-if="user.isAdmin"
         class="action-button admin-button"
         @click="navigateTo('AdminPanel')"
       >
-        <i class="fa fa-tools" aria-hidden="true"></i> Manage Users
+        <i class="fa fa-tools"></i> Manage Users
       </button>
-      <button class="logout-button" @click="onLogout">Logout</button>
+
+      <!-- ✔️ עכשיו זה באמת מנתק -->
+      <button class="logout-button" @click="$emit('logout')">Logout</button>
     </div>
 
-    <!-- מודל רשימת מטופלים -->
+    <!-- מודלים -->
     <PatientModal
       v-if="showPatientModal"
       :showModal="showPatientModal"
       @onClose="closePatientModal"
     />
 
-    <!-- מודל ניהול משתמשים -->
     <AdminPanelModal
       v-if="showAdminModal"
       :showModal="showAdminModal"
@@ -70,10 +67,6 @@ export default {
       type: Object,
       required: true,
     },
-    onLogout: {
-      type: Function,
-      required: true,
-    },
   },
   components: {
     PatientModal,
@@ -81,16 +74,14 @@ export default {
   },
   data() {
     return {
-      // תמונת ברירת מחדל במקרה שאין תמונה
-      defaultAvatar:
-        "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg",
+      defaultAvatar: "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg",
       showPatientModal: false,
       showAdminModal: false,
     };
   },
   methods: {
     navigateTo(section) {
-      this.$emit("navigate", section); // שליחת מצב נוכחי ל-MainPage
+      this.$emit("navigate", section);
     },
     openPatientModal() {
       this.showPatientModal = true;

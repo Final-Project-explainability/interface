@@ -1,7 +1,6 @@
 <template>
   <div class="graph-buttons-container">
     <div class="graph-buttons">
-      <!-- כפתורים לבחירת סוג הגרף -->
       <button
         v-for="type in graphTypes"
         :key="type"
@@ -19,12 +18,10 @@
 export default {
   name: "GraphControls",
   props: {
-    // סוג הגרף הפעיל
     activeType: {
       type: String,
       required: true,
     },
-    // סוגי גרפים זמינים
     graphTypes: {
       type: Array,
       required: true,
@@ -33,45 +30,58 @@ export default {
   emits: ["updateType"],
   methods: {
     switchGraphType(type) {
-      this.$emit("updateType", type); // שולח את סוג הגרף שנבחר להורה
+      this.$emit("updateType", type);
     },
   },
 };
 </script>
 
 <style scoped>
-.graph-buttons-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
 .graph-buttons {
   display: flex;
-  gap: 10px;
+  gap: 4px;
+  border-bottom: 2px solid #e0e0e0;
+  position: relative;
 }
 
 .graph-button {
-  padding: 8px 16px;
-  border-radius: 20px;
-  background-color: #e0f7fa;
-  border: 2px solid #004d40;
-  color: #004d40;
-  font-size: 14px;
-  font-weight: bold;
+  position: relative;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: #555;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: color 0.25s ease;
 }
 
 .graph-button:hover {
-  background-color: #004d40;
-  color: #ffffff;
-  transform: scale(1.05); /* הגדלה עדינה */
+  color: #1565c0;
 }
 
 .graph-button.active {
-  background-color: #004d40;
-  color: #ffffff;
+  color: #1565c0;
+  font-weight: 600;
+  background-color: #eaeaea; /* רקע אפור בהיר */
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
+
+
+.graph-button.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 3px;
+  background-color: #1565c0;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
 </style>

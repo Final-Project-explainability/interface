@@ -1,25 +1,25 @@
 <template>
   <div class="local-page">
-    <MenuBar />
+    <!-- תפריט עליון -->
+    <MenuBar @search="handlePatientSearch" />
 
-    <div class="content-layout">
-      <!-- צד שמאל -->
-      <div class="left-section">
-        <!-- חיפוש מטופל -->
-        <div class="search-section">
-          <PatientSearch
-            v-model="searchQuery"
-            @search="handlePatientSearch"
-          />
+    <!-- תוכן ראשי -->
+    <div class="main-content">
+
+      <!-- טוסט הודעת שגיאה -->
+      <transition name="fade-toast">
+        <div v-if="errorMessage" class="floating-toast left">
+          <i class="material-icons">error_outline</i>
+          <span>{{ errorMessage }}</span>
+          <button class="close-toast" @click="errorMessage = ''">
+            <i class="material-icons">close</i>
+          </button>
         </div>
+      </transition>
 
-        <!-- הודעת שגיאה אם לא נמצא מטופל -->
-        <div v-if="errorMessage" class="error-message">
-          {{ errorMessage }}
-        </div>
-
-        <!-- סיכון תמותה -->
-        <div class="top-left-container">
+      <!-- שורה עליונה: מורטליטי + פרטי מטופל + חיפוש -->
+      <div class="top-row-container">
+        <div class="mortality-card-container">
           <MortalityRisk
             :fetchMortalityRisk="fetchMortalityRisk"
             :mortalityPercentage="mortalityPercentage"
@@ -27,30 +27,37 @@
           />
         </div>
 
-        <!-- פרטי המטופל -->
-        <div>
-          <PatientInfo v-if="isDataVisible" :patientId="patientId" />
-          <div v-else class="info-message">
-            {{ loadingMessage }}
-          </div>
+        <div class="patient-info-container">
+          <PatientDetails
+            v-if="isDataVisible"
+            :patientData="patientDetails"
+            :getItemVisualConfig="getItemVisualConfig"
+          />
+          <FilterAndSearch
+            :onUpdateFilters="applyFiltersToPrediction"
+            v-model:viewMode="viewMode"
+          />
         </div>
       </div>
 
-      <!-- צד ימין -->
-      <div class="right-section">
-        <PatientDetails v-if="isDataVisible" :patientData="patientDetails" />
+      <!-- תוכן עיקרי תחתון -->
+      <div class="main-data-section">
         <PredictionExplanations
+          ref="predictionExplanations"
           v-if="isDataVisible"
           :selectedModel="selectedModel"
           :patientId="patientId"
+          :viewMode="viewMode"
         />
         <div v-else class="centered-message">
-          {{ loadingMessage }}
+          <i class="material-icons" style="font-size: 36px; color: #00796b;">search</i>
+          <p>{{ loadingMessage }}</p>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import MenuBar from "../components/MenuBar.vue";
@@ -59,6 +66,12 @@ import PatientDetails from "../components/PatientDetails.vue";
 import PredictionExplanations from "../components/PredictionExplanations.vue";
 import PatientInfo from "../components/PatientInfo.vue";
 import PatientSearch from "../components/PatientSearch.vue";
+import { eventBus } from "@/utils/eventBus";
+import FilterAndSearch from "../components/FilterAndSearch.vue";
+import visualConfig from "../JSON/visualConfig.json";
+
+
+
 
 import {
   GetPatientPredictXGBOOST,
@@ -76,6 +89,7 @@ export default {
     PredictionExplanations,
     PatientInfo,
     PatientSearch,
+    FilterAndSearch,
   },
   data() {
     return {
@@ -93,6 +107,7 @@ export default {
       isDataVisible: false, // האם להציג נתונים
       errorMessage: "", // הודעת שגיאה
       loadingMessage: "Please search for a patient.", // הודעת טעינה
+      viewMode: "vital",
     };
   },
   methods: {
@@ -147,9 +162,7 @@ export default {
         if (this.selectedModel === "All") {
           await this.fetchAllModels();
         } else {
-          this.mortalityPercentage = await this.fetchMortalityRisk(
-            this.selectedModel
-          );
+          this.mortalityPercentage = await this.fetchMortalityRisk(this.selectedModel);
         }
         this.isDataVisible = true;
       } catch (error) {
@@ -157,20 +170,50 @@ export default {
         this.isDataVisible = false;
       }
     },
+    handleLogout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userDetails");
+      this.$router.push("/");
+    },
+
+    applyFiltersToPrediction(filters) {
+      const explanationRef = this.$refs.predictionExplanations;
+      if (explanationRef && explanationRef.applyFilters) {
+        explanationRef.applyFilters(filters);
+      }
+
+      // העבר גם את ה־viewMode כ־prop:
+      if (filters.viewMode) {
+        this.viewMode = filters.viewMode;
+      }
+    },
+
+    getItemVisualConfig(key) {
+      return visualConfig[key] || {}; // 👈 שימוש ישיר בקובץ שלך
+    },
+
+
   },
   created() {
+    eventBus.on("token-expired", this.handleLogout);
     const query = this.$route.query;
     if (query.patientId) {
       this.patientId = query.patientId;
       this.handlePatientSearch(query.patientId);
     }
   },
+  beforeUnmount() {
+    eventBus.off("token-expired", this.handleLogout);
+  },
   watch: {
     async selectedModel(newValue) {
       if (this.isDataVisible) {
         if (newValue === "All") {
+          this.viewMode = "mini"; // 🧠 שים כאן את ברירת המחדל לתצוגת All
           await this.fetchAllModels();
         } else {
+          this.viewMode = "vital"; // 🧠 או מה שתרצה עבור אחרים
           this.mortalityPercentage = await this.fetchMortalityRisk(newValue);
         }
       }
@@ -180,13 +223,6 @@ export default {
 </script>
 
 <style scoped>
-/* כל העיצוב נשאר כפי שהיה */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 .local-page {
   display: flex;
   flex-direction: column;
@@ -196,84 +232,60 @@ export default {
   overflow: hidden;
 }
 
-.content-layout {
+.main-content {
   display: flex;
+  flex-direction: column;
+  gap: 2px; /* צמצום הריווח בין הרכיבים */
+  padding: 20px;
+  height: 100%;
+  //height: calc(100vh - 60px); /* פחות הגובה של MenuBar */
+  overflow: auto;
+  margin-bottom: 0;
+}
+
+.top-row-container {
+  display: flex;
+  justify-content: flex-start; /* יישור רכיבים בצמוד לשמאל */
+  gap: 20px; /* ריווח בין רכיבים */
+  flex-wrap: wrap;
+  align-items: flex-start;
+  width: 100%;
+
+}
+
+.mortality-card-container {
+  flex: 0 1 320px; /* קובע את הרוחב המקסימלי */
+  max-width: 350px; /* גבול רוחב */
+}
+
+.patient-info-container {
   flex: 1;
-  padding: 10px;
-  gap: 10px;
-  height: calc(100vh - 80px);
-  overflow: hidden;
-}
-
-.left-section {
   display: flex;
   flex-direction: column;
-  width: 25%;
-  gap: 10px;
-  height: 100%;
-  min-width: 200px;
-  max-width: 25%;
+  gap: 0px; /* צמצום ריווח */
+  overflow: hidden; /* מונע גלישה של התוכן */
 }
 
-.error-message {
-  font-size: 16px;
-  color: red;
-  text-align: center;
-  padding: 10px;
-  background-color: rgba(255, 0, 0, 0.1);
-  border: 1px solid red;
-  border-radius: 8px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 10px 0;
-}
-
-.search-section {
-  margin-bottom: 10px;
-}
-
-.top-left-container {
-  flex: 7;
-  background-image: url("https://st2.depositphotos.com/1250282/9455/v/950/depositphotos_94554184-stock-illustration-abstract-molecules-medical-background.jpg");
-  background-size: cover;
-  background-position: center;
-  border: 2px solid #004d40;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
-}
-
-.right-section {
-  flex: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background-color: #ffffff;
-  border: 2px solid #004d40;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  height: 100%;
-  min-width: 400px;
-  max-width: 75%;
-  overflow: hidden;
-  position: relative;
-}
-
-.info-message {
-  font-size: 16px;
+.search-in-panel {
+  background-color: #f1f8f7;
+  padding: 12px 16px; /* ריווח פנימי של שורת החיפוש */
+  border-radius: 12px;
+  border: 1px solid #c8e6c9;
   color: #004d40;
-  text-align: center;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 1px solid #004d40;
-  border-radius: 8px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  width: 100%; /* מבטיח שהחיפוש יתפשט עד הקצה */
+}
+
+.patient-id-display {
+  margin: 0;
+}
+
+.main-data-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* צמצום הריווח בין הרכיבים */
+  margin-top: 16px;
 }
 
 .centered-message {
@@ -282,7 +294,7 @@ export default {
   font-weight: 600;
   color: #444444;
   text-align: center;
-  padding: 25px 20px;
+  padding: 20px 15px; /* צמצום ריווח */
   background: #ffffff;
   border: 1px solid #dddddd;
   border-radius: 8px;
@@ -296,3 +308,6 @@ export default {
   max-width: 400px;
 }
 </style>
+
+
+

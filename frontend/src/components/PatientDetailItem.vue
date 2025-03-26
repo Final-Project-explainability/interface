@@ -1,7 +1,18 @@
 <template>
-  <div class="detail-item" :title="`${title}: ${value}`">
-    <p class="detail-value">{{ value }}</p>
-    <p class="detail-title">{{ title }}</p>
+  <div
+    class="badge-card"
+    :title="`${title}: ${value}`"
+    :style="{ background: backgroundColor }"
+  >
+    <div class="icon">{{ icon }}</div>
+    <div class="value">{{ value }}</div>
+    <div class="title">{{ title }}</div>
+    <div
+      class="glow"
+      :style="{
+        background: `radial-gradient(circle, ${glowColor}, transparent 70%)`,
+      }"
+    />
   </div>
 </template>
 
@@ -17,55 +28,98 @@ export default {
       type: String,
       required: true,
     },
+    icon: {
+      type: String,
+      default: "🩺",
+    },
+    glowColor: {
+      type: String,
+      default: "rgba(173, 216, 230, 0.25)",
+    },
+    backgroundColor: {
+      type: String,
+      default: "linear-gradient(135deg, #f9fcff, #edf4fa)",
+    },
   },
 };
 </script>
 
 <style scoped>
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #ffffff;
-  border-radius: 6px;
-  padding: 6px; /* ריווח פנימי */
-  min-width: 110px; /* רוחב מינימלי */
-  height: auto; /* גובה דינמי */
-  max-width: 120px; /* רוחב מקסימלי */
+.badge-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 28px 12px 12px;
+  width: 160px;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* צל קל */
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  word-wrap: break-word; /* שבירת שורות עבור מילים ארוכות */
-  overflow-wrap: break-word; /* מניעת גלישת טקסט */
-  position: relative; /* ליצירת Tooltip */
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.detail-item:hover {
-  transform: translateY(-3px); /* הרמה קלה */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* צל חזק יותר */
+.badge-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  border-color: #cfe8f9;
 }
 
-.detail-value {
-  font-size: 14px; /* הקטנת גודל הטקסט */
-  font-weight: bold;
-  color: #004080; /* כחול כהה */
-  margin-bottom: 2px;
-  text-overflow: ellipsis; /* חיתוך אם הטקסט ארוך מדי */
-  overflow: hidden; /* מניעת גלישת טקסט */
-  white-space: nowrap; /* מניעת שבירת שורה */
-  max-width: 100%; /* הגבלת הרוחב */
+.icon {
+  width: 45px;
+  height: 45px;
+  font-size: 25px;
+  background: #ffffff;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.detail-title {
-  font-size: 12px; /* הקטנת גודל הכותרת */
-  font-weight: bold;
-  color: #555555; /* אפור כהה */
-  margin-top: 2px;
-  line-height: 1.2; /* גובה שורה קטן יותר */
-  text-overflow: ellipsis; /* חיתוך אם הכותרת ארוכה מדי */
-  overflow: hidden; /* מניעת גלישת טקסט */
-  white-space: nowrap; /* מניעת שבירת שורה */
-  max-width: 100%; /* הגבלת הרוחב */
+
+.badge-card:hover .icon {
+  transform: translateX(-50%) rotate(4deg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.glow {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 60px;
+  height: 60px;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.value {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 14px;
+  color: #0077b6;
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.title {
+  font-size: 12px;
+  color: #666;
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.badge-card:hover .value {
+  color: #005f8c;
+}
+.badge-card:hover .title {
+  color: #444;
 }
 </style>

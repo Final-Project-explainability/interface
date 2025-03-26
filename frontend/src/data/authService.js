@@ -85,8 +85,13 @@ export async function verifyAuth() {
 
 // יציאת משתמש (Logout)
 export function logout() {
-  localStorage.removeItem("token"); // הסרת הטוקן מ-localStorage
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("userDetails");
+
+  window.location.href = "/"; // יציאה מוחלטת ומעבר לדף הבית
 }
+
 
 // הוספת משתמש חדש
 export async function addUser(newUser) {

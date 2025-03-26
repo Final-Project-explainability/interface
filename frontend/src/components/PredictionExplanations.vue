@@ -1,7 +1,5 @@
 <template>
   <div class="prediction-explanations-container">
-    <!-- Filters and Search -->
-    <FilterAndSearch :onUpdateFilters="applyFilters" />
 
     <!-- Horizontal Slider Wrapper -->
     <div class="horizontal-slider-wrapper">
@@ -9,18 +7,19 @@
         <!-- Scrollable Vertical Container -->
         <div class="models-wrapper">
           <!-- מציגים את כל הקבוצות של המודל -->
-          <div v-for="modelGroup in filteredPredictionData" :key="modelGroup.group">
-<!--            &lt;!&ndash; כותרת הקבוצה &ndash;&gt;-->
-<!--            <h3 class="group-title">{{ modelGroup.group }}</h3>-->
-
-            <!-- רשימת הפיצ'רים -->
-            <div class="features-list">
-              <ModelExplainableSection
-                :model-name="modelGroup.group"
-                :model-data="modelGroup.features"
-              />
-            </div>
+          <div
+            v-for="group in filteredPredictionData"
+            :key="`${group.group}-${group.model || 'single'}`"
+          >
+            <ModelExplainableSection
+              :model-name="group.model ? `${group.group} – ${group.model}` : group.group"
+              :model-data="group.features"
+              :group="group.group"
+              :is-all-mode="selectedModel === 'All'"
+              :view-mode="viewMode"
+            />
           </div>
+
         </div>
       </div>
     </div>
@@ -31,13 +30,11 @@
 import { MockGetPatientExplanaition } from "../local_functions_mock";
 import { GetPatientExplanation} from "../local_functions";
 import ModelExplainableSection from "./ModelExplainableSection.vue";
-import FilterAndSearch from "./FilterAndSearch.vue";
 
 export default {
   name: "PredictionExplanations",
   components: {
     ModelExplainableSection,
-    FilterAndSearch,
   },
   props: {
     patientId: {
@@ -48,6 +45,10 @@ export default {
       type: String,
       required: true,
     },
+    viewMode: {
+      type: String,
+      default: "vital", // circular / vital / mini
+    },
   },
   data() {
     return {
@@ -57,24 +58,47 @@ export default {
   },
   methods: {
     async loadPredictionData() {
-      // קריאה לפונקציה עם patientId ו-selectedModel
-      const rawData = await GetPatientExplanation(this.patientId, this.selectedModel);
-      // const rawData = await MockGetPatientExplanaition(this.patientId, this.selectedModel);
-      console.log("Raw data from MockGetPatientExplanaition:", rawData);
+      if (this.selectedModel === "All") {
+        const rawData = await this.fetchAllExplanations();
 
-      // עיבוד המידע: המרה למערך של אובייקטים עם קבוצות ופיצ'רים
-      this.predictionData = Object.entries(rawData || {}).map(([group, features]) => ({
-        group, // למשל: SHAP, Lime, Inherent
-        features: Object.entries(features).map(([name, percentage]) => ({
-          name,
-          percentage,
-        })),
-      }));
+        // עיבוד לקבוצות -> מודלים -> features
+        this.predictionData = Object.entries(rawData).flatMap(([group, models]) =>
+          Object.entries(models).map(([model, features]) => ({
+            group,
+            model,
+            features: Object.entries(features || {}).map(([name, percentage]) => ({
+              name,
+              percentage,
+            })),
+          }))
+        );
+      } else {
+        const rawData = await GetPatientExplanation(this.patientId, this.selectedModel);
+        this.predictionData = Object.entries(rawData || {}).map(([group, features]) => ({
+          group,
+          features: Object.entries(features).map(([name, percentage]) => ({
+            name,
+            percentage,
+          })),
+        }));
+      }
 
-      console.log("Processed predictionData:", this.predictionData);
-
-      // שמירת המידע כנתונים מסוננים
       this.filteredPredictionData = [...this.predictionData];
+    },
+    async fetchAllExplanations() {
+      const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
+      const explanationData = {};
+
+      for (const model of models) {
+        const modelData = await GetPatientExplanation(this.patientId, model);
+
+        for (const [group, features] of Object.entries(modelData)) {
+          if (!explanationData[group]) explanationData[group] = {};
+          explanationData[group][model] = features;
+        }
+      }
+
+      return explanationData;
     },
     applyFilters({ filterType, sortOrder, searchQuery }) {
       let filteredData = [...this.predictionData]; // שמירת המבנה הבסיסי
@@ -131,11 +155,12 @@ export default {
 <style scoped>
 .prediction-explanations-container {
   border-radius: 10px;
-  padding: 10px;
+  padding: 0px;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
 }
 
 .horizontal-slider-wrapper {
@@ -158,7 +183,7 @@ export default {
 .models-wrapper {
   display: flex;
   flex-direction: column; /* כל מודל יוצג בשורה נפרדת */
-  gap: 20px; /* רווח בין השורות */
+  gap: 0px; /* רווח בין השורות */
   justify-content: flex-start; /* יישור לשמאל */
   align-items: flex-start; /* יישור אלמנטים לשמאל */
 }

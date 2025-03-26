@@ -2,13 +2,10 @@
   <div class="main-container">
     <!-- חלק שמאלי -->
     <div class="left-panel">
-      <!-- אם המשתמש לא מחובר -->
       <Login v-if="!isLoggedIn" @login="handleLogin" />
-
-      <!-- אם המשתמש מחובר -->
       <Dashboard
-        class="dashboard-container"
         v-else
+        class="dashboard-container"
         :user="userDetails"
         @logout="handleLogout"
         @navigate="changePanel"
@@ -17,10 +14,7 @@
 
     <!-- חלק ימני -->
     <div class="right-panel">
-      <!-- אם המשתמש לא מחובר -->
       <InfoPanel v-if="!isLoggedIn" />
-
-      <!-- אם המשתמש מחובר, תוכן דינמי -->
       <div v-else>
         <InfoPanel :isLoggedIn="isLoggedIn" v-if="selectedPanel === 'Home'" />
         <PatientList v-else-if="selectedPanel === 'PatientList'" />
@@ -38,6 +32,7 @@ import InfoPanel from "../components/InfoPanel.vue";
 import PatientList from "../components/PatientList.vue";
 import AdminPanel from "@/components/AdminPanel.vue";
 import PersonalArea from "../components/PersonalArea.vue";
+import { eventBus } from "@/utils/eventBus"; // ✅ ייבוא של האירועים
 
 export default {
   name: "MainPage",
@@ -51,35 +46,44 @@ export default {
   },
   data() {
     return {
-      isLoggedIn: false, // מעקב אחרי התחברות
-      userDetails: null, // פרטי המשתמש
-      selectedPanel: "Home", // ברירת מחדל: InfoPanel לאחר התחברות
+      isLoggedIn: false,
+      userDetails: null,
+      selectedPanel: "Home",
     };
   },
   created() {
-    // טעינת פרטי המשתמש מה-localStorage
     const storedUser = localStorage.getItem("userDetails");
     if (storedUser) {
       this.userDetails = JSON.parse(storedUser);
       this.isLoggedIn = true;
     }
+
+    // ✅ האזנה לאירוע פקיעת טוקן
+    eventBus.on("token-expired", this.handleLogout);
+  },
+  beforeUnmount() {
+    eventBus.off("token-expired", this.handleLogout);
   },
   methods: {
     handleLogin(user) {
-      console.log("User details received:", user);
-      localStorage.setItem("userDetails", JSON.stringify(user)); // שמירת פרטי המשתמש
-      this.userDetails = user; // שמירת פרטי המשתמש ב-state
-      this.isLoggedIn = true; // עדכון מצב התחברות
-      this.selectedPanel = "Home"; // ברירת מחדל לאחר התחברות
+      localStorage.setItem("userDetails", JSON.stringify(user));
+      this.userDetails = user;
+      this.isLoggedIn = true;
+      this.selectedPanel = "Home";
     },
     handleLogout() {
-      localStorage.removeItem("userDetails"); // מחיקת פרטי המשתמש מה-localStorage
-      this.userDetails = null; // איפוס פרטי המשתמש ב-state
-      this.isLoggedIn = false; // עדכון מצב התחברות
-      this.selectedPanel = "Home"; // חזרה לברירת מחדל
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userDetails");
+
+      this.userDetails = null;
+      this.isLoggedIn = false;
+      this.selectedPanel = "Home";
+
+      this.$router.push("/");
     },
     changePanel(panel) {
-      this.selectedPanel = panel; // שינוי התוכן הדינמי
+      this.selectedPanel = panel;
     },
   },
 };
