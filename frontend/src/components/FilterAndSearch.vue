@@ -29,27 +29,26 @@
       <button
         class="view-button"
         :class="{ active: viewMode === 'circular' }"
-        @click="setViewMode('circular')"
+        @click="changeViewMode('circular')"
         title="Circular View"
       >🔵</button>
 
       <button
         class="view-button"
         :class="{ active: viewMode === 'vital' }"
-        @click="setViewMode('vital')"
+        @click="changeViewMode('vital')"
         title="Card View"
       >📊</button>
 
       <button
         class="view-button"
         :class="{ active: viewMode === 'mini' }"
-        @click="setViewMode('mini')"
+        @click="changeViewMode('mini')"
         title="Compact View"
       >🧩</button>
     </div>
   </div>
 </template>
-
 
 <script>
 export default {
@@ -69,25 +68,33 @@ export default {
       selectedFilterType: "all",
       selectedSortOrder: "default",
       searchQuery: "",
-      // viewMode: "vital", // אפשרויות: "vital", "circular", "mini"
     };
   },
   methods: {
+    changeViewMode(mode) {
+      // שדר את השינוי החוצה להורה (v-model:viewMode)
+      this.$emit("update:viewMode", mode);
+
+      // שלח גם את כל הפילטרים האחרים
+      this.$emit("updateFilters", {
+        filterType: this.selectedFilterType,
+        sortOrder: this.selectedSortOrder,
+        searchQuery: this.searchQuery,
+        viewMode: mode,
+      });
+    },
     updateFilters() {
       this.$emit("updateFilters", {
         filterType: this.selectedFilterType,
         sortOrder: this.selectedSortOrder,
         searchQuery: this.searchQuery,
-        viewMode: this.viewMode, // עכשיו זה מגיע מ־prop
+        viewMode: this.viewMode,
       });
-    },
-    setViewMode(mode) {
-      this.$emit("update:viewMode", mode); // ← מעדכן את האב
-      this.updateFilters();
     },
   },
 };
 </script>
+
 
 <style scoped>
 .filters-container {
@@ -101,8 +108,7 @@ export default {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   margin: 0;
-  border: 1px solid #e3e8ee; /* צבע מסגרת עדין */
-
+  border: 1px solid #e3e8ee;
 }
 
 .search-input,
@@ -136,6 +142,33 @@ export default {
   min-width: 220px;
 }
 
+.view-mode-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.view-button {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.view-button:hover {
+  background-color: #e0e7ff;
+  border-color: #6366f1;
+}
+
+.view-button.active {
+  background-color: #6366f1;
+  color: white;
+  border-color: #4f46e5;
+}
+
 @media (max-width: 600px) {
   .filters-container {
     flex-direction: column;
@@ -146,33 +179,11 @@ export default {
   .filter-dropdown {
     width: 100%;
   }
-}
 
-.view-mode-buttons {
-  display: flex;
-  gap: 8px;
-  margin-left: auto; /* מקבע אותם לצד ימין של השורה */
+  .view-mode-buttons {
+    justify-content: center;
+    margin-left: 0;
+    margin-top: 10px;
+  }
 }
-
-.view-mode-buttons button {
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.view-mode-buttons button:hover {
-  background-color: #e0e7ff;
-  border-color: #6366f1;
-}
-
-.view-mode-buttons button.active {
-  background-color: #6366f1;
-  color: white;
-  border-color: #4f46e5;
-}
-
 </style>

@@ -42,13 +42,13 @@
 
       <!-- תוכן עיקרי תחתון -->
       <div class="main-data-section">
-        <PredictionExplanations
-          ref="predictionExplanations"
-          v-if="isDataVisible"
-          :selectedModel="selectedModel"
-          :patientId="patientId"
-          :viewMode="viewMode"
-        />
+          <PredictionExplanations
+            ref="predictionExplanations"
+            v-if="isDataVisible"
+            :selectedModel="selectedModel"
+            :patientId="patientId"
+            :viewMode="viewMode"
+          />
         <div v-else class="centered-message">
           <i class="material-icons" style="font-size: 36px; color: #00796b;">search</i>
           <p>{{ loadingMessage }}</p>
@@ -178,13 +178,13 @@ export default {
     },
 
     applyFiltersToPrediction(filters) {
+      console.log("🔁 Filters received:", filters);
       const explanationRef = this.$refs.predictionExplanations;
       if (explanationRef && explanationRef.applyFilters) {
         explanationRef.applyFilters(filters);
       }
 
-      // העבר גם את ה־viewMode כ־prop:
-      if (filters.viewMode) {
+      if (filters.viewMode !== this.viewMode) {
         this.viewMode = filters.viewMode;
       }
     },
@@ -210,10 +210,10 @@ export default {
     async selectedModel(newValue) {
       if (this.isDataVisible) {
         if (newValue === "All") {
-          this.viewMode = "mini"; // 🧠 שים כאן את ברירת המחדל לתצוגת All
+          this.viewMode = "mini";
           await this.fetchAllModels();
         } else {
-          this.viewMode = "vital"; // 🧠 או מה שתרצה עבור אחרים
+          this.viewMode = "vital";
           this.mortalityPercentage = await this.fetchMortalityRisk(newValue);
         }
       }
@@ -238,7 +238,6 @@ export default {
   gap: 2px; /* צמצום הריווח בין הרכיבים */
   padding: 20px;
   height: 100%;
-  //height: calc(100vh - 60px); /* פחות הגובה של MenuBar */
   overflow: auto;
   margin-bottom: 0;
 }

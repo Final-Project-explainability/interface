@@ -6,20 +6,15 @@
       <div class="vertical-scroll-container">
         <!-- Scrollable Vertical Container -->
         <div class="models-wrapper">
-          <!-- מציגים את כל הקבוצות של המודל -->
-          <div
+          <ModelExplainableSection
             v-for="group in filteredPredictionData"
-            :key="`${group.group}-${group.model || 'single'}`"
-          >
-            <ModelExplainableSection
-              :model-name="group.model ? `${group.group} – ${group.model}` : group.group"
-              :model-data="group.features"
-              :group="group.group"
-              :is-all-mode="selectedModel === 'All'"
-              :view-mode="viewMode"
-            />
-          </div>
-
+            :key="`${group.group}-${group.model || 'single'}-${viewMode}`"
+            :model-name="group.model ? `${group.group} – ${group.model}` : group.group"
+            :model-data="group.features"
+            :group="group.group"
+            :is-all-mode="selectedModel === 'All'"
+            :view-mode="viewMode"
+          />
         </div>
       </div>
     </div>
@@ -54,6 +49,7 @@ export default {
     return {
       predictionData: [], // נתוני התחזיות הגולמיים עבור המודל שנבחר
       filteredPredictionData: [], // נתונים לאחר סינון
+      lastFilters: null, // 🆕 לשימוש חוזר
     };
   },
   methods: {
@@ -100,41 +96,38 @@ export default {
 
       return explanationData;
     },
-    applyFilters({ filterType, sortOrder, searchQuery }) {
-      let filteredData = [...this.predictionData]; // שמירת המבנה הבסיסי
+    applyFilters(filters) {
+      this.lastFilters = filters; // 🧠 שמור את האחרון
+
+      let filteredData = [...this.predictionData];
 
       filteredData = filteredData.map((group) => {
-        // סינון הפיצ'רים בתוך כל קבוצה
         let features = [...group.features];
 
-        // סינון לפי צבע
-        if (filterType === "red") {
-          features = features.filter((feature) => feature.percentage > 0);
-        } else if (filterType === "green") {
-          features = features.filter((feature) => feature.percentage < 0);
+        // סינון צבע
+        if (filters.filterType === "red") {
+          features = features.filter((f) => f.percentage > 0);
+        } else if (filters.filterType === "green") {
+          features = features.filter((f) => f.percentage < 0);
         }
 
-        // חיפוש לפי שם
-        if (searchQuery) {
-          features = features.filter((feature) =>
-            feature.name.toLowerCase().includes(searchQuery.toLowerCase())
+        // חיפוש
+        if (filters.searchQuery) {
+          features = features.filter((f) =>
+            f.name.toLowerCase().includes(filters.searchQuery.toLowerCase())
           );
         }
 
         // מיון
-        if (sortOrder === "desc") {
+        if (filters.sortOrder === "desc") {
           features.sort((a, b) => Math.abs(b.percentage) - Math.abs(a.percentage));
-        } else if (sortOrder === "asc") {
+        } else if (filters.sortOrder === "asc") {
           features.sort((a, b) => Math.abs(a.percentage) - Math.abs(b.percentage));
-        } else if (sortOrder === "abc") {
+        } else if (filters.sortOrder === "abc") {
           features.sort((a, b) => a.name.localeCompare(b.name));
         }
 
-        // החזרת הקבוצה עם הפיצ'רים המסוננים
-        return {
-          ...group,
-          features,
-        };
+        return { ...group, features };
       });
 
       this.filteredPredictionData = filteredData;
@@ -144,6 +137,12 @@ export default {
     // ניטור שינויים ב-patientId או ב-selectedModel
     patientId: "loadPredictionData",
     selectedModel: "loadPredictionData",
+    viewMode(newVal) {
+      // כאשר מצב תצוגה משתנה, נריץ את הסינון מחדש
+      if (this.lastFilters) {
+        this.applyFilters(this.lastFilters);
+      }
+    },
   },
   mounted() {
     // טעינת המידע בזמן עליית הקומפוננטה
