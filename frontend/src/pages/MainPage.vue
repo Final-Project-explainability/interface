@@ -18,7 +18,11 @@
       <div v-else>
         <InfoPanel :isLoggedIn="isLoggedIn" v-if="selectedPanel === 'Home'" />
         <PatientList v-else-if="selectedPanel === 'PatientList'" />
-        <PersonalArea v-else-if="selectedPanel === 'PersonalArea'" />
+<!--        <PersonalArea v-else-if="selectedPanel === 'PersonalArea'" />-->
+        <PersonalArea
+          v-else-if="selectedPanel === 'PersonalArea'"
+          @profile-updated="handleProfileUpdate"
+        />
         <AdminPanel v-else-if="selectedPanel === 'AdminPanel'" />
       </div>
     </div>
@@ -84,6 +88,10 @@ export default {
     },
     changePanel(panel) {
       this.selectedPanel = panel;
+    },
+    handleProfileUpdate(updatedUser) {
+      this.userDetails = { ...updatedUser };
+      localStorage.setItem("userDetails", JSON.stringify(updatedUser));
     },
   },
 };

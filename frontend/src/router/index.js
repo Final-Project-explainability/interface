@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import MainPage from "../pages/MainPage.vue";
 import Global from "../pages/Global.vue";
 import Local from "../pages/Local.vue";
+import About from "../pages/About.vue";
+
 
 
 const routes = [
@@ -23,6 +25,12 @@ const routes = [
     component: Local,
     meta: { requiresAuth: true }, // נתיב מוגן
   },
+  {
+    path: "/about",
+    name: "About",
+    component: About,
+  },
+
 ];
 
 const router = createRouter({

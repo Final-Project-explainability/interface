@@ -1,7 +1,7 @@
 <template>
   <div class="admin-panel">
     <h2 class="header">
-      {{ currentView === 'addUser' ? 'Admin Panel - Add New User to system' : 'Admin Panel - Manage Users' }}
+      {{ currentView === 'addUser' ? 'Admin Panel - Add User to System' : 'Admin Panel - User Management' }}
     </h2>
 
     <div v-if="currentView === 'addUser'" class="add-user-form">

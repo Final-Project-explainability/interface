@@ -24,16 +24,25 @@
 
     <!-- כפתורי ניווט -->
     <div class="action-buttons">
-      <button class="action-button" @click="navigateTo('Home')">Home</button>
-      <button class="action-button" @click="navigateTo('PatientList')">Patient List</button>
-      <button class="action-button" @click="navigateTo('PersonalArea')">Personal Area</button>
+      <button class="action-button" @click="navigateTo('Home')">
+        <i class="fas fa-home"></i> Home
+      </button>
+
+      <button class="action-button" @click="navigateTo('PatientList')">
+        <i class="fas fa-clipboard-list"></i> Patient List
+      </button>
+
+      <button class="action-button" @click="navigateTo('PersonalArea')">
+        <i class="fas fa-user-circle"></i> My Profile
+      </button>
+
 
       <button
         v-if="user.isAdmin"
         class="action-button admin-button"
         @click="navigateTo('AdminPanel')"
       >
-        <i class="fa fa-tools"></i> Manage Users
+        <i class="fa fa-tools"></i> User Management
       </button>
 
       <!-- ✔️ עכשיו זה באמת מנתק -->
@@ -113,4 +122,10 @@ export default {
 .open-modal-button:hover {
   background-color: #005f5f;
 }
+
+.action-button i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
 </style>

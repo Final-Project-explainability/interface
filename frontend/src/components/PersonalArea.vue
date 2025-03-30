@@ -1,5 +1,10 @@
 <template>
   <div class="personal-area">
+    <div class="profile-wrapper">
+      <h2 class="main-title">
+        My Profile
+      </h2>
+
     <div v-if="!showChangePassword">
       <!-- תוכן הפרופיל הרגיל -->
       <div class="profile-card">
@@ -81,30 +86,74 @@
           <div class="info-item readonly">
             <i class="fas fa-user-tie icon"></i>
             <label>Title</label>
-            <span v-if="!editMode">{{ formattedTitle }}</span>
-            <input v-else type="text" v-model="form.title" readonly class="readonly-input" />
+            <template v-if="!editMode">
+              <span>{{ formattedTitle }}</span>
+            </template>
+            <template v-else>
+              <select
+                v-model="form.title"
+                :disabled="!isAdminUser"
+                :class="isAdminUser ? '' : 'readonly-input'"
+              >
+                <option disabled value="">Select Title</option>
+                <option v-for="option in titles" :key="option">{{ option }}</option>
+              </select>
+            </template>
           </div>
 
           <div class="info-item readonly">
             <i class="fas fa-stethoscope icon"></i>
             <label>Specialty</label>
-            <span v-if="!editMode">{{ form.specialty }}</span>
-            <input v-else type="text" v-model="form.specialty" readonly class="readonly-input" />
+            <template v-if="!editMode">
+              <span>{{ form.specialty }}</span>
+            </template>
+            <template v-else>
+              <input
+                type="text"
+                v-model="form.specialty"
+                :readonly="!isAdminUser"
+                :class="isAdminUser ? '' : 'readonly-input'"
+              />
+            </template>
           </div>
 
           <div class="info-item readonly">
             <i class="fas fa-id-badge icon"></i>
             <label>License ID</label>
-            <span v-if="!editMode">{{ form.licenseId || "N/A" }}</span>
-            <input v-else type="text" v-model="form.licenseId" readonly class="readonly-input" />
+            <template v-if="!editMode">
+              <span>{{ form.licenseId || "N/A" }}</span>
+            </template>
+            <template v-else>
+              <div class="input-with-message">
+                <input
+                  type="text"
+                  v-model="form.licenseId"
+                  :readonly="!isAdminUser"
+                  @input="validateLicenseId"
+                  :class="[
+                    isAdminUser
+                      ? licenseIdError
+                        ? 'invalid-field'
+                        : licenseIdValid
+                        ? 'valid-field'
+                        : ''
+                      : 'readonly-input'
+                  ]"
+                />
+                <p v-if="licenseIdError" class="error-message">{{ licenseIdError }}</p>
+              </div>
+            </template>
           </div>
 
           <div class="info-item">
             <i class="fas fa-envelope icon"></i>
             <label>Email</label>
-            <span v-if="!editMode">{{ form.email }}</span>
+            <span v-if="!editMode">{{ form.email || "N/A" }}</span>
             <input v-else v-model="form.email" type="email" />
           </div>
+
+          <p v-if="emailErrorMessage" class="error-message">{{ emailErrorMessage }}</p>
+
 
           <div class="info-item">
             <i class="fas fa-phone icon"></i>
@@ -121,6 +170,9 @@
               @input="validatePhoneNumber"
             />
           </div>
+
+          <p v-if="phoneErrorMessage" class="error-message">{{ phoneErrorMessage }}</p>
+
 
           <div class="info-item">
             <i class="fas fa-venus-mars icon"></i>
@@ -175,19 +227,45 @@
       <p v-if="passwordMessage" class="password-message">{{ passwordMessage }}</p>
     </div>
 
-
+    </div>
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted } from "vue";
 import { updateUserProfile, getUserProfile, changeUserPassword } from "@/data/authService";
+import { checkLicenseAvailability } from "@/data/authService";
+
 
 export default {
   name: "PersonalArea",
-  setup() {
+  setup(props, { emit }) {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
+    const isAdminUser = ref(false);
+    const titles = [
+      "Mr.",
+      "Mrs.",
+      "Miss",
+      "Ms.",
+      "Dr.",
+      "Prof.",
+      "Rev.",
+      "Rabbi",
+      "Fr.",
+      "Eng.",
+      "Adv.",
+      "Hon.",
+      "Sir",
+      "Dame",
+      "None"
+    ];
+    const licenseIdValid = ref(null);
+    const licenseIdError = ref("");
+    const lastCheckedLicenseId = ref("");
+
+
+
 
     const form = ref({
       profilePictureUrl: "",
@@ -231,6 +309,7 @@ export default {
       try {
         const data = await getUserProfile(userId, token);
         form.value = { ...data };
+        isAdminUser.value = data.isAdmin === true;
       } catch (error) {
         console.error("❌ Error fetching user profile:", error);
       }
@@ -243,21 +322,40 @@ export default {
     const updateProfile = async () => {
       if (!userId || !token) return;
 
-      // Validate phone number (Israeli format: 05XXXXXXXX)
-      const phoneRegex = /^05\d{8}$/;
-      if (!phoneRegex.test(form.value.phoneNumber)) {
-        alert("❌ Invalid phone number. Please enter a valid Israeli number in the format 05XXXXXXXX.");
+      // איפוס הודעות קודמות
+      phoneErrorMessage.value = "";
+      emailErrorMessage.value = "";
+
+      // אימות אימייל
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.value.email)) {
+        emailErrorMessage.value = "Please enter a valid email address.";
         return;
       }
+
+      // Validate phone number (Israeli format: 05XXXXXXXX)
+      const phoneRegex = /^05\d{8}$/;
+      if (form.value.phoneNumber && !phoneRegex.test(form.value.phoneNumber)) {
+        phoneErrorMessage.value = "❌ Invalid phone number. Please enter a valid Israeli number in the format 05XXXXXXXX.";
+        return;
+      }
+
 
       try {
         const updatedUserData = {
           fullName: form.value.fullName,
           email: form.value.email,
-          phoneNumber: form.value.phoneNumber,
+          phoneNumber: form.value.phoneNumber || "",
           gender: form.value.gender,
           profilePictureUrl: form.value.profilePictureUrl,
         };
+
+        // 🔓 אם המשתמש הוא אדמין – נוסיף גם שדות נוספים
+        if (isAdminUser.value) {
+          updatedUserData.title = form.value.title;
+          updatedUserData.specialty = form.value.specialty;
+          updatedUserData.licenseId = form.value.licenseId;
+        }
 
         const result = await updateUserProfile(userId, updatedUserData, token);
 
@@ -267,6 +365,11 @@ export default {
 
           // ✅ הצגת הודעת הצלחה
           successMessage.value = "Profile updated successfully! 🎉";
+
+          // 🔥 שולח את המשתמש החדש החוצה
+          emit("profile-updated", result.user);
+
+
 
           // הסרת ההודעה לאחר 3 שניות
           setTimeout(() => {
@@ -278,6 +381,39 @@ export default {
       }
     };
 
+    const validateLicenseId = async () => {
+      const license = form.value.licenseId.trim();
+
+      // ריק = אין שגיאה
+      if (!license) {
+        licenseIdValid.value = null;
+        licenseIdError.value = "";
+        return;
+      }
+
+      const onlyDigitsRegex = /^\d+$/;
+      if (!onlyDigitsRegex.test(license)) {
+        licenseIdError.value = "License ID must contain digits only ❌";
+        licenseIdValid.value = false;
+        return;
+      }
+
+      // בדיקה אם כבר נבדק
+      if (lastCheckedLicenseId.value === license) return;
+      lastCheckedLicenseId.value = license;
+
+      try {
+        const res = await checkLicenseAvailability(license, userId);
+        licenseIdValid.value = res.available;
+        licenseIdError.value = res.available
+          ? ""
+          : "This License ID already exists ❌";
+      } catch (err) {
+        licenseIdError.value = "Error checking license ID ❌";
+        licenseIdValid.value = false;
+      }
+    };
+
 
     const validatePhoneNumber = () => {
       form.value.phoneNumber = form.value.phoneNumber.replace(/\D/g, ""); // מסיר תווים לא מספריים
@@ -286,24 +422,24 @@ export default {
     const showGallery = ref(false);
 
     const avatarOptions = ref([
-      { src: "https://thumbs.dreamstime.com/b/cheerful-young-doctor-avatar-bright-background-stethoscope-generative-ai-friendly-young-doctor-avatar-big-343828185.jpg", gender: "female" },
-      { src: "https://static.vecteezy.com/system/resources/previews/027/312/338/non_2x/portrait-of-a-female-doctor-with-stethoscope-isolated-essential-workers-avatar-icons-characters-for-social-media-user-profile-website-and-app-3d-render-illustration-png.png", gender: "female" },
-      { src: "https://t4.ftcdn.net/jpg/06/32/90/79/360_F_632907942_M6CVHD1ivhUrWK1X49PkBlSH3ooNPsog.jpg", gender: "male" },
-      { src: "https://static.vecteezy.com/system/resources/previews/027/312/426/non_2x/portrait-of-a-doctor-with-stethoscope-isolated-essential-workers-avatar-icons-characters-for-social-media-user-profile-website-and-app-3d-render-illustration-png.png", gender: "male" },
-      { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRioHFmIbzqPEFVrO-geU94YkOQeN_cCDU8Yw&s", gender: "female" },
-      { src: "https://png.pngtree.com/png-clipart/20241120/original/pngtree-anonymous-healthcare-professional-avatar-png-image_17270856.png", gender: "male" },
-      { src: "https://static.vecteezy.com/system/resources/previews/054/245/829/non_2x/a-doctor-avatar-with-a-stethoscope-png.png", gender: "male" },
+      { src: "/images/avatars/female1.webp", gender: "female" },
+      { src: "/images/avatars/male1.jpg", gender: "male" },
+      { src: "/images/avatars/female2.png", gender: "female" },
+      { src: "/images/avatars/male2.png", gender: "male" },
+      { src: "/images/avatars/female3.jpeg", gender: "female" },
+      { src: "/images/avatars/male3.png", gender: "male" },
+      { src: "/images/avatars/female4.png", gender: "female" },
+      { src: "/images/avatars/male4.png", gender: "male" },
+      { src: "/images/avatars/female5.png", gender: "female" },
       { src: "https://static.vecteezy.com/system/resources/previews/027/312/349/non_2x/portrait-of-a-surgeon-isolated-essential-workers-avatar-icons-characters-for-social-media-and-networking-user-profile-website-and-app-3d-render-illustration-png.png", gender: "male" },
-      { src: "https://thumbs.dreamstime.com/b/d-icon-avatar-smiling-man-doctor-medical-specialist-medicine-concept-cute-people-character-illustration-cartoon-minimal-style-d-356315230.jpg", gender: "male" },
-      { src: "https://i.pinimg.com/736x/af/da/df/afdadf665ba0aa7f487b93a197da8949.jpg", gender: "female" },
+      { src: "/images/avatars/female6.jpg", gender: "female" },
+      { src: "/images/avatars/male6.webp", gender: "male" },
+      { src: "/images/avatars/female7.jpg", gender: "female" },
       { src: "https://png.pngtree.com/png-clipart/20240321/original/pngtree-avatar-job-doctor-flat-portrait-of-man-png-image_14640094.png", gender: "male" },
-      { src: "https://img.lovepik.com/png/20231125/3d-senior-doctor-holding-a-stethoscope-character-illustration-hospital-staff_694347_wh1200.png", gender: "male" },
-      { src: "https://icon2.cleanpng.com/20240311/wjf/transparent-stethoscope-blonde-female-doctor-in-white-lab-1710842582699.webp", gender: "female" },
+      { src: "/images/avatars/male8.png", gender: "male" },
       { src: "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg", gender: ["male", "female"] },
-      { src: "https://cdn.vectorstock.com/i/500p/82/33/person-gray-photo-placeholder-woman-vector-24138233.jpg", gender: "female" },
-      { src: "https://thumbs.dreamstime.com/b/d-avatar-doctor-portrait-female-medical-uniform-white-background-327426940.jpg", gender: "female" },
-      { src: "https://coenterprises.com.au/wp-content/uploads/2018/02/male-placeholder-image.jpeg", gender: "male" },
-      { src: "https://thumbs.dreamstime.com/b/d-woman-medicine-professional-doctor-physician-wearing-glasses-reviewing-medical-data-digital-tablet-white-coat-reflecting-359495060.jpg", gender: "female" },
+      { src: "/images/avatars/female9.jpg", gender: "female" },
+      { src: "/images/avatars/male9.jpeg", gender: "male" },
 
     ]);
 
@@ -351,6 +487,10 @@ export default {
     };
 
     const successMessage = ref(""); // משתנה להודעת הצלחה
+
+    const phoneErrorMessage = ref("");
+    const emailErrorMessage = ref("");
+
 
     const showChangePassword = ref(false); // מציג/מסתיר את טופס שינוי הסיסמה
     const passwordForm = ref({
@@ -403,7 +543,11 @@ export default {
 
 
 
-    onMounted(loadUserProfile);
+    onMounted(async () => {
+      await loadUserProfile(); // זה יטפל גם ב־isAdmin בפנים
+    });
+
+
 
     return {
       form,
@@ -427,7 +571,13 @@ export default {
       totalPages,
       selectGender,
       changePage,
-
+      phoneErrorMessage,
+      emailErrorMessage,
+      isAdminUser,
+      titles,
+      validateLicenseId,
+      licenseIdValid,
+      licenseIdError,
     };
   },
 };
@@ -817,6 +967,46 @@ export default {
 .nav-arrow:disabled {
   color: #ccc;
   cursor: not-allowed;
+}
+
+
+.profile-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+
+.main-title {
+  font-size: 30px;
+  font-weight: bold;
+  color: #01579b;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.main-title i {
+  margin-right: 10px;
+  color: #007bff;
+}
+
+
+.error-message {
+  background-color: #ffe6e6;
+  color: #cc0000;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ffcccc;
+  margin: 6px 0 10px;
+  text-align: left;
+}
+
+.input-with-message {
+  display: flex;
+  flex-direction: column;
+  flex: 2;
 }
 
 </style>

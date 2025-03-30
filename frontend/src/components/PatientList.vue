@@ -1,47 +1,48 @@
 <template>
   <div class="patient-list-container">
-    <!-- כותרת הדף -->
+    <!-- כותרת -->
     <div class="header">
       <h2>Patient List</h2>
     </div>
 
-    <!-- תוכן הדף -->
+    <!-- תוכן -->
     <div class="content">
-      <!-- הודעת טעינה -->
+      <!-- טעינה -->
       <div v-if="loading" class="loading-message">
         <i class="fas fa-spinner fa-spin"></i> Loading patient data...
       </div>
 
-      <!-- הודעת שגיאה -->
-      <div v-if="error" class="error-message">
+      <!-- שגיאה -->
+      <div v-else-if="error" class="error-message">
         <i class="fas fa-exclamation-circle"></i> {{ error }}
       </div>
 
-      <!-- רשימת המטופלים -->
-      <div v-if="!loading && patients.length > 0" class="patient-list">
-        <ul>
-          <li
-            v-for="(patient, index) in patients"
-            :key="index"
-            @click="goToPatientPage(patient.patient_id)"
-            class="patient-card"
-          >
-            <div class="patient-card-content">
-              <span class="patient-id">
-                <i class="fas fa-user"></i> ID: {{ patient.patient_id }}
-              </span>
+      <!-- רשימת מטופלים -->
+      <div v-else-if="patients.length > 0" class="patient-list">
+        <div
+          v-for="(patient, index) in patients"
+          :key="index"
+          @click="goToPatientPage(patient.patient_id)"
+          class="patient-card"
+        >
+          <div class="patient-card-content">
+            <i class="fas fa-user-injured patient-icon"></i>
+            <div class="patient-details">
+              <span class="patient-id">Patient ID: {{ patient.patient_id }}</span>
             </div>
-          </li>
-        </ul>
+            <i class="fas fa-chevron-right arrow-icon"></i>
+          </div>
+        </div>
       </div>
 
-      <!-- הודעה אם אין נתונים -->
-      <div v-else-if="!loading && patients.length === 0" class="no-data-message">
+      <!-- אין נתונים -->
+      <div v-else class="no-data-message">
         <i class="fas fa-info-circle"></i> No patient data available.
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import Papa from "papaparse";
@@ -94,116 +95,134 @@ export default {
 </script>
 
 <style scoped>
-/* מכולת הדף */
 .patient-list-container {
-  padding: 30px;
-  background: linear-gradient(to right, #e3f2fd, #f9f9f9);
-  border-radius: 15px;
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+  padding: 32px 24px;
+  background: #f6fbfd;
+  border-radius: 16px;
   max-width: 900px;
   margin: 0 auto;
-  font-family: "Arial", sans-serif;
+  font-family: "Segoe UI", sans-serif;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
 /* כותרת */
 .header h2 {
   font-size: 28px;
-  font-weight: bold;
-  color: #2c3e50;
+  font-weight: 700;
+  color: #01579b;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 /* תוכן */
 .content {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  gap: 16px;
 }
 
-/* רשימת המטופלים */
+/* הודעות */
+.loading-message,
+.error-message,
+.no-data-message {
+  font-size: 17px;
+  text-align: center;
+  padding: 14px 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.loading-message {
+  background: #e3f2fd;
+  color: #0275d8;
+}
+
+.error-message {
+  background: #fdecea;
+  color: #c0392b;
+  font-weight: bold;
+}
+
+.no-data-message {
+  background: #f1f1f1;
+  color: #607d8b;
+}
+
+/* רשימת מטופלים */
 .patient-list {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   max-height: 500px;
   overflow-y: auto;
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
+  padding-right: 4px;
 }
 
-/* כרטיסיות מטופלים */
+/* כרטיס מטופל */
 .patient-card {
-  display: flex;
-  align-items: center;
-  background: #ffffff;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 10px rgba(0, 188, 212, 0.08);
+  transition: all 0.2s ease;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-left: 5px solid #00acc1;
 }
 
 .patient-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  background: #f1f8ff;
+  background: #e1f5fe;
+  transform: translateX(3px);
+  box-shadow: 0 8px 16px rgba(0, 188, 212, 0.12);
 }
 
-/* תוכן הכרטיסיה */
+/* תוכן פנימי של כרטיס */
 .patient-card-content {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.patient-icon {
+  font-size: 24px;
+  color: #00acc1;
+  margin-right: 12px;
+}
+
+.patient-details {
+  flex-grow: 1;
 }
 
 .patient-id {
-  font-size: 18px;
-  font-weight: bold;
-  color: #34495e;
+  font-size: 17px;
+  font-weight: 600;
+  color: #37474f;
 }
 
-/* הודעת טעינה */
-.loading-message {
+.arrow-icon {
   font-size: 18px;
-  color: #0275d8;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  color: #90a4ae;
+  transition: transform 0.2s ease;
 }
 
-/* הודעת שגיאה */
-.error-message {
-  font-size: 18px;
-  color: #e74c3c;
-  font-weight: bold;
-  text-align: center;
-  margin: 20px 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.patient-card:hover .arrow-icon {
+  transform: translateX(4px);
 }
 
-/* הודעה אם אין נתונים */
-.no-data-message {
-  font-size: 18px;
-  color: #7f8c8d;
-  margin-top: 20px;
-  text-align: center;
-}
-
-/* גלילה מותאמת אישית */
-::-webkit-scrollbar {
+/* גלילה מותאמת */
+.patient-list::-webkit-scrollbar {
   width: 8px;
 }
-
-::-webkit-scrollbar-thumb {
-  background-color: #888;
+.patient-list::-webkit-scrollbar-thumb {
+  background-color: #b0bec5;
   border-radius: 4px;
 }
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
+.patient-list::-webkit-scrollbar-thumb:hover {
+  background-color: #78909c;
 }
 </style>

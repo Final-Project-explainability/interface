@@ -157,17 +157,18 @@ export default {
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
 .menu-bar {
+  position: relative; /* חשוב כדי שה-logo-wrapper שמבוסס על absolute יתייחס אליה */
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: #fff;
   padding: 14px 24px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  position: sticky;
   top: 0;
   z-index: 1001;
   gap: 20px;
 }
+
 
 .hamburger {
   background: none;
@@ -178,9 +179,12 @@ export default {
 }
 
 .logo-wrapper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   flex-shrink: 0;
-  margin: 0 auto;
 }
+
 
 .logo-text {
   font-size: 20px;

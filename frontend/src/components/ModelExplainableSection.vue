@@ -100,6 +100,8 @@ export default {
   overflow-x: auto;
   white-space: nowrap;
   padding: 10px 0;
+  overflow-x: scroll; /* במקום auto */
+  scrollbar-gutter: stable both-edges;
 }
 
 .model-items::-webkit-scrollbar {
