@@ -9,7 +9,7 @@ export async function getUsers() {
     const token = localStorage.getItem("token"); // שליפת ה-JWT מ-localStorage
     if (!token) throw new Error("User is not authenticated");
 
-    const response = await fetch("http://localhost:3000/users", {
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/users`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -31,7 +31,7 @@ export async function getUsers() {
 // כניסת משתמש (Login)
 export async function login(username, password) {
   try {
-    const response = await fetch("http://localhost:3000/login", {
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -62,7 +62,7 @@ export async function verifyAuth() {
     const token = localStorage.getItem("token");
     if (!token) return { isAuthenticated: false };
 
-    const response = await fetch("http://localhost:3000/auth/verify", {
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/auth/verify`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -97,7 +97,7 @@ export function logout() {
 export async function addUser(newUser) {
   try {
     const token = localStorage.getItem("token"); // טוקן לאימות
-    const response = await fetch("http://localhost:3000/users", {
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -122,7 +122,7 @@ export async function addUser(newUser) {
 export async function toggleUserStatus(userId) {
   try {
     const token = localStorage.getItem("token"); // טוקן לאימות
-    const response = await fetch(`http://localhost:3000/users/${userId}/status`, {
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/users/${userId}/status`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -146,7 +146,7 @@ export async function toggleUserStatus(userId) {
 export async function deleteUser(userId) {
   try {
     const token = localStorage.getItem("token"); // טוקן לאימות
-    const response = await fetch(`http://localhost:3000/users/${userId}`, {
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/users/${userId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -172,7 +172,7 @@ export async function deleteUser(userId) {
 // שליפת פרטי משתמש לפי ID
 export const getUserProfile = async (userId, token) => {
   try {
-    const response = await axios.get(`http://localhost:3000/user/${userId}`, {
+    const response = await axios.get(`${process.env.VUE_APP_API_URL}/user/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -186,7 +186,7 @@ export const getUserProfile = async (userId, token) => {
 // Update user profile
 export const updateUserProfile = async (userId, updatedData, token) => {
   try {
-    const response = await axios.patch(`http://localhost:3000/users/${userId}/updateDetails`, updatedData, {
+    const response = await axios.patch(`${process.env.VUE_APP_API_URL}/users/${userId}/updateDetails`, updatedData, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
@@ -204,7 +204,7 @@ export const changeUserPassword = async (userId, currentPassword, newPassword) =
   try {
     const token = localStorage.getItem("token");
 
-    const response = await axios.patch(`http://localhost:3000/users/${userId}/password`, {
+    const response = await axios.patch(`${process.env.VUE_APP_API_URL}/users/${userId}/password`, {
       currentPassword,
       newPassword
     }, {
@@ -224,7 +224,7 @@ export const changeUserPassword = async (userId, currentPassword, newPassword) =
 // פונקציה לבדיקת שם משתמש בלייב
 export async function checkUsernameAvailability(username) {
   try {
-    const response = await fetch(`http://localhost:3000/users/check-username/${username}`);
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/users/check-username/${username}`);
     if (!response.ok) throw new Error("Failed to check username");
 
     return await response.json();
@@ -236,7 +236,7 @@ export async function checkUsernameAvailability(username) {
 
 export async function checkLicenseAvailability(licenseId, userId = null) {
   try {
-    let url = `http://localhost:3000/users/check-license/${licenseId}`;
+    let url = `${process.env.VUE_APP_API_URL}/users/check-license/${licenseId}`;
     if (userId) url += `?userId=${userId}`;
 
     const response = await fetch(url);
@@ -255,7 +255,7 @@ export const resetUserPassword = async (userId, newPassword) => {
     const token = localStorage.getItem("token");
 
     const response = await axios.patch(
-      `http://localhost:3000/users/${userId}/reset-password`,
+      `${process.env.VUE_APP_API_URL}/users/${userId}/reset-password`,
       { newPassword },
       {
         headers: {
@@ -277,7 +277,7 @@ export async function updateUser(userId, userData) {
   const token = localStorage.getItem("token");
   try {
     const response = await axios.patch(
-      `http://localhost:3000/users/${userId}/updateDetails`,
+      `${process.env.VUE_APP_API_URL}/users/${userId}/updateDetails`,
       userData,
       {
         headers: {
