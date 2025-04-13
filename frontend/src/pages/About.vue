@@ -9,7 +9,7 @@
           <h1 class="title">🧠 Explainability ICU</h1>
           <p class="subtitle">
             A smart ICU system for AI prediction explainability. Built to support
-            clinical decision-making through local and global insights.
+            clinical decision-making through local and global insights. dfhgkjldfkjg
           </p>
 
           <div class="quick-facts">
