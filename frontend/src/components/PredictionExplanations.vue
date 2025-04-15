@@ -72,6 +72,7 @@ export default {
         const rawData = await GetPatientExplanation(this.patientId, this.selectedModel);
         this.predictionData = Object.entries(rawData || {}).map(([group, features]) => ({
           group,
+          model: this.selectedModel, // 🧠 נדרש כדי שהמיון לפי מודל יעבוד
           features: Object.entries(features).map(([name, percentage]) => ({
             name,
             percentage,
@@ -79,7 +80,13 @@ export default {
         }));
       }
 
-      this.filteredPredictionData = [...this.predictionData];
+      // 🧠 קריאה להפעלת סינון ברירת מחדל מיד לאחר טעינה
+      this.applyFilters({
+        filterType: "all",
+        sortOrder: "default",
+        searchQuery: "",
+        viewMode: this.viewMode,
+      });
     },
     async fetchAllExplanations() {
       const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
@@ -97,7 +104,7 @@ export default {
       return explanationData;
     },
     applyFilters(filters) {
-      this.lastFilters = filters; // 🧠 שמור את האחרון
+      this.lastFilters = filters;
 
       let filteredData = [...this.predictionData];
 
@@ -118,8 +125,17 @@ export default {
           );
         }
 
-        // מיון
-        if (filters.sortOrder === "desc") {
+        // 🧠 מיון לפי ממוצע מוחלט של מודל נוכחי
+        if (filters.sortOrder === "default") {
+          const modelKey = group.model || this.selectedModel;
+          const rankMap = this.getModelFeatureRanking(modelKey);
+
+          features.sort((a, b) => {
+            const aRank = rankMap[a.name] ?? Infinity;
+            const bRank = rankMap[b.name] ?? Infinity;
+            return aRank - bRank;
+          });
+        } else if (filters.sortOrder === "desc") {
           features.sort((a, b) => Math.abs(b.percentage) - Math.abs(a.percentage));
         } else if (filters.sortOrder === "asc") {
           features.sort((a, b) => Math.abs(a.percentage) - Math.abs(b.percentage));
@@ -132,6 +148,31 @@ export default {
 
       this.filteredPredictionData = filteredData;
     },
+    getModelFeatureRanking(modelName) {
+      const featureStats = {}; // { name: [abs1, abs2, ...] }
+
+      for (const group of this.predictionData) {
+        if (group.model !== modelName) continue;
+
+        for (const feature of group.features) {
+          if (!featureStats[feature.name]) featureStats[feature.name] = [];
+          featureStats[feature.name].push(Math.abs(feature.percentage));
+        }
+      }
+
+      const ranked = Object.entries(featureStats)
+        .map(([name, values]) => ({
+          name,
+          avg: values.reduce((a, b) => a + b, 0) / values.length,
+        }))
+        .sort((a, b) => b.avg - a.avg); // הכי חשובים קודם
+
+      return ranked.reduce((map, item, index) => {
+        map[item.name] = index;
+        return map;
+      }, {});
+    },
+
   },
   watch: {
     // ניטור שינויים ב-patientId או ב-selectedModel

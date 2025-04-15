@@ -32,10 +32,12 @@
             v-if="isDataVisible"
             :patientData="patientDetails"
             :getItemVisualConfig="getItemVisualConfig"
+            :searchQuery="searchQuery"
           />
           <FilterAndSearch
             :onUpdateFilters="applyFiltersToPrediction"
             v-model:viewMode="viewMode"
+            v-model:searchQuery="searchQuery"
           />
         </div>
       </div>

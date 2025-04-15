@@ -4,7 +4,7 @@
     <div class="details-slider">
       <div class="details-items" ref="slider">
         <PatientDetailItem
-          v-for="(value, key, index) in patientData"
+          v-for="(value, key, index) in filteredPatientData"
           :key="index"
           :title="formatKey(key)"
           :value="value"
@@ -32,6 +32,26 @@ export default {
     getItemVisualConfig: {
       type: Function,
       default: () => () => ({}), // fallback ל־function ריקה אם לא הועבר
+    },
+    searchQuery: {
+      type: String,
+      default: "",
+    },
+  },
+  computed: {
+    filteredPatientData() {
+      const result = {};
+      const query = (this.searchQuery || "").toLowerCase(); // ✅ הגנה מקריסה
+
+      for (const [key, value] of Object.entries(this.patientData || {})) {
+        const keyMatch = key.toLowerCase().includes(query);
+        const valueMatch = String(value).toLowerCase().includes(query);
+        if (!query || keyMatch || valueMatch) {
+          result[key] = value;
+        }
+      }
+
+      return result;
     },
   },
   methods: {

@@ -6,7 +6,7 @@
       v-model="searchQuery"
       class="search-input"
       placeholder="🔍 Search features..."
-      @input="updateFilters"
+      @input="handleSearchInput"
     />
 
     <!-- Filter by Type Dropdown -->
@@ -18,7 +18,7 @@
 
     <!-- Sort by Dropdown -->
     <select v-model="selectedSortOrder" class="filter-dropdown" @change="updateFilters">
-      <option value="default">Default (No Sorting)</option>
+      <option value="default">Default (Avg. Importance)</option>
       <option value="desc">↓ Descending by %</option>
       <option value="asc">↑ Ascending by %</option>
       <option value="abc">🔤 Sort by ABC</option>
@@ -62,6 +62,10 @@ export default {
       type: String,
       default: "vital",
     },
+    searchQuery: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -90,6 +94,10 @@ export default {
         searchQuery: this.searchQuery,
         viewMode: this.viewMode,
       });
+    },
+    handleSearchInput() {
+      this.updateFilters(); // עדיין שולח את הפילטרים
+      this.$emit("update:searchQuery", this.searchQuery); // 👈 שליחה ל־v-model
     },
   },
 };

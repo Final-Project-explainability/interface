@@ -74,9 +74,9 @@ export default {
 
       const categories = Object.keys(modelData.SHAP);
       const seriesData = {
-        SHAP: Object.values(modelData.SHAP),
-        LIME: Object.values(modelData.LIME),
-        Inherent: Object.values(modelData.Inherent),
+        SHAP: categories.map(key => modelData.SHAP[key] ?? 0),
+        LIME: categories.map(key => modelData.LIME[key] ?? 0),
+        Inherent: categories.map(key => modelData.Inherent[key] ?? 0),
       };
 
       const chartHeight = Math.max(categories.length * 25, 400);
