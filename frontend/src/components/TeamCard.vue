@@ -1,5 +1,6 @@
+<!-- components/TeamCard.vue -->
 <template>
-  <div class="team-card">
+  <div class="card">
     <img :src="img" :alt="name" />
     <h3>{{ name }}</h3>
     <p>{{ role }}</p>
@@ -12,55 +13,43 @@ export default {
   props: {
     name: String,
     role: String,
-    img: {
-      type: String,
-      default: "https://i.pravatar.cc/100?u=team",
-    },
+    img: String,
   },
 };
 </script>
 
 <style scoped>
-.team-card {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  padding: 20px 24px;
-  width: 160px;
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  width: 180px;
   text-align: center;
-  transition: all 0.25s ease;
-  backdrop-filter: blur(4px);
-  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
 }
 
-.team-card:hover {
-  transform: translateY(-6px);
-  border-color: #38bdf8;
-  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.2);
+.card:hover {
+  transform: scale(1.04);
 }
 
-.team-card img {
-  width: 72px;
-  height: 72px;
+.card img {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  margin-bottom: 10px;
   object-fit: cover;
-  border: 2px solid #22d3ee;
-  box-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
+  margin-bottom: 12px;
 }
 
-.team-card h3 {
-  font-size: 15px;
-  color: #f1f5f9;
-  margin: 8px 0 4px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+.card h3 {
+  font-size: 16px;
+  margin: 4px 0;
+  color: #0f172a;
 }
 
-.team-card p {
-  font-size: 13px;
-  color: #94a3b8;
-  margin: 0;
-  font-weight: 400;
+.card p {
+  font-size: 14px;
+  color: #475569;
 }
 </style>

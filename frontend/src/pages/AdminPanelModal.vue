@@ -377,6 +377,13 @@ export default {
   border: 1px solid #c8e6c9;
 }
 
+.user-details p {
+    font-size: 14px; /* Standard size for body text */
+    color: #00695c; /* A darker green for contrast */
+    margin: 5px 0; /* Adds space between paragraphs */
+    z-index: 1;
+}
+
 .detail-item {
   display: flex;
   align-items: center;

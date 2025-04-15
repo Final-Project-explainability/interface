@@ -21,9 +21,17 @@
         <GraphControls
           :graphTypes="graphTypes"
           :activeType="activeGraphType"
+          :selectedModel="selectedModel"
+          :modelList="['XGBoost', 'Logistic Regression', 'Decision Tree']"
           @updateType="updateGraphType"
+          @updateModel="updateModel"
         />
-        <GraphContainer :type="activeGraphType" :data="filteredData" />
+
+        <GraphContainer
+          :type="activeGraphType"
+          :data="filteredData"
+          :selectedModel="selectedModel"
+        />
       </section>
     </div>
   </div>
@@ -49,13 +57,13 @@ export default {
   },
   data() {
     return {
-      graphTypes: ["Bar", "Line", "Pie", "Radar"],
+      graphTypes: ["Bar", "Comparison", "Stack"],
       activeGraphType: "Bar",
+      selectedModel: "XGBoost",
       graphData: {
         Bar: data,
-        Line: data,
-        Pie: data,
-        Radar: data,
+        Stack: data,
+        Comparison: data,
       },
       isFeatureCollapsed: false,
     };
@@ -75,6 +83,9 @@ export default {
   methods: {
     updateGraphType(type) {
       this.activeGraphType = type;
+    },
+    updateModel(model) {
+      this.selectedModel = model;
     },
     toggleFeatureSection() {
       this.isFeatureCollapsed = !this.isFeatureCollapsed;
@@ -102,6 +113,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 100vw; /* תופס את כל רוחב המסך */
   background-color: #f5f7fa;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;

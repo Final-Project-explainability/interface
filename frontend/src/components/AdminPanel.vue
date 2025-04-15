@@ -1138,6 +1138,7 @@ export default {
   gap: 10px;
 }
 
+
 .detail-item {
   display: flex;
   align-items: center;

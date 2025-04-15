@@ -1,0 +1,44 @@
+{
+  "XGBoost": {
+    "SHAP": {
+      "feature1": 0.23,
+      "feature2": 0.11
+    },
+    "LIME": {
+      "feature1": 0.19,
+      "feature2": 0.07
+    },
+    "INHERENT": {
+      "feature1": 0.14,
+      "feature2": 0.09
+    }
+  },
+  "Logistic Regression": {
+    "SHAP": {
+      "feature1": 0.35,
+      "feature2": 0.25
+    },
+    "LIME": {
+      "feature1": 0.27,
+      "feature2": 0.15
+    },
+    "INHERENT": {
+      "feature1": 0.21,
+      "feature2": 0.18
+    }
+  },
+  "Decision Tree": {
+    "SHAP": {
+      "feature1": 0.28,
+      "feature2": 0.14
+    },
+    "LIME": {
+      "feature1": 0.22,
+      "feature2": 0.08
+    },
+    "INHERENT": {
+      "feature1": 0.17,
+      "feature2": 0.12
+    }
+  }
+}

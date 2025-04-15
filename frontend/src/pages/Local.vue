@@ -227,6 +227,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 100vw; /* תופס את כל רוחב המסך */
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   overflow: hidden;
@@ -306,6 +307,7 @@ export default {
   width: 80%;
   max-width: 400px;
 }
+
 </style>
 
 

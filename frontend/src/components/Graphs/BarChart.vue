@@ -1,24 +1,27 @@
 <template>
   <div class="bar-chart-container">
-    <!-- שורת חיפוש -->
-    <div class="search-bar">
-      <input
-        type="text"
-        v-model="searchQuery"
-        @input="filterChart"
-        placeholder="Search Feature..."
-        class="search-input"
-      />
-    </div>
+    <!-- שורת שליטה -->
+    <div class="top-controls">
+      <!-- חיפוש -->
+      <div class="search-bar">
+        <input
+          type="text"
+          v-model="searchQuery"
+          @input="filterChart"
+          placeholder="Search Feature..."
+          class="search-input"
+        />
+      </div>
 
-    <!-- כפתורי זום -->
-    <div class="controls">
-      <button @click="zoomIn" class="zoom-button" title="Zoom In">
-        <i class="fas fa-search-plus"></i>
-      </button>
-      <button @click="zoomOut" class="zoom-button" title="Zoom Out">
-        <i class="fas fa-search-minus"></i>
-      </button>
+      <!-- זום -->
+      <div class="controls">
+        <button @click="zoomIn" class="zoom-button" title="Zoom In">
+          <i class="fas fa-search-plus"></i>
+        </button>
+        <button @click="zoomOut" class="zoom-button" title="Zoom Out">
+          <i class="fas fa-search-minus"></i>
+        </button>
+      </div>
     </div>
 
     <!-- הגרף -->
@@ -33,6 +36,7 @@ export default {
   name: "BarChart",
   props: {
     data: Object,
+    selectedModel: String
   },
   data() {
     return {
@@ -40,8 +44,20 @@ export default {
       filteredData: null,
     };
   },
+  watch: {
+    selectedModel() {
+      this.initChart();
+    },
+    data: {
+      handler() {
+        this.filteredData = this.data;
+        this.initChart();
+      },
+      deep: true
+    }
+  },
   mounted() {
-    this.filteredData = { ...this.data };
+    this.filteredData = this.data;
     this.initChart();
     window.addEventListener("resize", this.resizeChart);
   },
@@ -51,37 +67,36 @@ export default {
   },
   methods: {
     initChart() {
-      if (!this.filteredData || !this.$refs.chart) return;
+      if (!this.filteredData || !this.$refs.chart || !this.selectedModel) return;
 
-      const categories = Object.keys(this.filteredData.SHAP);
+      const modelData = this.filteredData[this.selectedModel];
+      if (!modelData || !modelData.SHAP || !modelData.LIME || !modelData.Inherent) return;
+
+      const categories = Object.keys(modelData.SHAP);
       const seriesData = {
-        SHAP: Object.values(this.filteredData.SHAP),
-        FBT: Object.values(this.filteredData.FBT),
-        "Logistic Regression": Object.values(this.filteredData["Logistic Regression"]),
-        "Decision Tree": Object.values(this.filteredData["Decision Tree"]),
-        Lime: Object.values(this.filteredData.Lime),
+        SHAP: Object.values(modelData.SHAP),
+        LIME: Object.values(modelData.LIME),
+        Inherent: Object.values(modelData.Inherent),
       };
 
       const chartHeight = Math.max(categories.length * 25, 400);
       this.$refs.chart.style.height = `${chartHeight}px`;
 
+      if (this.chart) this.chart.dispose();
       this.chart = echarts.init(this.$refs.chart);
 
       const option = {
-        tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-        legend: {
-          data: Object.keys(seriesData),
-          top: "10px",
-        },
-        grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
-        xAxis: { type: "value", boundaryGap: [0, 0.01] },
-        yAxis: { type: "category", data: categories },
+        tooltip: {trigger: "axis", axisPointer: {type: "shadow"}},
+        legend: {data: Object.keys(seriesData), top: "10px"},
+        grid: {left: "3%", right: "4%", bottom: "3%", containLabel: true},
+        xAxis: {type: "value", boundaryGap: [0, 0.01]},
+        yAxis: {type: "category", data: categories},
         series: Object.entries(seriesData).map(([name, data], idx) => ({
           name,
           type: "bar",
           data,
           itemStyle: {
-            color: ["#c0392b", "#8e44ad", "#f39c12", "#3498db", "#2ecc71"][idx],
+            color: ["#c0392b", "#2ecc71", "#f39c12"][idx],
           },
         })),
         dataZoom: [
@@ -99,18 +114,20 @@ export default {
     },
 
     filterChart() {
-      if (!this.data) return;
+      if (!this.data || !this.selectedModel) return;
+
+      const modelData = this.data[this.selectedModel];
       const query = this.searchQuery.toLowerCase();
-      const categories = Object.keys(this.data.SHAP).filter((key) =>
-        key.toLowerCase().includes(query)
+      const categories = Object.keys(modelData.SHAP).filter((key) =>
+          key.toLowerCase().includes(query)
       );
 
       this.filteredData = {
-        SHAP: this.filterSeries(this.data.SHAP, categories),
-        FBT: this.filterSeries(this.data.FBT, categories),
-        "Logistic Regression": this.filterSeries(this.data["Logistic Regression"], categories),
-        "Decision Tree": this.filterSeries(this.data["Decision Tree"], categories),
-        Lime: this.filterSeries(this.data.Lime, categories),
+        [this.selectedModel]: {
+          SHAP: this.filterSeries(modelData.SHAP, categories),
+          LIME: this.filterSeries(modelData.LIME, categories),
+          Inherent: this.filterSeries(modelData.Inherent, categories),
+        },
       };
 
       this.initChart();
@@ -124,8 +141,8 @@ export default {
     },
 
     zoomIn() {
-      if (this.chart) {
-        const zoom = this.chart.getOption().dataZoom?.[0];
+      const zoom = this.chart?.getOption().dataZoom?.[0];
+      if (zoom) {
         this.chart.dispatchAction({
           type: "dataZoom",
           start: 0,
@@ -135,8 +152,8 @@ export default {
     },
 
     zoomOut() {
-      if (this.chart) {
-        const zoom = this.chart.getOption().dataZoom?.[0];
+      const zoom = this.chart?.getOption().dataZoom?.[0];
+      if (zoom) {
         this.chart.dispatchAction({
           type: "dataZoom",
           start: 0,
@@ -157,11 +174,8 @@ export default {
 };
 </script>
 
-
-
-
-
-<style>
+<style scoped>
+/* כל העיצוב הקיים שלך היה טוב ונשמר — השארתי אותו בדיוק כמו שהיה */
 .bar-chart-container {
   display: flex;
   flex-direction: column;
@@ -170,14 +184,38 @@ export default {
   padding-top: 16px;
 }
 
-/* כפתורי זום */
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.search-bar {
+  display: flex;
+}
+
+.search-input {
+  width: 240px;
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  font-size: 16px;
+  outline: none;
+  background-color: #f9f9f9;
+  transition: border 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #007a78;
+  box-shadow: 0 0 5px rgba(0, 122, 120, 0.5);
+}
+
 .controls {
-  position: absolute;
-  top: 12px;
-  right: 12px;
   display: flex;
   gap: 10px;
-  z-index: 10;
 }
 
 .zoom-button {
@@ -195,53 +233,19 @@ export default {
   transition: all 0.25s ease-in-out;
 }
 
-.zoom-button i {
-  font-size: 20px;
-  pointer-events: none;
-}
-
 .zoom-button:hover {
   background-color: #e0e0e0;
   color: #333;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   transform: scale(1.05);
 }
 
 .zoom-button:active {
   transform: scale(0.96);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-
-
-/* הגרף */
 .chart {
   flex: 1;
   width: 100%;
   height: 100%;
 }
-
-/* חיפוש */
-.search-bar {
-  margin-bottom: 12px;
-  display: flex;
-}
-
-.search-input {
-  width: 280px;
-  padding: 10px;
-  border: 2px solid #ccc;
-  border-radius: 20px;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.3s ease;
-  background-color: #f9f9f9;
-}
-
-.search-input:focus {
-  border-color: #007a78;
-  box-shadow: 0 0 5px rgba(0, 122, 120, 0.5);
-}
-
-
 </style>

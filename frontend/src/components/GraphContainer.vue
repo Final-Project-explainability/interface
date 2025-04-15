@@ -1,11 +1,22 @@
 <template>
   <div class="graph-container">
     <div class="chart-wrapper">
-      <BarChart v-if="type === 'Bar'" :data="data" class="chart" />
-      <LineChart v-else-if="type === 'Line'" :data="data" class="chart" />
-      <LimeChart v-else-if="type === 'LIME'" :data="data" class="chart" />
-      <PieChart v-else-if="type === 'Pie'" :data="data" class="chart" />
-      <RadarChart v-else-if="type === 'Radar'" :data="data" class="chart" />
+      <BarChart v-if="type === 'Bar'" :data="data" class="chart" :selectedModel="selectedModel"/>
+      <StackedBar
+        v-if="type === 'Stack'"
+        :data="data"
+        :selectedModel="selectedModel"
+      />
+      <ComparisonTable
+        v-if="type === 'Comparison'"
+        :data="data"
+        :selectedModel="selectedModel"
+      />
+
+<!--      <LineChart v-else-if="type === 'Line'" :data="data" class="chart" />-->
+<!--      <LimeChart v-else-if="type === 'LIME'" :data="data" class="chart" />-->
+<!--      <PieChart v-else-if="type === 'Pie'" :data="data" class="chart" />-->
+<!--      <RadarChart v-else-if="type === 'Radar'" :data="data" class="chart" />-->
       <div v-else class="empty-graph">לא נבחר גרף להצגה</div>
     </div>
   </div>
@@ -17,12 +28,19 @@ import LineChart from "../components/Graphs/LineChart.vue";
 import LimeChart from "../components/Graphs/LimeChart.vue";
 import PieChart from "../components/Graphs/PieChart.vue";
 import RadarChart from "../components/Graphs/RadarChart.vue";
+import GroupBarChart from "../components/Graphs/GroupedBarChart.vue";
+import HeatmapChart from "../components/Graphs/HeatmapChart.vue";
+import DotChart from "../components/Graphs/DotPlotChart.vue";
+import DumbbellChart from "@/components/Graphs/DumbbellChart.vue";
+import ComparisonTable from "@/components/Graphs/ComparisonTable.vue";
+import StackedBar from "@/components/Graphs/StackedBar.vue";
 
 export default {
   name: "GraphContainer",
   props: {
     type: String,
     data: Object,
+    selectedModel: String // ✅ חדש
   },
   components: {
     BarChart,
@@ -30,6 +48,12 @@ export default {
     LimeChart,
     PieChart,
     RadarChart,
+    GroupBarChart,
+    HeatmapChart,
+    DotChart,
+    DumbbellChart,
+    ComparisonTable,
+    StackedBar,
   },
 };
 </script>
