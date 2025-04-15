@@ -2,13 +2,18 @@
   <div class="graph-container">
     <div class="chart-wrapper">
       <BarChart v-if="type === 'Bar'" :data="data" class="chart" :selectedModel="selectedModel"/>
-      <StackedBar
-        v-if="type === 'Stack'"
+      <SankeyChart
+        v-if="type === 'Sankey'"
         :data="data"
         :selectedModel="selectedModel"
       />
       <ComparisonTable
         v-if="type === 'Comparison'"
+        :data="data"
+        :selectedModel="selectedModel"
+      />
+      <BoxplotChart
+        v-if="type === 'Boxplot'"
         :data="data"
         :selectedModel="selectedModel"
       />
@@ -34,6 +39,8 @@ import DotChart from "../components/Graphs/DotPlotChart.vue";
 import DumbbellChart from "@/components/Graphs/DumbbellChart.vue";
 import ComparisonTable from "@/components/Graphs/ComparisonTable.vue";
 import StackedBar from "@/components/Graphs/StackedBar.vue";
+import SankeyChart from "@/components/Graphs/SankeyChart.vue";
+import BoxplotChart from "@/components/Graphs/BoxplotChart.vue";
 
 export default {
   name: "GraphContainer",
@@ -54,6 +61,8 @@ export default {
     DumbbellChart,
     ComparisonTable,
     StackedBar,
+    SankeyChart,
+    BoxplotChart,
   },
 };
 </script>

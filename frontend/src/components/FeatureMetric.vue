@@ -1,14 +1,38 @@
 <template>
   <div class="feature-metric">
     <!-- כותרת + טוגל -->
-    <div class="header">
-      <h2>Feature Metric:</h2>
-      <div class="toggle-container">
-        <span class="toggle-label">Agreement</span>
-        <label class="switch">
-          <input type="checkbox" v-model="showAgreement" />
-          <span class="slider round"></span>
-        </label>
+<!--    <div class="header">-->
+<!--      <h2>Feature Metric:</h2>-->
+<!--      <div class="toggle-container">-->
+<!--        <span class="toggle-label">Agreement</span>-->
+<!--        <label class="switch">-->
+<!--          <input type="checkbox" v-model="showAgreement" />-->
+<!--          <span class="slider round"></span>-->
+<!--        </label>-->
+<!--      </div>-->
+<!--    </div>-->
+
+
+    <div class="header-glass-centered">
+      <h2>Feature Metric</h2>
+
+      <div class="glass-toggle-wrapper">
+        <div class="glass-toggle">
+          <div class="slider-bg" :class="{ right: !showAgreement }"></div>
+
+          <button
+            :class="{ active: showAgreement }"
+            @click="showAgreement = true"
+          >
+            Agreement
+          </button>
+          <button
+            :class="{ active: !showAgreement }"
+            @click="showAgreement = false"
+          >
+            Disagreement
+          </button>
+        </div>
       </div>
     </div>
 
@@ -32,17 +56,21 @@ import featureData from "../JSON/feature_metrics.json";
 
 export default {
   name: "FeatureMetric",
+  props: {
+    selectedModel: String, // ✅ קלט חדש
+  },
   data() {
     return {
-      features: featureData.features, // ייבוא נתוני ה-JSON
       showAgreement: true // ברירת מחדל: הצגת Agreement
     };
   },
   computed: {
     // מחזיר את רשימת הפיצ'רים להצגה לפי מצב הטוגל
     displayedFeatures() {
-      return this.features.sort((a, b) =>
-          this.showAgreement ? b.agreement - a.agreement : b.disagreement - a.disagreement
+      const modelFeatures = featureData[this.selectedModel] || [];
+
+      return modelFeatures.sort((a, b) =>
+        this.showAgreement ? b.agreement - a.agreement : b.disagreement - a.disagreement
       );
     }
   }
@@ -203,6 +231,80 @@ input:checked + .slider:before {
 
 .feature-metric::-webkit-scrollbar-thumb:hover {
   background-color: #aaa;
+}
+
+
+
+.header-glass-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.header-glass-centered h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* עטיפה */
+.glass-toggle-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* טוגל מודרני */
+.glass-toggle {
+  display: flex;
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  width: 280px;
+  position: relative;
+}
+
+/* המסגרת המונפשת */
+.slider-bg {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 50%;
+  height: calc(100% - 4px);
+  background: rgba(217, 216, 216, 0.5);
+  border-radius: 12px;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.04);
+  transition: all 0.35s ease;
+  z-index: 0;
+}
+.slider-bg.right {
+  transform: translateX(100%);
+}
+
+/* הכפתורים עצמם */
+.glass-toggle button {
+  flex: 1;
+  z-index: 1;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #333;
+}
+
+.glass-toggle button.active {
+  color: #007a78;
+  font-weight: 600;
 }
 
 </style>

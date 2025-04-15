@@ -13,7 +13,7 @@
         </button>
 
         <!-- תוכן פנימי: FeatureMetric -->
-        <FeatureMetric v-show="!isFeatureCollapsed" />
+        <FeatureMetric v-show="!isFeatureCollapsed" :selectedModel="selectedModel"/>
       </section>
 
       <!-- צד ימין: גרפים -->
@@ -57,12 +57,12 @@ export default {
   },
   data() {
     return {
-      graphTypes: ["Bar", "Comparison", "Stack"],
+      graphTypes: ["Bar", "Comparison", "Sankey"],
       activeGraphType: "Bar",
       selectedModel: "XGBoost",
       graphData: {
         Bar: data,
-        Stack: data,
+        Sankey: data,
         Comparison: data,
       },
       isFeatureCollapsed: false,

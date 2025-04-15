@@ -168,7 +168,7 @@ export default {
   width: 260px;
   user-select: none;
   font-size: 14px;
-  direction: rtl;
+  direction: ltr;
 }
 
 .dropdown-toggle {
