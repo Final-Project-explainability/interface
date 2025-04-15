@@ -2,47 +2,6 @@
   <div class="about-slider">
     <MenuBar />
 
-<<<<<<< Updated upstream
-    <div class="hero-section">
-      <div class="info-grid">
-        <!-- צד שמאל: מידע תמציתי -->
-        <div class="info-section">
-          <h1 class="title">🧠 Explainability ICU</h1>
-          <p class="subtitle">
-            A smart ICU system for AI prediction explainability. Built to support
-            clinical decision-making through local and global insights. dfhgkjldfkjg
-          </p>
-
-          <div class="quick-facts">
-            <h2><i class="fas fa-microscope"></i> Highlights</h2>
-            <ul>
-              <li>🩺 Predict ICU mortality (24h data)</li>
-              <li>🧩 Compare SHAP, LIME, PDP</li>
-              <li>🌍 Local & Global views</li>
-              <li>📘 Feature Dictionary</li>
-              <li>👩‍⚕️ Clinician feedback</li>
-            </ul>
-          </div>
-
-          <div class="quick-links">
-            <h2><i class="fab fa-github"></i> GitHub</h2>
-            <div class="links">
-              <a href="https://github.com/Final-Project-explainability/interface" target="_blank">Frontend</a>
-              <a href="https://github.com/Final-Project-explainability/main" target="_blank">Backend</a>
-              <a href="https://youtu.be/xw0PxcqokEs?si=rz6yrF7nqKlz_iVM" target="_blank">🎥 Demo</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- צד ימין: צוות -->
-        <div class="team-section">
-          <h2 class="team-title"><i class="fas fa-users-cog"></i> The Team</h2>
-          <div class="team-grid">
-            <TeamCard name="Alon Azran" role="Frontend Engineer" img="https://i.pravatar.cc/100?u=alon" />
-            <TeamCard name="Ofir Tamir" role="Backend Developer" img="https://i.pravatar.cc/100?u=ofir" />
-            <TeamCard name="Oded Atias" role="ML & Explainability" img="https://i.pravatar.cc/100?u=oded" />
-          </div>
-=======
     <!-- ציר זמן בחלק העליון -->
     <div class="timeline">
       <div class="timeline-path-background"></div>
@@ -55,7 +14,6 @@
       >
         <div class="step-marker" :class="{ active: index <= currentSlideIndex }">
           <span class="step-icon">{{ index + 1 }}</span>
->>>>>>> Stashed changes
         </div>
         <span class="step-label" :class="{ active: index <= currentSlideIndex }">{{ slide.name }}</span>
       </div>
