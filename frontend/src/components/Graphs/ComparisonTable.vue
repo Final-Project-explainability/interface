@@ -26,11 +26,11 @@
           />
 
           <div class="dropdown-actions">
-            <button @click.stop="clearAll">
-              <i class="fas fa-times-circle"></i> Clear All
-            </button>
             <button @click.stop="selectAll">
               <i class="fas fa-check-circle"></i> Select All
+            </button>
+            <button @click.stop="clearAll">
+              <i class="fas fa-times-circle"></i> Clear All
             </button>
           </div>
 
