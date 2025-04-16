@@ -65,48 +65,48 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import PatientModal from "../pages/PatientModal.vue";
 import AdminPanelModal from "../pages/AdminPanelModal.vue";
+import { usePanelStore } from "@/stores/panelStore";
+import { ref } from "vue";
 
-export default {
-  name: "Dashboard",
-  props: {
-    user: {
-      type: Object,
-      required: true,
-    },
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true,
   },
-  components: {
-    PatientModal,
-    AdminPanelModal,
-  },
-  data() {
-    return {
-      defaultAvatar: "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg",
-      showPatientModal: false,
-      showAdminModal: false,
-    };
-  },
-  methods: {
-    navigateTo(section) {
-      this.$emit("navigate", section);
-    },
-    openPatientModal() {
-      this.showPatientModal = true;
-    },
-    closePatientModal() {
-      this.showPatientModal = false;
-    },
-    openAdminModal() {
-      this.showAdminModal = true;
-    },
-    closeAdminModal() {
-      this.showAdminModal = false;
-    },
-  },
+});
+
+const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg";
+
+const showPatientModal = ref(false);
+const showAdminModal = ref(false);
+
+// ⬇️ שימוש ב־store של הפאנלים
+const panelStore = usePanelStore();
+
+const navigateTo = (panelName) => {
+  panelStore.setPanel(panelName); // 🔥 משנה את הפאנל דרך Pinia
+};
+
+const openPatientModal = () => {
+  showPatientModal.value = true;
+};
+
+const closePatientModal = () => {
+  showPatientModal.value = false;
+};
+
+const openAdminModal = () => {
+  showAdminModal.value = true;
+};
+
+const closeAdminModal = () => {
+  showAdminModal.value = false;
 };
 </script>
+
 
 <style>
 .open-modal-button {

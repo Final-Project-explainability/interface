@@ -73,9 +73,15 @@
 
         <transition name="fade">
           <ul v-if="isUserDropdownOpen && user" class="user-dropdown">
-            <li><i class="material-icons">account_circle</i> Profile</li>
-            <li v-if="user?.isAdmin"><i class="material-icons">admin_panel_settings</i> Admin Panel</li>
-            <li><i class="material-icons">settings</i> Settings</li>
+            <li @click="navigateTo('PersonalArea')">
+              <i class="material-icons">account_circle</i> My Profile
+            </li>
+            <li v-if="user?.isAdmin" @click="navigateTo('AdminPanel')">
+              <i class="material-icons">admin_panel_settings</i> Admin Panel
+            </li>
+            <li @click="navigateTo('PatientList')">
+              <i class="material-icons">assignment</i> Patient List
+            </li>
             <li @click="handleLogout">
               <i class="material-icons">logout</i> Logout
             </li>
@@ -91,6 +97,8 @@ import { ref, onMounted } from "vue";
 import { getUserProfile } from "@/data/authService";
 import {useRouter} from "vue-router"; // שנה אם צריך
 import { eventBus } from "@/utils/eventBus";
+import { usePanelStore } from "@/stores/panelStore";
+
 
 export default {
   name: "MenuBar",
@@ -136,6 +144,23 @@ export default {
       eventBus.emit("token-expired");
     };
 
+    const panelStore = usePanelStore();
+
+    const navigateTo = (panelName) => {
+      isUserDropdownOpen.value = false;
+      isSidebarOpen.value = false;
+
+      // 1. שינוי הפאנל ב-Pinia
+      panelStore.setPanel(panelName);
+
+      // 2. חזרה ל-root אם לא שם
+      if (router.currentRoute.value.path !== "/") {
+        router.push("/");
+      }
+    };
+
+
+
 
     onMounted(loadUser);
 
@@ -148,6 +173,7 @@ export default {
       isUserDropdownOpen,
       isSidebarOpen,
       handleLogout,
+      navigateTo,
     };
   },
 };
@@ -279,15 +305,16 @@ export default {
 }
 .user-dropdown {
   position: absolute;
-  top: 60px;
+  top: 100%;
   right: 0;
+  margin-top: 12px;
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
   list-style: none;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
   padding: 10px 0;
-  min-width: 170px;
+  min-width: 180px;
   z-index: 1002;
 }
 .user-dropdown li {
