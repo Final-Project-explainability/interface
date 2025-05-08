@@ -31,6 +31,8 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Card from "../components/Card.vue";
+import DatasetSelector from "../components/DatasetSelector.vue";
+
 
 export default {
   name: "InfoPanel",
@@ -42,6 +44,7 @@ export default {
   },
   components: {
     Card,
+    DatasetSelector,
   },
   setup() {
     const router = useRouter();

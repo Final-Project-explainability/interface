@@ -2,14 +2,15 @@
   <div class="about-slider">
     <MenuBar />
 
-    <!-- ציר זמן בחלק העליון -->
+    <!-- Timeline at the top (now narrower) -->
     <div class="timeline">
       <div class="timeline-path-background"></div>
-      <div class="timeline-path-progress" :style="{ width: progressWidth + '%' }"></div>
+      <div class="timeline-path-progress" :style="{ width: progressWidth }"></div>
       <div
         v-for="(slide, index) in slides"
         :key="index"
         class="timeline-step"
+        :ref="el => stepRefs[index] = el"
         @click="goToSlide(index)"
       >
         <div class="step-marker" :class="{ active: index <= currentSlideIndex }">
@@ -19,17 +20,17 @@
       </div>
     </div>
 
-    <!-- השקף הפעיל -->
+    <!-- Active slide -->
     <div class="slide-container">
       <transition name="slide" mode="out-in">
         <component :is="currentSlide.component" :key="currentSlideIndex" />
       </transition>
     </div>
 
-    <!-- ניווט -->
+    <!-- Navigation buttons -->
     <div class="nav-buttons">
-      <button @click="prevSlide" :disabled="currentSlideIndex === 0">← קודם</button>
-      <button @click="nextSlide" :disabled="currentSlideIndex === slides.length - 1">הבא →</button>
+      <button @click="prevSlide" :disabled="currentSlideIndex === 0">← Previous</button>
+      <button @click="nextSlide" :disabled="currentSlideIndex === slides.length - 1">Next →</button>
     </div>
   </div>
 </template>
@@ -42,6 +43,7 @@ import SlideSolution from "./slides/SlideSolution.vue";
 import SlideInterface from "./slides/SlideInterface.vue";
 import SlideTeam from "./slides/SlideTeam.vue";
 import SlideLinks from "./slides/SlideLinks.vue";
+import AboutHero from "./slides/AboutHero.vue";
 
 export default {
   components: {
@@ -52,18 +54,22 @@ export default {
     SlideInterface,
     SlideTeam,
     SlideLinks,
+    AboutHero,
   },
   data() {
     return {
       currentSlideIndex: 0,
       slides: [
-        { name: "סקירה", component: "SlideIntro" },
-        { name: "הבעיה", component: "SlideProblem" },
-        { name: "הפתרון", component: "SlideSolution" },
-        { name: "הממשק", component: "SlideInterface" },
-        { name: "הצוות", component: "SlideTeam" },
-        { name: "קישורים", component: "SlideLinks" },
+        { name: "Introduction", component: "SlideIntro" },
+        { name: "Team & Mentors", component: "AboutHero" },
+        { name: "Problem", component: "SlideProblem" },
+        { name: "Solution", component: "SlideSolution" },
+        { name: "Interface", component: "SlideInterface" },
+        { name: "Team", component: "SlideTeam" },
+        { name: "Links", component: "SlideLinks" },
       ],
+      stepRefs: [],
+      timelineLeftOffset: 0,
     };
   },
   computed: {
@@ -71,13 +77,30 @@ export default {
       return this.slides[this.currentSlideIndex];
     },
     progressWidth() {
-      const totalSteps = this.slides.length - 1; // מספר המרווחים בין השלבים
-      const stepPercentage = 94 / totalSteps; // אחוז לכל מרווח
-      // מגביל את הרוחב כך שלא יחרוג מעבר למרכז העיגול האחרון
-      return Math.min(stepPercentage * this.currentSlideIndex, 101 - (stepPercentage / 2));
+      const el = this.stepRefs[this.currentSlideIndex];
+      if (!el || !this.timelineLeftOffset) return "0px";
+
+      const centerX = el.getBoundingClientRect().left + el.offsetWidth / 2;
+      const distance = centerX - this.timelineLeftOffset;
+      return `${distance}px`;
     },
   },
+  mounted() {
+    this.$nextTick(() => {
+      this.setTimelineOffset();
+    });
+    window.addEventListener("resize", this.setTimelineOffset);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.setTimelineOffset);
+  },
   methods: {
+    setTimelineOffset() {
+      const timelineEl = this.$el.querySelector(".timeline-path-background");
+      if (timelineEl) {
+        this.timelineLeftOffset = timelineEl.getBoundingClientRect().left;
+      }
+    },
     nextSlide() {
       if (this.currentSlideIndex < this.slides.length - 1) {
         this.currentSlideIndex++;
@@ -105,24 +128,24 @@ export default {
   overflow: hidden;
 }
 
-/* ציר זמן בחלק העליון */
 .timeline {
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
-  padding: 30px 60px;
+  padding: 0px 40px;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   z-index: 10;
+  min-height: 70px;
 }
 
 .timeline-path-background {
   position: absolute;
-  top: calc(30px + 15px); /* מיקום במרכז ה-step-marker */
+  top: 24px;
   left: 60px;
-  right: 60px;
-  height: 6px;
+  right: 40px;
+  height: 4px;
   background: repeating-linear-gradient(
     90deg,
     #d1d5db 0,
@@ -130,17 +153,19 @@ export default {
     transparent 10px,
     transparent 20px
   );
+  border-radius: 2px;
   z-index: 0;
 }
 
 .timeline-path-progress {
   position: absolute;
-  top: calc(30px + 15px); /* מיקום במרכז ה-step-marker */
+  top: 24px;
   left: 60px;
-  height: 6px;
+  height: 4px;
   background: linear-gradient(90deg, #1e3a8a, #3b82f6);
   transition: width 0.6s ease-in-out;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  border-radius: 2px;
   z-index: 1;
 }
 
@@ -151,38 +176,36 @@ export default {
   position: relative;
   z-index: 2;
   cursor: pointer;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
 .timeline-step:hover {
   transform: scale(1.1);
-  opacity: 0.9;
 }
 
 .step-marker {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 24px;
   border-radius: 50%;
   background-color: #ffffff;
-  border: 3px solid #d1d5db;
+  border: 2px solid #d1d5db;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.4s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .step-marker.active {
   border-color: #3b82f6;
   background-color: #dbeafe;
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
 
 .step-icon {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   color: #6b7280;
-  transition: color 0.4s ease;
 }
 
 .step-marker.active .step-icon {
@@ -190,29 +213,28 @@ export default {
 }
 
 .step-label {
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: 6px;
+  font-size: 12px;
   font-weight: 600;
   color: #6b7280;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: color 0.4s ease;
+  letter-spacing: 0.4px;
+  transition: color 0.3s ease;
 }
 
 .step-label.active {
   color: #1e3a8a;
 }
 
-/* תוכן השקופית */
 .slide-container {
-  flex: 1;
+  height: calc(100vh - 110px - 80px);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 60px;
+  padding: 0;
+  overflow: hidden;
 }
 
-/* ניווט */
 .nav-buttons {
   display: flex;
   justify-content: space-between;
@@ -243,7 +265,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* מעבר חלק בין שקפים */
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.6s ease;

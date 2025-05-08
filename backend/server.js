@@ -4,9 +4,23 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
+// const dotenv = require("dotenv");
+// dotenv.config();
+
+// 👇 הוספת הקוד הדינאמי במקום השורה הישנה של bcrypt
+let bcrypt;
+try {
+  bcrypt = require("bcrypt");
+  console.log("✅ Using native bcrypt");
+} catch (err) {
+  bcrypt = require("bcryptjs");
+  console.warn("⚠️ Falling back to bcryptjs");
+}
+
 const dotenv = require("dotenv");
 dotenv.config();
+
 
 const SECRET_KEY = process.env.JWT_SECRET || "defaultsecretkey";
 

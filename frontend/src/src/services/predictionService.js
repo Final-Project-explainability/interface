@@ -10,10 +10,15 @@ async function loadJsonFile(filePath) {
   return response.json();
 }
 
-// ⬇️ קביעת נתיבים לפי הדאטהסט הנבחר
+
+// ✅ פונקציית עזר חדשה
+function getSelectedDataset() {
+  return localStorage.getItem("selectedDataset") || "DataSet 1";
+}
+
+// ⬇️ פונקציה שמחזירה נתיבים לפי הדאטהסט הנבחר
 function getDataPaths() {
-  const dataSourceStore = useDataSourceStore();
-  const dataset = dataSourceStore.selectedDataset;
+  const dataset = getSelectedDataset();
 
   if (dataset === "DataSet 2") {
     return {
@@ -30,7 +35,8 @@ function getDataPaths() {
   }
 }
 
-// ⬇️ שלוש הפונקציות לחיזוי - XGBoost / DecisionTree / LogisticRegression
+
+// ⬇️ תחזיות לכל מודל
 export async function GetPatientPredictXGBOOST(patient_id) {
   const { modelPredictions } = getDataPaths();
   const data = await loadJsonFile(modelPredictions);
@@ -55,7 +61,7 @@ export async function GetPatientPredictLogisticRegression(patient_id) {
   return patient.LogisticRegression_Pred;
 }
 
-// ⬇️ שליפת פרטי מטופל + מיפוי עם dictionary
+// ⬇️ שליפת פרטי מטופל עם dictionary
 export async function GetPatientDetails(patient_id) {
   const { patientDetails } = getDataPaths();
   const data = await loadJsonFile(patientDetails);
@@ -75,15 +81,36 @@ export async function GetPatientDetails(patient_id) {
   return updateKeys(patient, dictionary);
 }
 
-// ⬇️ הסבר של SHAP או דגם אחר - משתנה לפי דאטהסט
+// ⬇️ שליפת הסבר לפי מודל ודאטהסט
 export async function GetPatientExplanation(patientId, modelName) {
   try {
     const { explanationFolder } = getDataPaths();
     const explanationPath = `${explanationFolder}/patient_${patientId}_explanation.json`;
+
+    console.log("🔍 LOADING EXPLANATION FROM:", explanationPath);
+
     const data = await loadJsonFile(explanationPath);
-    return data[modelName] || null;
+
+    if (!data || !data[modelName]) {
+      throw new Error(`No explanation for ${modelName} in file ${explanationPath}`);
+    }
+
+    return data[modelName];
   } catch (error) {
-    console.error(`Error loading explanation for patient ${patientId}:`, error.message);
-    return null;
+    console.error(`❌ Failed loading explanation for patient ${patientId}:`, error.message);
+    throw error;
   }
 }
+
+
+export async function IsPatientInCurrentDataset(patientId) {
+  const { patientDetails } = getDataPaths();
+  const data = await loadJsonFile(patientDetails);
+
+  // DEBUGGING LOG
+  console.log(`Checking if ${patientId} in ${patientDetails}, total records: ${data.length}`);
+
+  return data.some(p => String(p.patient_id) === String(patientId));
+}
+
+

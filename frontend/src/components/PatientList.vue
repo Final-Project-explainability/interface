@@ -1,23 +1,18 @@
 <template>
   <div class="patient-list-container">
-    <!-- כותרת -->
     <div class="header">
       <h2>Patient List</h2>
     </div>
 
-    <!-- תוכן -->
     <div class="content">
-      <!-- טעינה -->
       <div v-if="loading" class="loading-message">
         <i class="fas fa-spinner fa-spin"></i> Loading patient data...
       </div>
 
-      <!-- שגיאה -->
       <div v-else-if="error" class="error-message">
         <i class="fas fa-exclamation-circle"></i> {{ error }}
       </div>
 
-      <!-- רשימת מטופלים -->
       <div v-else-if="patients.length > 0" class="patient-list">
         <div
           v-for="(patient, index) in patients"
@@ -35,7 +30,6 @@
         </div>
       </div>
 
-      <!-- אין נתונים -->
       <div v-else class="no-data-message">
         <i class="fas fa-info-circle"></i> No patient data available.
       </div>
@@ -43,56 +37,76 @@
   </div>
 </template>
 
+<script setup>
+import { ref, watch, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import Papa from 'papaparse';
+import { useDataSourceStore } from '@/stores/dataSourceStore';
 
-<script>
-import Papa from "papaparse";
+const router = useRouter();
+const dataSourceStore = useDataSourceStore();
 
-export default {
-  name: "PatientList",
-  data() {
-    return {
-      loading: true, // מצב טעינה
-      error: "", // הודעת שגיאה
-      patients: [], // רשימת המטופלים
-    };
-  },
-  methods: {
-    async fetchPatients() {
-      try {
-        const response = await fetch("/project_data/example_test_data.csv");
-        if (!response.ok) {
-          throw new Error("Failed to fetch patient data");
-        }
-        const csvText = await response.text();
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            this.patients = results.data;
-            this.loading = false;
-          },
-          error: (error) => {
-            this.error = "Failed to parse CSV file";
-            console.error(error);
-            this.loading = false;
-          },
-        });
-      } catch (error) {
-        this.error = error.message;
-        console.error(error);
-        this.loading = false;
+const loading = ref(true);
+const error = ref("");
+const patients = ref([]);
+
+const datasetMap = {
+  "DataSet 1": "example_test_data.csv",
+  "DataSet 2": "Patients_DataSet2.csv",
+};
+
+const fetchPatients = async () => {
+  loading.value = true;
+  error.value = "";
+  patients.value = [];
+
+  const datasetName = dataSourceStore.selectedDataset;
+  const fileName = datasetMap[datasetName];
+  if (!fileName) {
+    error.value = `Unknown dataset: ${datasetName}`;
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const response = await fetch(`/project_data/${fileName}`);
+    if (!response.ok) throw new Error("Failed to fetch file");
+
+    const csvText = await response.text();
+    Papa.parse(csvText, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        patients.value = results.data;
+        loading.value = false;
+      },
+      error: (err) => {
+        error.value = "Failed to parse CSV";
+        console.error(err);
+        loading.value = false;
       }
-    },
-    goToPatientPage(patientId) {
-      // ניווט לדף Local עם מזהה המטופל
-      this.$router.push({ path: "/local", query: { patientId } });
-    },
+    });
+  } catch (err) {
+    error.value = err.message;
+    loading.value = false;
+    console.error(err);
+  }
+};
+
+// ✅ נוודא שזה נשלף תמיד כאשר הדאטהסט משתנה
+watch(
+  () => dataSourceStore.selectedDataset,
+  () => {
+    fetchPatients();
   },
-  mounted() {
-    this.fetchPatients(); // קריאת המטופלים כאשר הקומפוננטה נטענת
-  },
+  { immediate: true }
+);
+
+const goToPatientPage = (id) => {
+  router.push({ path: "/local", query: { patientId: id } });
 };
 </script>
+
 
 <style scoped>
 .patient-list-container {

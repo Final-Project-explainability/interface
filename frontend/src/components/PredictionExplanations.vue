@@ -23,7 +23,7 @@
 
 <script>
 import { MockGetPatientExplanaition } from "../local_functions_mock";
-import { GetPatientExplanation} from "../local_functions";
+import { GetPatientExplanation } from "../src/services/predictionService.js";
 import ModelExplainableSection from "./ModelExplainableSection.vue";
 
 export default {
@@ -44,6 +44,10 @@ export default {
       type: String,
       default: "vital", // circular / vital / mini
     },
+    selectedDataset: {
+      type: String,
+      required: true, // ✅ חובה כדי שנוכל לדעת מתי לשנות את הנתונים
+    },
   },
   data() {
     return {
@@ -54,50 +58,74 @@ export default {
   },
   methods: {
     async loadPredictionData() {
-      if (this.selectedModel === "All") {
-        const rawData = await this.fetchAllExplanations();
+      try {
+        this.predictionData = [];
+        this.filteredPredictionData = [];
 
-        // עיבוד לקבוצות -> מודלים -> features
-        this.predictionData = Object.entries(rawData).flatMap(([group, models]) =>
-          Object.entries(models).map(([model, features]) => ({
+        if (this.selectedModel === "All") {
+          const rawData = await this.fetchAllExplanations();
+
+          // אם לא חזר כלום (כל המודלים ריקים) נזרוק שגיאה
+          if (!rawData || Object.keys(rawData).length === 0) {
+            throw new Error("No explanations found for any model.");
+          }
+
+          this.predictionData = Object.entries(rawData).flatMap(([group, models]) =>
+            Object.entries(models).map(([model, features]) => ({
+              group,
+              model,
+              features: Object.entries(features || {}).map(([name, percentage]) => ({
+                name,
+                percentage,
+              })),
+            }))
+          );
+        } else {
+          const rawData = await GetPatientExplanation(this.patientId, this.selectedModel);
+
+          // אם אין נתונים כלל עבור המודל הזה
+          if (!rawData || Object.keys(rawData).length === 0) {
+            throw new Error(`No explanation data found for ${this.selectedModel}`);
+          }
+
+          this.predictionData = Object.entries(rawData).map(([group, features]) => ({
             group,
-            model,
+            model: this.selectedModel,
             features: Object.entries(features || {}).map(([name, percentage]) => ({
               name,
               percentage,
             })),
-          }))
-        );
-      } else {
-        const rawData = await GetPatientExplanation(this.patientId, this.selectedModel);
-        this.predictionData = Object.entries(rawData || {}).map(([group, features]) => ({
-          group,
-          model: this.selectedModel, // 🧠 נדרש כדי שהמיון לפי מודל יעבוד
-          features: Object.entries(features).map(([name, percentage]) => ({
-            name,
-            percentage,
-          })),
-        }));
-      }
+          }));
+        }
 
-      // 🧠 קריאה להפעלת סינון ברירת מחדל מיד לאחר טעינה
-      this.applyFilters({
-        filterType: "all",
-        sortOrder: "default",
-        searchQuery: "",
-        viewMode: this.viewMode,
-      });
+        // הפעלת פילטרים ברירת מחדל אחרי הטעינה
+        this.applyFilters({
+          filterType: "all",
+          sortOrder: "default",
+          searchQuery: "",
+          viewMode: this.viewMode,
+        });
+      } catch (err) {
+        console.error("❌ Failed to load explanation:", err.message);
+        this.predictionData = [];
+        this.filteredPredictionData = [];
+      }
     },
     async fetchAllExplanations() {
       const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
       const explanationData = {};
 
       for (const model of models) {
-        const modelData = await GetPatientExplanation(this.patientId, model);
-
-        for (const [group, features] of Object.entries(modelData)) {
-          if (!explanationData[group]) explanationData[group] = {};
-          explanationData[group][model] = features;
+        try {
+          const modelData = await GetPatientExplanation(this.patientId, model);
+          if (modelData) {
+            for (const [group, features] of Object.entries(modelData)) {
+              if (!explanationData[group]) explanationData[group] = {};
+              explanationData[group][model] = features;
+            }
+          }
+        } catch (err) {
+          console.warn(`⚠️ Failed to load explanation for ${model}:`, err.message);
         }
       }
 
@@ -178,6 +206,7 @@ export default {
     // ניטור שינויים ב-patientId או ב-selectedModel
     patientId: "loadPredictionData",
     selectedModel: "loadPredictionData",
+    selectedDataset: "loadPredictionData", // ✅ מוסיפים את זה
     viewMode(newVal) {
       // כאשר מצב תצוגה משתנה, נריץ את הסינון מחדש
       if (this.lastFilters) {

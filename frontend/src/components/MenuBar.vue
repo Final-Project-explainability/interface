@@ -31,7 +31,7 @@
 
 
 
-      <!-- חיפוש (רק אם מחובר) -->
+      <!-- חיפוש ודאטהסט (רק אם מחובר) -->
       <div class="search-bar-wrapper" v-if="user">
         <div class="search-input-wrapper">
           <i class="material-icons search-icon">search</i>
@@ -42,10 +42,31 @@
             @keyup.enter="submitSearch"
           />
         </div>
-        <button class="search-btn" @click="submitSearch">
-          Go
+        <button class="search-btn" @click="submitSearch">Go</button>
+
+        <div class="dataset-indicator">
+          <i class="material-icons">storage</i>
+          <span>{{ dataSourceStore.selectedDataset }}</span>
+        </div>
+
+        <button class="dataset-toggle-btn" @click="toggleDataset" title="Switch dataset">
+          <i class="material-icons">autorenew</i>
         </button>
       </div>
+
+
+      <!-- הצגת הדאטה סט - תמיד מוצג -->
+      <div class="dataset-indicator-wrapper"  v-if="!user">
+        <div class="dataset-indicator">
+          <i class="material-icons">storage</i>
+          <span>{{ dataSourceStore.selectedDataset }}</span>
+        </div>
+        <button class="dataset-toggle-btn" @click="toggleDataset" title="Switch dataset">
+          <i class="material-icons">autorenew</i>
+        </button>
+      </div>
+
+
 
 
       <!-- לוגו -->
@@ -73,16 +94,24 @@
 
         <transition name="fade">
           <ul v-if="isUserDropdownOpen && user" class="user-dropdown">
+            <li @click="navigateTo('Home')">
+              <i class="material-icons">home</i> Home
+            </li>
+
             <li @click="navigateTo('PersonalArea')">
               <i class="material-icons">account_circle</i> My Profile
             </li>
-            <li v-if="user?.isAdmin" @click="navigateTo('AdminPanel')">
-              <i class="material-icons">admin_panel_settings</i> Admin Panel
-            </li>
+
             <li @click="navigateTo('PatientList')">
               <i class="material-icons">assignment</i> Patient List
             </li>
-            <li @click="handleLogout">
+
+            <li class="admin-entry" v-if="user?.isAdmin" @click="navigateTo('AdminPanel')">
+              <i class="material-icons">admin_panel_settings</i> Admin Panel
+            </li>
+
+
+            <li class="logout-entry" @click="handleLogout">
               <i class="material-icons">logout</i> Logout
             </li>
           </ul>
@@ -92,92 +121,84 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from "vue";
 import { getUserProfile } from "@/data/authService";
-import {useRouter} from "vue-router"; // שנה אם צריך
+import { useRouter } from "vue-router";
 import { eventBus } from "@/utils/eventBus";
 import { usePanelStore } from "@/stores/panelStore";
+import { useDataSourceStore } from "@/stores/dataSourceStore";
+import { GetPatientDetails } from "../src/services/predictionService.js"; // ⚠️ משתמש בקובץ החדש
 
+const searchText = ref("");
+const isSidebarOpen = ref(false);
+const isUserDropdownOpen = ref(false);
+const user = ref(null);
+const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/6073/6073873.png";
 
-export default {
-  name: "MenuBar",
-  emits: ["search"],
-  setup(_, { emit }) {
-    const searchText = ref("");
-    const isSidebarOpen = ref(false);
-    const isUserDropdownOpen = ref(false);
-    const user = ref(null);
-    const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/6073/6073873.png";
-    const router = useRouter();
+const panelStore = usePanelStore();
+const dataSourceStore = useDataSourceStore();
+const router = useRouter();
 
-    const toggleUserDropdown = () => {
-      isUserDropdownOpen.value = !isUserDropdownOpen.value;
-    };
+const emit = defineEmits(["search"]);
 
-    const submitSearch = () => {
-      const query = searchText.value.trim();
-      if (query) {
-        emit("search", query);
-        searchText.value = "";
-        // מעביר ל-local אם לא בדף local כבר
-        if (router.currentRoute.value.path !== "/local") {
-          router.push({ path: "/local", query: { patientId: query } });
-        }
-      }
-    };
-
-    const loadUser = async () => {
-      const userId = localStorage.getItem("userId");
-      const token = localStorage.getItem("token");
-      if (!userId || !token) return;
-      try {
-        const profile = await getUserProfile(userId, token);
-        user.value = profile;
-      } catch (err) {
-        console.error("❌ Failed to load user:", err);
-      }
-    };
-
-
-    const handleLogout = () => {
-      eventBus.emit("token-expired");
-    };
-
-    const panelStore = usePanelStore();
-
-    const navigateTo = (panelName) => {
-      isUserDropdownOpen.value = false;
-      isSidebarOpen.value = false;
-
-      // 1. שינוי הפאנל ב-Pinia
-      panelStore.setPanel(panelName);
-
-      // 2. חזרה ל-root אם לא שם
-      if (router.currentRoute.value.path !== "/") {
-        router.push("/");
-      }
-    };
-
-
-
-
-    onMounted(loadUser);
-
-    return {
-      user,
-      defaultAvatar,
-      searchText,
-      submitSearch,
-      toggleUserDropdown,
-      isUserDropdownOpen,
-      isSidebarOpen,
-      handleLogout,
-      navigateTo,
-    };
-  },
+const toggleUserDropdown = () => {
+  isUserDropdownOpen.value = !isUserDropdownOpen.value;
 };
+
+const toggleDataset = () => {
+  const current = dataSourceStore.selectedDataset;
+  const next = current === "DataSet 1" ? "DataSet 2" : "DataSet 1";
+  dataSourceStore.selectedDataset = next;
+  localStorage.setItem("selectedDataset", next);
+};
+
+
+
+
+const submitSearch = () => {
+  const query = searchText.value.trim();
+  if (query) {
+    emit("search", query);
+    searchText.value = "";
+    if (router.currentRoute.value.path !== "/local") {
+      router.push({ path: "/local", query: { patientId: query } });
+    } else {
+      // אם כבר נמצא ב־/local, נעדכן רק את הפרמטרים
+      router.replace({ path: "/local", query: { patientId: query } });
+    }
+  }
+};
+
+
+const loadUser = async () => {
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+  if (!userId || !token) return;
+  try {
+    const profile = await getUserProfile(userId, token);
+    user.value = profile;
+  } catch (err) {
+    console.error("❌ Failed to load user:", err);
+  }
+};
+
+const handleLogout = () => {
+  eventBus.emit("token-expired");
+};
+
+const navigateTo = (panelName) => {
+  isUserDropdownOpen.value = false;
+  isSidebarOpen.value = false;
+  panelStore.setPanel(panelName);
+  if (router.currentRoute.value.path !== "/") {
+    router.push("/");
+  }
+};
+
+onMounted(loadUser);
 </script>
+
 
 <style scoped>
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
@@ -397,4 +418,137 @@ export default {
 .fade-leave-to {
   opacity: 0;
 }
+
+
+.user-dropdown li.logout-entry {
+  border-top: 1px solid #eee;
+  color: #d32f2f;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.user-dropdown li.logout-entry i {
+  color: #d32f2f;
+}
+
+.user-dropdown li.logout-entry:hover {
+  background-color: #fdecea;
+  color: #b71c1c;
+}
+
+.user-dropdown li.logout-entry:hover i {
+  color: #b71c1c;
+}
+
+/* ADMIN PANEL בסטייל זהוב */
+.user-dropdown li.admin-entry {
+  background: linear-gradient(to right, #fff8dc, #fceabb); /* רקע עדין וזהוב */
+  font-weight: bold;
+  color: #d4af37; /* זהב מלכותי לטקסט */
+  border-top: 1px solid #ecd9a3;
+  margin-top: 8px;
+}
+
+.user-dropdown li.admin-entry i {
+  color: #d4af37;
+}
+
+.user-dropdown li.admin-entry:hover {
+  background: linear-gradient(to right, #f5d76e, #f0c14b); /* הבהוב זהוב יפה */
+  color: #8c6f1e;
+}
+
+.user-dropdown li.admin-entry:hover i {
+  color: #8c6f1e;
+}
+
+
+
+
+
+.dataset-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(to right, #e3f2fd, #bbdefb); /* תכלת עם מעבר */
+  color: #0d47a1;
+  font-weight: 600;
+  font-size: 13.5px;
+  border-radius: 999px; /* קפסולה עגולה */
+  box-shadow: 0 1px 3px rgba(33, 150, 243, 0.2);
+  margin-left: 14px;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.dataset-indicator i {
+  font-size: 18px;
+  color: #1976d2;
+}
+
+.dataset-indicator:hover {
+  background: linear-gradient(to right, #bbdefb, #90caf9);
+  box-shadow: 0 2px 5px rgba(33, 150, 243, 0.3);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.dataset-toggle-btn {
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  color: #1976d2;
+  border-radius: 50%;
+  padding: 6px;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dataset-toggle-btn:hover {
+  background: #bbdefb;
+  color: #0d47a1;
+}
+
+.dataset-toggle-btn i {
+  font-size: 20px;
+}
+
+
+.dataset-indicator-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 14px;
+}
+
+
+.dataset-toggle-btn {
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  margin-left: 6px;
+  color: #1976d2;
+  transition: transform 0.3s ease;
+  border-radius: 50%;
+}
+
+.dataset-toggle-btn:hover {
+  transform: rotate(180deg);
+  background-color: rgba(25, 118, 210, 0.1); /* אפקט עדין של רקע */
+}
+
 </style>

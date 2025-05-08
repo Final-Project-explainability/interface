@@ -24,6 +24,9 @@
 
     <!-- כפתורי ניווט -->
     <div class="action-buttons">
+      <!-- ✅ כפתורי בחירת דאטה סט כאן -->
+      <DataSelector />
+
       <button class="action-button" @click="navigateTo('Home')">
         <i class="fas fa-home"></i> Home
       </button>
@@ -70,6 +73,8 @@ import PatientModal from "../pages/PatientModal.vue";
 import AdminPanelModal from "../pages/AdminPanelModal.vue";
 import { usePanelStore } from "@/stores/panelStore";
 import { ref } from "vue";
+import DataSelector from "../components/DatasetSelector.vue";
+
 
 const props = defineProps({
   user: {
@@ -246,4 +251,7 @@ const closeAdminModal = () => {
     margin: 5px 0; /* Adds space between paragraphs */
     z-index: 1;
 }
+
+
+
 </style>

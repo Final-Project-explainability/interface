@@ -3,7 +3,6 @@
     <!-- סרגל עליון -->
     <MenuBar />
 
-
     <!-- תוכן עיקרי -->
     <div class="main-content">
       <!-- צד שמאל: מידע על פיצ'רים -->
@@ -12,8 +11,7 @@
           <i class="fas fa-chevron-left" :class="{ rotated: isFeatureCollapsed }"></i>
         </button>
 
-        <!-- תוכן פנימי: FeatureMetric -->
-        <FeatureMetric v-show="!isFeatureCollapsed" :selectedModel="selectedModel"/>
+        <FeatureMetric v-show="!isFeatureCollapsed" :selectedModel="selectedModel" />
       </section>
 
       <!-- צד ימין: גרפים -->
@@ -28,83 +26,111 @@
         />
 
         <GraphContainer
+          v-if="!isLoadingData"
           :type="activeGraphType"
           :data="filteredData"
           :selectedModel="selectedModel"
         />
+
+        <div v-else class="graph-loading">
+          🔄 Loading graph data...
+        </div>
       </section>
     </div>
   </div>
 </template>
 
-<script>
-import { nextTick } from "vue";
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { eventBus } from '@/utils/eventBus';
+import { useDataSourceStore } from '@/stores/dataSourceStore';
+
 import MenuBar from "../components/MenuBar.vue";
 import FeatureMetric from "../components/FeatureMetric.vue";
 import GraphContainer from "../components/GraphContainer.vue";
 import GraphControls from "../components/GraphControls.vue";
-import data from "../JSON/global graph data.json";
-import { eventBus } from "@/utils/eventBus";
 
+const router = useRouter();
+const dataSourceStore = useDataSourceStore();
 
-export default {
-  name: "GlobalPage",
-  components: {
-    MenuBar,
-    FeatureMetric,
-    GraphContainer,
-    GraphControls,
-  },
-  data() {
-    return {
-      graphTypes: ["Bar", "Comparison", "Sankey"],
-      activeGraphType: "Bar",
-      selectedModel: "XGBoost",
-      graphData: {
-        Bar: data,
-        Sankey: data,
-        Comparison: data,
-      },
-      isFeatureCollapsed: false,
-    };
-  },
-  created() {
-    eventBus.on("token-expired", this.handleLogout);
-  },
-  beforeUnmount() {
-    eventBus.off("token-expired", this.handleLogout);
-  },
+const graphTypes = ["Bar", "Comparison", "Sankey"];
+const activeGraphType = ref("Bar");
+const selectedModel = ref("XGBoost");
+const isFeatureCollapsed = ref(false);
+const isLoadingData = ref(true); // 🔁 סטטוס טעינה
 
-  computed: {
-    filteredData() {
-      return this.graphData[this.activeGraphType];
-    },
-  },
-  methods: {
-    updateGraphType(type) {
-      this.activeGraphType = type;
-    },
-    updateModel(model) {
-      this.selectedModel = model;
-    },
-    toggleFeatureSection() {
-      this.isFeatureCollapsed = !this.isFeatureCollapsed;
+const graphData = ref({
+  Bar: [],
+  Comparison: [],
+  Sankey: [],
+});
 
-      // פורס resize אחרי האנימציה
-      nextTick(() => {
-        setTimeout(() => {
-          window.dispatchEvent(new Event("resize"));
-        }, 300);
-      });
-    },
-    handleLogout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userDetails");
-      this.$router.push("/");
-    },
-  },
+// מיפוי שמות כפתורים לקבצי JSON
+const datasetNameToFileMap = {
+  "DataSet 1": "global graph data.json",
+  "DataSet 2": "global_graph_data_mock.json",
 };
+
+// טוען קובץ JSON לפי שם
+const loadDataset = async (datasetName) => {
+  const fileName = datasetNameToFileMap[datasetName];
+  if (!fileName) {
+    console.warn(`⚠️ Unknown dataset: ${datasetName}`);
+    return;
+  }
+
+  isLoadingData.value = true;
+  try {
+    const response = await fetch(`/data/JSON/${fileName}`);
+    const json = await response.json();
+    graphData.value = {
+      Bar: json,
+      Comparison: json,
+      Sankey: json,
+    };
+  } catch (error) {
+    console.error("❌ Failed to load dataset:", error);
+  } finally {
+    isLoadingData.value = false;
+  }
+};
+
+onMounted(() => {
+  loadDataset(dataSourceStore.selectedDataset);
+});
+
+watch(() => dataSourceStore.selectedDataset, (newDataset) => {
+  loadDataset(newDataset);
+});
+
+const filteredData = computed(() => {
+  return graphData.value[activeGraphType.value] || [];
+});
+
+function updateGraphType(type) {
+  activeGraphType.value = type;
+}
+
+function updateModel(model) {
+  selectedModel.value = model;
+}
+
+function toggleFeatureSection() {
+  isFeatureCollapsed.value = !isFeatureCollapsed.value;
+  setTimeout(() => {
+    window.dispatchEvent(new Event("resize"));
+  }, 300);
+}
+
+function handleLogout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("userDetails");
+  router.push("/");
+}
+
+eventBus.on("token-expired", handleLogout);
 </script>
 
 <style scoped>

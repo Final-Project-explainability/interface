@@ -1,20 +1,28 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { eventBus } from "@/utils/eventBus";
+import { usePanelStore } from "@/stores/panelStore";
+import { useDataSourceStore } from "@/stores/dataSourceStore";
+
 import Login from "../components/Login.vue";
 import Dashboard from "../components/Dashboard.vue";
 import InfoPanel from "../components/InfoPanel.vue";
 import PatientList from "../components/PatientList.vue";
 import AdminPanel from "@/components/AdminPanel.vue";
 import PersonalArea from "../components/PersonalArea.vue";
-import { usePanelStore } from "@/stores/panelStore";
-import { useRouter } from "vue-router";
-import { eventBus } from "@/utils/eventBus";
 
 const panelStore = usePanelStore();
+const dataSourceStore = useDataSourceStore();
 const router = useRouter();
 
 const isLoggedIn = ref(false);
 const userDetails = ref(null);
+
+// ✅ נשתמש ישירות ב־store בתוך המפתח
+const panelComponentKey = computed(() => {
+  return `${panelStore.selectedPanel}-${dataSourceStore.selectedDataset}`;
+});
 
 onMounted(() => {
   const storedUser = localStorage.getItem("userDetails");
@@ -69,7 +77,13 @@ const handleProfileUpdate = (updatedUser) => {
       <InfoPanel v-if="!isLoggedIn" />
       <div v-else>
         <InfoPanel v-if="panelStore.selectedPanel === 'Home'" :isLoggedIn="true" />
-        <PatientList v-else-if="panelStore.selectedPanel === 'PatientList'" />
+
+        <!-- ✅ שינוי :key גורם ל-Vue לרנדר מחדש בכל החלפת דאטהסט -->
+        <PatientList
+          v-else-if="panelStore.selectedPanel === 'PatientList'"
+          :key="panelComponentKey"
+        />
+
         <PersonalArea
           v-else-if="panelStore.selectedPanel === 'PersonalArea'"
           @profile-updated="handleProfileUpdate"
@@ -101,16 +115,21 @@ const handleProfileUpdate = (updatedUser) => {
 
 /* Left panel */
 .left-panel {
-    flex: 1; /* Takes 6 parts of the container */
-    background-color: #004d4d; /* Teal background */
-    color: #ffffff; /* White text */
-    padding: 60px; /* Inner spacing */
-    display: flex; /* Flexbox layout */
-    flex-direction: column; /* Stacks children vertically */
-    justify-content: flex-start; /* Aligns children to the top */
-    align-items: center; /* Centers content horizontally */
-    position: relative; /* Sets for child positioning */
+  flex: 1;
+  background-color: #004d4d;
+  color: #ffffff;
+  padding: 40px 60px 40px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* ✅ חדש: מרכז את התוכן גם אנכית */
+  justify-content: center;
+
+  position: relative;
 }
+
+
 
 .left-panel::before {
     content: ''; /* Empty content for background */

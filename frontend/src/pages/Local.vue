@@ -1,12 +1,8 @@
 <template>
-  <div class="local-page">
-    <!-- תפריט עליון -->
+  <div class="local-page" :key="selectedDataset">
     <MenuBar @search="handlePatientSearch" />
 
-    <!-- תוכן ראשי -->
     <div class="main-content">
-
-      <!-- טוסט הודעת שגיאה -->
       <transition name="fade-toast">
         <div v-if="errorMessage" class="floating-toast left">
           <i class="material-icons">error_outline</i>
@@ -17,8 +13,7 @@
         </div>
       </transition>
 
-      <!-- שורה עליונה: מורטליטי + פרטי מטופל + חיפוש -->
-      <div class="top-row-container">
+      <div class="top-row-container" v-if="isDataVisible">
         <div class="mortality-card-container">
           <MortalityRisk
             :fetchMortalityRisk="fetchMortalityRisk"
@@ -29,7 +24,7 @@
 
         <div class="patient-info-container">
           <PatientDetails
-            v-if="isDataVisible"
+            :key="`${patientId}-${selectedDataset}`"
             :patientData="patientDetails"
             :getItemVisualConfig="getItemVisualConfig"
             :searchQuery="searchQuery"
@@ -42,45 +37,56 @@
         </div>
       </div>
 
-      <!-- תוכן עיקרי תחתון -->
       <div class="main-data-section">
-          <PredictionExplanations
-            ref="predictionExplanations"
-            v-if="isDataVisible"
-            :selectedModel="selectedModel"
-            :patientId="patientId"
-            :viewMode="viewMode"
-          />
+        <PredictionExplanations
+          v-if="isDataVisible"
+          :key="`${patientId}-${selectedDataset}`"
+          ref="predictionExplanations"
+          :selectedModel="selectedModel"
+          :patientId="patientId"
+          :viewMode="viewMode"
+          :selectedDataset="selectedDataset"
+        />
+
         <div v-else class="centered-message">
-          <i class="material-icons" style="font-size: 36px; color: #00796b;">search</i>
-          <p>{{ loadingMessage }}</p>
+          <template v-if="patientNotFoundId">
+            <i class="material-icons" style="font-size: 36px; color: #e53935;">block</i>
+            <p style="margin-top: 10px; font-size: 18px;">
+              Patient ID <strong>{{ patientNotFoundId }}</strong> was not found in the selected dataset.
+            </p>
+            <p style="margin-top: 4px; font-size: 15px; color: #666;">
+              Please enter a different Patient ID to view predictions, or try switching the dataset and try again.
+            </p>
+          </template>
+
+          <template v-else-if="!hasSearched">
+            <i class="material-icons" style="font-size: 36px; color: #00796b;">search</i>
+            <p>Please search for a patient.</p>
+          </template>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-
 <script>
 import MenuBar from "../components/MenuBar.vue";
 import MortalityRisk from "../components/MortalityRisk.vue";
 import PatientDetails from "../components/PatientDetails.vue";
 import PredictionExplanations from "../components/PredictionExplanations.vue";
-import PatientInfo from "../components/PatientInfo.vue";
-import PatientSearch from "../components/PatientSearch.vue";
-import { eventBus } from "@/utils/eventBus";
 import FilterAndSearch from "../components/FilterAndSearch.vue";
 import visualConfig from "../JSON/visualConfig.json";
-
-
-
+import { eventBus } from "@/utils/eventBus";
 
 import {
   GetPatientPredictXGBOOST,
   GetPatientPredictDecisionTree,
   GetPatientPredictLogisticRegression,
   GetPatientDetails,
-} from "../local_functions.js";
+  IsPatientInCurrentDataset,
+} from "../src/services/predictionService.js";
+
+import { useDataSourceStore } from "@/stores/dataSourceStore";
 
 export default {
   name: "LocalPage",
@@ -89,75 +95,74 @@ export default {
     MortalityRisk,
     PatientDetails,
     PredictionExplanations,
-    PatientInfo,
-    PatientSearch,
     FilterAndSearch,
   },
   data() {
     return {
-      searchQuery: "", // ערך תיבת החיפוש
-      selectedModel: "XGBOOST", // מודל ברירת מחדל
-      mortalityPercentage: 0, // אחוזי תמותה ברירת מחדל
-      modelPercentages: {}, // אחוזים עבור כל המודלים
+      searchQuery: "",
+      selectedModel: "XGBOOST",
+      mortalityPercentage: 0,
+      modelPercentages: {},
       patientDetails: {
         name: "No Data",
         age: 0,
         gender: "Unknown",
         diagnosis: "No Data",
       },
-      patientId: "", // מזהה מטופל
-      isDataVisible: false, // האם להציג נתונים
-      errorMessage: "", // הודעת שגיאה
-      loadingMessage: "Please search for a patient.", // הודעת טעינה
+      patientId: "",
+      patientNotFoundId: null,
+      isDataVisible: false,
+      errorMessage: "",
+      loadingMessage: "Please search for a patient.",
       viewMode: "vital",
+      hasSearched: false,
     };
   },
+  computed: {
+    selectedDataset() {
+      const store = useDataSourceStore();
+      return store.selectedDataset;
+    },
+  },
   methods: {
-    // מביא פרטי מטופל לפי מזהה
     async fetchPatientDetails() {
-      try {
-        const details = await GetPatientDetails(this.patientId);
-        this.patientDetails = details;
-      } catch (error) {
-        this.errorMessage = "Failed to fetch patient details: " + error.message;
-      }
+      const details = await GetPatientDetails(this.patientId);
+      this.patientDetails = details;
     },
 
-    // מביא את נתוני סיכון התמותה
     async fetchMortalityRisk(model) {
-      try {
-        if (model === "XGBOOST") {
-          return await GetPatientPredictXGBOOST(this.patientId);
-        } else if (model === "DecisionTree") {
-          return await GetPatientPredictDecisionTree(this.patientId);
-        } else if (model === "LogisticRegression") {
-          return await GetPatientPredictLogisticRegression(this.patientId);
-        }
-      } catch (error) {
-        this.errorMessage = "Failed to fetch mortality risk: " + error.message;
-        return 0;
+      if (model === "XGBOOST") {
+        return await GetPatientPredictXGBOOST(this.patientId);
+      } else if (model === "DecisionTree") {
+        return await GetPatientPredictDecisionTree(this.patientId);
+      } else if (model === "LogisticRegression") {
+        return await GetPatientPredictLogisticRegression(this.patientId);
       }
     },
 
-    // מביא את כל הנתונים עבור שלושת המודלים
     async fetchAllModels() {
-      try {
-        const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
-        const percentages = {};
-        for (const model of models) {
-          percentages[model] = await this.fetchMortalityRisk(model);
-        }
-        this.modelPercentages = percentages;
-      } catch (error) {
-        this.errorMessage = "Failed to fetch model data: " + error.message;
+      const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
+      const percentages = {};
+      for (const model of models) {
+        percentages[model] = await this.fetchMortalityRisk(model);
       }
+      this.modelPercentages = percentages;
     },
 
-    // מטפל בחיפוש מטופל
     async handlePatientSearch(query) {
+      this.hasSearched = true;
+      this.patientNotFoundId = null;
       this.patientId = query;
       this.errorMessage = "";
       this.isDataVisible = false;
+      this.resetPatientData();
+
+      const exists = await IsPatientInCurrentDataset(query);
+      if (!exists) {
+        this.patientNotFoundId = query;
+        this.patientId = "";
+        return;
+      }
 
       try {
         await this.fetchPatientDetails();
@@ -166,12 +171,25 @@ export default {
         } else {
           this.mortalityPercentage = await this.fetchMortalityRisk(this.selectedModel);
         }
+
         this.isDataVisible = true;
       } catch (error) {
         this.errorMessage = "Error during patient search: " + error.message;
         this.isDataVisible = false;
       }
     },
+
+    resetPatientData() {
+      this.patientDetails = {
+        name: "No Data",
+        age: 0,
+        gender: "Unknown",
+        diagnosis: "No Data",
+      };
+      this.mortalityPercentage = 0;
+      this.modelPercentages = {};
+    },
+
     handleLogout() {
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
@@ -180,9 +198,8 @@ export default {
     },
 
     applyFiltersToPrediction(filters) {
-      console.log("🔁 Filters received:", filters);
       const explanationRef = this.$refs.predictionExplanations;
-      if (explanationRef && explanationRef.applyFilters) {
+      if (explanationRef?.applyFilters) {
         explanationRef.applyFilters(filters);
       }
 
@@ -192,17 +209,30 @@ export default {
     },
 
     getItemVisualConfig(key) {
-      return visualConfig[key] || {}; // 👈 שימוש ישיר בקובץ שלך
+      return visualConfig[key] || {};
     },
-
-
   },
-  created() {
+  async created() {
     eventBus.on("token-expired", this.handleLogout);
+
     const query = this.$route.query;
+
     if (query.patientId) {
-      this.patientId = query.patientId;
-      this.handlePatientSearch(query.patientId);
+      this.resetPatientData();
+      this.hasSearched = true;
+
+      try {
+        const exists = await IsPatientInCurrentDataset(query.patientId);
+        if (!exists) {
+          this.patientNotFoundId = query.patientId;
+          this.patientId = "";
+          return;
+        }
+        this.patientId = query.patientId;
+        await this.handlePatientSearch(query.patientId);
+      } catch (err) {
+        this.errorMessage = `Failed loading patient ${query.patientId}`;
+      }
     }
   },
   beforeUnmount() {
@@ -220,9 +250,23 @@ export default {
         }
       }
     },
+
+    selectedDataset() {
+      this.resetPatientData();
+      this.isDataVisible = false;
+      this.patientId = "";
+      this.searchQuery = "";
+      this.errorMessage = "";
+      this.loadingMessage = "Please search for a patient.";
+      this.patientNotFoundId = null;
+      this.hasSearched = false;
+    },
   },
 };
 </script>
+
+
+
 
 <style scoped>
 .local-page {
