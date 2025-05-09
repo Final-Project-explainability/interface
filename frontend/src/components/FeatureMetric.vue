@@ -14,7 +14,7 @@
 
 
     <div class="header-glass-centered">
-      <h2>Feature Metric</h2>
+      <h2>Correlation</h2>
 
       <div class="glass-toggle-wrapper">
         <div class="glass-toggle">
@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import featureData from "../JSON/feature_metrics.json";
+import featureData from "../JSON/global_correlation.json";
 
 export default {
   name: "FeatureMetric",
