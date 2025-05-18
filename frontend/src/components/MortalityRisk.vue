@@ -2,17 +2,20 @@
   <div class="mortality-risk-card" :style="getCardBoxShadow(mortalityPercentage)">
     <h3 class="mortality-risk-title">Mortality Risk</h3>
 
-    <!-- תצוגת מודל בודד -->
+    <!-- Single model visualization -->
     <div v-if="selectedModelLocal !== 'All'" class="single-risk-box">
       <div class="neovital-ring">
         <svg viewBox="0 0 120 120">
           <defs>
+            <!-- Gradient for progress ring -->
             <linearGradient id="neoGradient" x1="1" y1="0" x2="0" y2="1">
               <stop offset="0%" :stop-color="startColor" />
               <stop offset="100%" :stop-color="endColor" />
             </linearGradient>
           </defs>
+          <!-- Background circle -->
           <circle class="circle-bg" cx="60" cy="60" r="50" />
+          <!-- Foreground circle (progress indicator) -->
           <circle
             class="circle-fg"
             cx="60"
@@ -23,6 +26,7 @@
             stroke="url(#neoGradient)"
           />
         </svg>
+        <!-- Centered text for risk percentage -->
         <div class="center-text" :key="formattedRisk">
           <div class="percent">{{ formattedRisk }}%</div>
           <div class="subtitle">Risk Level</div>
@@ -30,7 +34,7 @@
       </div>
     </div>
 
-    <!-- מצב "הכל" -->
+    <!-- Multi-model comparison view -->
     <div v-else class="multi-risk-box">
       <div v-for="(value, model) in modelPercentages" :key="model" class="model-item">
         <div class="model-name">{{ model }}</div>
@@ -41,6 +45,7 @@
       </div>
     </div>
 
+    <!-- Model selection dropdown -->
     <div class="model-selector">
       <label for="modelSelect">Model:</label>
       <select id="modelSelect" v-model="selectedModelLocal">
@@ -52,48 +57,53 @@
   </div>
 </template>
 
-
-
 <script>
 export default {
   name: "MortalityRisk",
   props: {
-    selectedModel: String,
-    mortalityPercentage: Number,
-    fetchMortalityRisk: Function,
+    selectedModel: String,              // Selected model from parent component
+    mortalityPercentage: Number,        // Current risk value (0-1)
+    fetchMortalityRisk: Function,       // Async function to fetch risk per model
   },
   emits: ["update:selectedModel"],
   data() {
     return {
       selectedModelLocal: this.selectedModel,
-      modelPercentages: {},
+      modelPercentages: {},             // Risk values per model (when in 'All' mode)
       availableModels: ["XGBOOST", "DecisionTree", "LogisticRegression", "All"],
     };
   },
   computed: {
+    // Returns risk formatted as percentage string (e.g., "12.3")
     formattedRisk() {
       const value = Number(this.mortalityPercentage);
       return isNaN(value) ? "0.0" : (value * 100).toFixed(1);
     },
+    // Normalized percentage (0-1)
     percentageDecimal() {
       return isNaN(this.mortalityPercentage)
         ? 0
         : Math.min(Math.max(this.mortalityPercentage, 0), 1);
     },
+    // Circumference of SVG circle (for dasharray)
     circumference() {
       return 2 * Math.PI * 50;
     },
+    // Calculates stroke dashoffset for progress circle
     dashOffset() {
       return this.circumference * (1 - this.percentageDecimal);
     },
+    // Start gradient color based on risk
     startColor() {
       return this.getColor(this.percentageDecimal * 100, true);
     },
+    // End gradient color based on risk
     endColor() {
       return this.getColor(this.percentageDecimal * 100, false);
     },
   },
   watch: {
+    // Handle model selection change
     async selectedModelLocal(newVal) {
       this.$emit("update:selectedModel", newVal);
       if (newVal === "All") {
@@ -107,42 +117,61 @@ export default {
     }
   },
   methods: {
+    /**
+     * Returns dynamic box-shadow style based on risk level.
+     * Blue glow for 'All', green/yellow/red for individual model.
+     */
     getCardBoxShadow(value) {
       const percentage = value * 100;
-      let boxShadow = '0 0 20px rgba(0, 0, 255, 0.7)'; // הילה כחולה עבור "הכל"
+      // Default shadow: soft blue glow
+      let boxShadow = '0 0 20px rgba(0, 0, 255, 0.7)';
 
-      // אם המודל הוא "הכל", נוודא שההילה כחולה
+      // For "All" mode - always blue highlight regardless of percentage
       if (this.selectedModelLocal === 'All') {
-        boxShadow = '0 0 25px rgba(0, 0, 255, 0.7)'; // כחול בהיר עבור "הכל"
-      } else if (percentage <= 33) {
-        boxShadow = '0 0 25px 5px rgba(76, 175, 80, 0.8)'; // ירוק (סיכון נמוך)
-      } else if (percentage <= 66) {
-        boxShadow = '0 0 25px 5px rgba(255, 152, 0, 0.8)'; // כתום (סיכון בינוני)
-      } else {
-        boxShadow = '0 0 25px 5px rgba(244, 67, 54, 0.8)'; // אדום (סיכון גבוה)
+        boxShadow = '0 0 25px rgba(0, 0, 255, 0.7)'; // Bright blue glow
+      }
+      // Low risk (0% - 33%) -> Green glow
+      else if (percentage <= 33) {
+        boxShadow = '0 0 25px 5px rgba(76, 175, 80, 0.8)';
+      }
+      // Medium risk (34% - 66%) -> Orange glow
+      else if (percentage <= 66) {
+        boxShadow = '0 0 25px 5px rgba(255, 152, 0, 0.8)';
+      }
+      // High risk (> 66%) -> Red glow
+      else {
+        boxShadow = '0 0 25px 5px rgba(244, 67, 54, 0.8)';
       }
 
+      // Return the final box-shadow style object
       return {
-        boxShadow: boxShadow, // החלת ההילה
+        boxShadow: boxShadow,
       };
     },
+    /**
+     * Returns style object for progress bar width & color based on risk value.
+     */
     getProgressBarStyle(value) {
       const percentage = value * 100;
       let color = '#4caf50'; // Default color (Green)
 
       if (percentage <= 33) {
-        color = '#4caf50';  // ירוק
+        color = '#4caf50';  // green
       } else if (percentage <= 66) {
-        color = '#ff9800';  // כתום
+        color = '#ff9800';  // orange
       } else {
-        color = '#f44336';  // אדום
+        color = '#f44336';  // red
       }
 
       return {
         width: this.formatRisk(value) + '%',
-        backgroundColor: color,  // צבע הקו משתנה בהתאם לאחוזים
+        backgroundColor: color,
       };
     },
+    /**
+     * Fetches mortality risk for all available models.
+     * Populates modelPercentages.
+     */
     async fetchAllModelRisks() {
       const models = ["XGBOOST", "DecisionTree", "LogisticRegression"];
       const results = {};
@@ -152,10 +181,16 @@ export default {
       }
       this.modelPercentages = results;
     },
+    /**
+     * Formats a risk value (0-1) into percentage string.
+     */
     formatRisk(val) {
       const num = Number(val);
       return isNaN(num) ? "0.0" : (num * 100).toFixed(1);
     },
+    /**
+     * Returns color gradient based on percentage.
+     */
     getColor(percentage, isStart) {
       if (percentage <= 33) return isStart ? "#4cd964" : "#34c759"; // Blue
       else if (percentage <= 66) return isStart ? "#ffe259" : "#ffa751"; // Yellow-orange
@@ -165,8 +200,8 @@ export default {
 };
 </script>
 
-
 <style scoped>
+/* ==== Mortality Risk Card Container ==== */
 .mortality-risk-card {
   background: #ffffff;
   border-radius: 14px;
@@ -184,8 +219,7 @@ export default {
 }
 
 
-
-/* תצוגת "מודל בודד" עם הילה */
+/* ==== Single Model View (Circular Ring) ==== */
 .single-risk-box {
   display: flex;
   justify-content: center;
@@ -197,6 +231,7 @@ export default {
 }
 
 
+/* ==== Card Title ==== */
 .mortality-risk-title {
   font-size: 18px;
   font-weight: 600;
@@ -205,6 +240,7 @@ export default {
   margin-top: 0px;
 }
 
+/* ==== Model Selector Dropdown ==== */
 .model-selector {
   margin-top: auto;
   display: flex;
@@ -234,28 +270,30 @@ export default {
 }
 
 
-
+/* ==== Circular Ring Container ==== */
 .neovital-ring {
   position: relative;
   width: 140px;
   height: 140px;
   margin: auto;
-  overflow: visible; /* זה מאפשר להילה לצאת מחוץ לתחום שלה */
+  overflow: visible;  /* Allows shadow glow to overflow */
 }
 
 
 .neovital-ring svg {
   width: 140px;
   height: 140px;
-  transform: rotate(-90deg);
+  transform: rotate(-90deg); /* Start progress from top */
 }
 
+/* Background Circle */
 .circle-bg {
   fill: none;
   stroke: rgba(200, 200, 200, 0.3);
   stroke-width: 10;
 }
 
+/* Foreground Progress Circle */
 .circle-fg {
   fill: none;
   stroke-width: 10;
@@ -264,6 +302,7 @@ export default {
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.2));
 }
 
+/* ==== Center Text in Circular Ring ==== */
 .center-text {
   position: absolute;
   top: 50%;
@@ -278,14 +317,14 @@ export default {
   color: #222;
   opacity: 0;
   animation: fadeIn 1s ease-out forwards;
-  transition: opacity 0.5s ease-in-out;  /* מעבר חלק בזמן שינוי אחוז הסיכון */
+  transition: opacity 0.5s ease-in-out;   /* Smooth transition on value change */
 }
 
+/* Fade-in Animation for Percentage Text */
 @keyframes fadeIn {
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
-
 
 
 .center-text .subtitle {
@@ -295,13 +334,7 @@ export default {
 }
 
 
-
-
-
-
-
-
-
+/* ==== Multi-Model Comparison View ==== */
 .multi-risk-box {
   display: flex;
   flex-direction: column;
@@ -310,13 +343,7 @@ export default {
 }
 
 
-
-
-
-
-
-
-/* הגדרת הילה חדה */
+/* ==== Individual Model Item in Multi-View ==== */
 .model-item {
   display: flex;
   justify-content: space-between;
@@ -324,16 +351,18 @@ export default {
   background-color: #ffffff;
   border-radius: 8px;
   padding: 8px;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.1); /* צל רגיל */
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
   font-size: 14px;
-  transition: box-shadow 0.3s ease-in-out; /* שינוי הילה */
+  transition: box-shadow 0.3s ease-in-out;
 }
 
+/* Model Name Text */
 .model-name {
   font-weight: bold;
   color: #004d40;
 }
 
+/* Progress Bar Background */
 .model-progress-bar {
   flex: 1;
   height: 6px;
@@ -343,16 +372,18 @@ export default {
   overflow: hidden;
 }
 
+/* Progress Indicator (colored bar) */
 .progress {
   height: 100%;
   border-radius: 10px;
   transition: width 0.5s ease-out;
 }
 
+
+/* Risk Percentage Label */
 .model-percentage {
   font-weight: bold;
   color: #00796b;
   margin-left: 10px;
 }
-
 </style>

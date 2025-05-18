@@ -4,6 +4,7 @@
     <div class="mentors-section">
       <h2 class="mentors-title">🧑‍🏫 Project Mentors</h2>
       <div class="mentors-grid">
+        <!-- Loop through mentors and display each as a card -->
         <div
           v-for="mentor in mentors"
           :key="mentor.name"
@@ -19,6 +20,7 @@
     <div class="team-section">
       <h2 class="section-title">👨‍💻 Meet the Team</h2>
       <div class="team-grid">
+        <!-- TeamCard components for each team member -->
         <TeamCard
           name="Alon Azran"
           img="https://media.licdn.com/dms/image/v2/D4E35AQHJak4ufQx34Q/profile-framedphoto-shrink_400_400/B4EZX9ShCgHMAg-/0/1743711244763?e=1745496000&v=beta&t=22G60lKQvaN0N_jryM9ScNQckSzcV6kl0kmwft8f-Io"
@@ -42,17 +44,17 @@
   </div>
 </template>
 
-
 <script>
 import TeamCard from "@/components/TeamCard.vue";
 
 export default {
   name: "AboutHero",
   components: {
-    TeamCard,
+    TeamCard, // Importing TeamCard component for displaying team members
   },
   data() {
     return {
+      // List of mentors with their names and roles
       mentors: [
         { name: "Professor Noa Dagan", role: "Academic Supervisor" },
         { name: "Professor Noam Barda", role: "Academic Supervisor" },
@@ -62,8 +64,6 @@ export default {
   },
 };
 </script>
-
-
 
 <style scoped>
 .hero-wrapper {
@@ -78,7 +78,7 @@ export default {
   padding: 40px 20px;
 }
 
-/* Mentors Section */
+/* === Mentors Section Styling === */
 .mentors-section {
   text-align: center;
   margin-bottom: 0px;
@@ -93,6 +93,7 @@ export default {
   margin-top: 0px;
 }
 
+/* Grid layout for mentor cards */
 .mentors-grid {
   display: flex;
   justify-content: center;
@@ -101,6 +102,7 @@ export default {
   padding: 0 20px;
 }
 
+/* Individual mentor card styling */
 .mentor-card {
   background: #ffffff;
   border: 2px solid #bfdbfe;
@@ -112,10 +114,12 @@ export default {
   transition: transform 0.3s ease;
 }
 
+/* Hover effect for mentor card */
 .mentor-card:hover {
   transform: translateY(-4px);
 }
 
+/* Mentor name styling */
 .mentor-name {
   font-size: 1.1rem;
   font-weight: 700;
@@ -123,13 +127,14 @@ export default {
   margin-bottom: 4px;
 }
 
+/* Mentor role styling */
 .mentor-role {
   font-size: 0.95rem;
   color: #374151;
   font-style: italic;
 }
 
-/* Team Section */
+/* === Team Section Styling === */
 .team-section {
   text-align: center;
   padding-bottom: 60px;
@@ -144,6 +149,7 @@ export default {
   margin-bottom: 24px;
 }
 
+/* Grid layout for team members */
 .team-grid {
   display: flex;
   justify-content: center;
@@ -152,4 +158,3 @@ export default {
   flex-wrap: wrap;
 }
 </style>
-

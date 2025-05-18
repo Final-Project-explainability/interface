@@ -1,11 +1,11 @@
 <template>
   <div class="global-page">
-    <!-- סרגל עליון -->
+    <!-- Top Navigation Bar -->
     <MenuBar />
 
-    <!-- תוכן עיקרי -->
+    <!-- Main Content Area -->
     <div class="main-content">
-      <!-- צד שמאל: מידע על פיצ'רים -->
+      <!-- Left Panel: Feature Metrics Information -->
       <section class="feature-section" :class="{ collapsed: isFeatureCollapsed }">
         <button class="collapse-btn" @click="toggleFeatureSection">
           <i class="fas fa-chevron-left" :class="{ rotated: isFeatureCollapsed }"></i>
@@ -14,7 +14,7 @@
         <FeatureMetric v-show="!isFeatureCollapsed" :selectedModel="selectedModel" />
       </section>
 
-      <!-- צד ימין: גרפים -->
+      <!-- Right Panel: Graphs Section -->
       <section class="graph-section">
         <GraphControls
           :graphTypes="graphTypes"
@@ -58,7 +58,7 @@ const graphTypes = ["Bar", "Comparison", "Sankey"];
 const activeGraphType = ref("Bar");
 const selectedModel = ref("XGBoost");
 const isFeatureCollapsed = ref(false);
-const isLoadingData = ref(true); // 🔁 סטטוס טעינה
+const isLoadingData = ref(true); // 🔁 Loading state for graphs
 
 const graphData = ref({
   Bar: [],
@@ -66,13 +66,13 @@ const graphData = ref({
   Sankey: [],
 });
 
-// מיפוי שמות כפתורים לקבצי JSON
-const datasetNameToFileMap = {
-  "DataSet 1": "global graph data.json",
-  "DataSet 2": "global_graph_data_mock.json",
+// Mapping of dataset names to JSON file names
+const datasetNameToFileMap = { /* TODO: change names to files. */
+  "DataSet 1": "global_graph_DataSet1.json",
+  "DataSet 2": "global_graph_DataSet2.json",
 };
 
-// טוען קובץ JSON לפי שם
+// Loads dataset JSON based on selected name
 const loadDataset = async (datasetName) => {
   const fileName = datasetNameToFileMap[datasetName];
   if (!fileName) {
@@ -96,26 +96,31 @@ const loadDataset = async (datasetName) => {
   }
 };
 
+// Initial dataset load on component mount
 onMounted(() => {
   loadDataset(dataSourceStore.selectedDataset);
 });
 
+// Watch for dataset changes and reload accordingly
 watch(() => dataSourceStore.selectedDataset, (newDataset) => {
   loadDataset(newDataset);
 });
 
+// Computed property to get filtered data based on active graph type
 const filteredData = computed(() => {
   return graphData.value[activeGraphType.value] || [];
 });
 
+// Update selected graph type from controls
 function updateGraphType(type) {
   activeGraphType.value = type;
 }
 
+// Update selected model from controls
 function updateModel(model) {
   selectedModel.value = model;
 }
-
+// Toggle feature section collapse/expand with animation resize trigger
 function toggleFeatureSection() {
   isFeatureCollapsed.value = !isFeatureCollapsed.value;
   setTimeout(() => {
@@ -123,6 +128,7 @@ function toggleFeatureSection() {
   }, 300);
 }
 
+// Handle logout when token expires
 function handleLogout() {
   localStorage.removeItem("token");
   localStorage.removeItem("userId");
@@ -130,16 +136,17 @@ function handleLogout() {
   router.push("/");
 }
 
+// Listen for global token expiration event
 eventBus.on("token-expired", handleLogout);
 </script>
 
 <style scoped>
-/* מבנה כללי */
+/* === Global Layout Styles === */
 .global-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100vw; /* תופס את כל רוחב המסך */
+  width: 100vw;
   background-color: #f5f7fa;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
@@ -178,7 +185,7 @@ eventBus.on("token-expired", handleLogout);
   opacity: 0.4;
 }
 
-/* כפתור הקטנה */
+/* Collapse/Expand Button Styling */
 .collapse-btn {
   position: absolute;
   top: 40px;
@@ -213,7 +220,7 @@ eventBus.on("token-expired", handleLogout);
   transform: rotate(180deg);
 }
 
-/* ===== גרף ===== */
+/* ===== Graph Section (Right Panel) ===== */
 .graph-section {
   flex: 2;
   background-color: #ffffff;
@@ -225,7 +232,7 @@ eventBus.on("token-expired", handleLogout);
   overflow: hidden;
 }
 
-/* עיצוב פנימי לגרף */
+/* Graph internal layout overrides */
 .graph-section >>> .graph-container {
   flex: 1;
   overflow: hidden !important;
@@ -241,6 +248,4 @@ eventBus.on("token-expired", handleLogout);
   height: 100%;
   overflow: hidden;
 }
-
-
 </style>

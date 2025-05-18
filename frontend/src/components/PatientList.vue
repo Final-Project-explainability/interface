@@ -5,14 +5,17 @@
     </div>
 
     <div class="content">
+      <!-- Loading state -->
       <div v-if="loading" class="loading-message">
         <i class="fas fa-spinner fa-spin"></i> Loading patient data...
       </div>
 
+      <!-- Error state -->
       <div v-else-if="error" class="error-message">
         <i class="fas fa-exclamation-circle"></i> {{ error }}
       </div>
 
+      <!-- Patient list -->
       <div v-else-if="patients.length > 0" class="patient-list">
         <div
           v-for="(patient, index) in patients"
@@ -30,6 +33,7 @@
         </div>
       </div>
 
+      <!-- No data available -->
       <div v-else class="no-data-message">
         <i class="fas fa-info-circle"></i> No patient data available.
       </div>
@@ -50,11 +54,17 @@ const loading = ref(true);
 const error = ref("");
 const patients = ref([]);
 
-const datasetMap = {
-  "DataSet 1": "example_test_data.csv",
-  "DataSet 2": "Patients_DataSet2.csv",
+
+// Maps dataset names to file paths
+const datasetMap = { /* TODO: change names here */
+  "DataSet 1": "patients_details_DataSet1.json",
+  "DataSet 2": "patients_details_DataSet2.json",
 };
 
+/**
+ * Fetches patient data based on selected dataset.
+ * Supports JSON and CSV formats.
+ */
 const fetchPatients = async () => {
   loading.value = true;
   error.value = "";
@@ -69,23 +79,39 @@ const fetchPatients = async () => {
   }
 
   try {
-    const response = await fetch(`/project_data/${fileName}`);
+    const response = await fetch(`/data/${fileName}`);
     if (!response.ok) throw new Error("Failed to fetch file");
 
-    const csvText = await response.text();
-    Papa.parse(csvText, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        patients.value = results.data;
-        loading.value = false;
-      },
-      error: (err) => {
-        error.value = "Failed to parse CSV";
-        console.error(err);
-        loading.value = false;
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+
+    if (fileExtension === 'json') {
+      const jsonData = await response.json();
+      if (Array.isArray(jsonData)) {
+        patients.value = jsonData;
+      } else if (Array.isArray(jsonData.patients)) {
+        patients.value = jsonData.patients;
+      } else {
+        throw new Error("Invalid JSON structure");
       }
-    });
+      loading.value = false;
+    } else if (fileExtension === 'csv') {
+      const csvText = await response.text();
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          patients.value = results.data;
+          loading.value = false;
+        },
+        error: (err) => {
+          error.value = "Failed to parse CSV";
+          console.error(err);
+          loading.value = false;
+        }
+      });
+    } else {
+      throw new Error(`Unsupported file type: .${fileExtension}`);
+    }
   } catch (err) {
     error.value = err.message;
     loading.value = false;
@@ -93,7 +119,8 @@ const fetchPatients = async () => {
   }
 };
 
-// ✅ נוודא שזה נשלף תמיד כאשר הדאטהסט משתנה
+
+// Re-fetch data when dataset changes (and on mount)
 watch(
   () => dataSourceStore.selectedDataset,
   () => {
@@ -107,8 +134,8 @@ const goToPatientPage = (id) => {
 };
 </script>
 
-
 <style scoped>
+/* ==== Container Styles ==== */
 .patient-list-container {
   padding: 32px 24px;
   background: #f6fbfd;
@@ -119,7 +146,7 @@ const goToPatientPage = (id) => {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
-/* כותרת */
+/* ==== Header ==== */
 .header h2 {
   font-size: 28px;
   font-weight: 700;
@@ -128,7 +155,7 @@ const goToPatientPage = (id) => {
   margin-bottom: 24px;
 }
 
-/* תוכן */
+/* ==== Content Layout ==== */
 .content {
   display: flex;
   flex-direction: column;
@@ -136,7 +163,7 @@ const goToPatientPage = (id) => {
   gap: 16px;
 }
 
-/* הודעות */
+/* ==== States (loading, error, empty) ==== */
 .loading-message,
 .error-message,
 .no-data-message {
@@ -168,7 +195,7 @@ const goToPatientPage = (id) => {
   color: #607d8b;
 }
 
-/* רשימת מטופלים */
+/* ==== Patient List ==== */
 .patient-list {
   display: flex;
   flex-direction: column;
@@ -178,7 +205,7 @@ const goToPatientPage = (id) => {
   padding-right: 4px;
 }
 
-/* כרטיס מטופל */
+/* ==== Patient Card ==== */
 .patient-card {
   background: white;
   border-radius: 12px;
@@ -195,19 +222,21 @@ const goToPatientPage = (id) => {
   box-shadow: 0 8px 16px rgba(0, 188, 212, 0.12);
 }
 
-/* תוכן פנימי של כרטיס */
+/* ==== Patient Card Content ==== */
 .patient-card-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+/* Icon style */
 .patient-icon {
   font-size: 24px;
   color: #00acc1;
   margin-right: 12px;
 }
 
+/* Patient ID text */
 .patient-details {
   flex-grow: 1;
 }
@@ -218,6 +247,7 @@ const goToPatientPage = (id) => {
   color: #37474f;
 }
 
+/* Chevron arrow */
 .arrow-icon {
   font-size: 18px;
   color: #90a4ae;
@@ -228,7 +258,7 @@ const goToPatientPage = (id) => {
   transform: translateX(4px);
 }
 
-/* גלילה מותאמת */
+/* ==== Custom Scrollbar ==== */
 .patient-list::-webkit-scrollbar {
   width: 8px;
 }

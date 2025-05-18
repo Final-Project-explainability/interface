@@ -1,10 +1,19 @@
 <template>
+  <!-- Main Card Container -->
   <div :class="['card', { disabled }]">
+
+    <!-- Card Title -->
     <h3>{{ title }}</h3>
+
+    <!-- Image Area with dynamic class -->
     <div :class="['card-image', imageClass]"></div>
+
+    <!-- Action Button -->
     <button @click="onClick" :disabled="disabled">
       {{ buttonText }}
     </button>
+
+    <!-- Disabled Overlay Message -->
     <div v-if="disabled" class="overlay">{{ overlayText }}</div>
   </div>
 </template>
@@ -12,38 +21,39 @@
 <script>
 export default {
   name: "Card",
+
+  // Props passed from parent component
   props: {
     title: {
       type: String,
-      required: true,
+      required: true, // Title is mandatory
     },
     buttonText: {
       type: String,
-      required: true,
+      required: true, // Button text is mandatory
     },
     onClick: {
       type: Function,
-      required: true,
+      required: true, // Function to handle button click
     },
     imageClass: {
       type: String,
-      default: "",
+      default: "",  // Optional CSS class for image section
     },
     disabled: {
       type: Boolean,
-      default: false,
+      default: false,  // Whether the card is disabled
     },
     overlayText: {
       type: String,
-      default: "This is disabled",
+      default: "This is disabled",  // Text to display when disabled
     },
   },
 };
 </script>
 
-
-
 <style scoped>
+/* === Card Container Styling === */
 .card {
     background-color: #f9f9f9; /* Light gray background */
     border-radius: 10px; /* Rounded corners */
@@ -58,18 +68,17 @@ export default {
     align-items: center; /* Centers children horizontally */
 }
 
+/* Hover effect for card */
 .card:hover {
     transform: translateY(-5px); /* Moves card upward */
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Larger shadow on hover */
 }
 
+/* Disabled card appearance */
 .card.disabled {
     opacity: 0.6; /* Faint appearance to indicate the card is disabled */
     pointer-events: auto; /* Allows interactions (like hover effects) on the card */
 }
-
-
-
 
 .card.disabled .overlay {
     position: absolute;
@@ -100,15 +109,6 @@ export default {
     transform: translate(-50%, -50%) scale(1); /* Scales to full size */
     animation: hoverFloat 2s ease-in-out infinite; /* Adds floating effect */
 }
-
-
-
-
-
-
-
-
-
 
 /* Card title */
 .card h3 {
@@ -147,7 +147,6 @@ export default {
     pointer-events: none; /* Prevents any clicks or interactions with buttons inside the card */
 }
 
-
 .card.disabled .overlay {
     position: absolute;
     top: 50%;
@@ -178,13 +177,11 @@ export default {
     animation: hoverFloat 2s ease-in-out infinite; /* Adds floating effect */
 }
 
-
 @keyframes hoverFloat {
     0% { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
     50% { transform: translate(-50%, -50%) scale(1) translateY(5px); }
     100% { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
 }
-
 
 /* Responsive design */
 @media (max-width: 768px) {

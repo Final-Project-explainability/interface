@@ -1,6 +1,6 @@
 {
   "XGBOOST": {
-      "SHAP": {
+    "SHAP": {
       "age": 15.5,
       "ventilated_apache": 60.3,
       "apache_3j_diagnosis": -15.5,
@@ -185,7 +185,7 @@
       "mods_pentad_flag": 4.14515016018413e-05,
       "readmission_status": 0.0
     },
-        "Lime": {
+    "Lime": {
       "ventilated_apache": 50.8,
       "age": 10.5,
       "d1_lactate_min": 15.1,
@@ -556,8 +556,8 @@
       "readmission_status": 0.0
     }
   },
-    "LogisticRegression": {
-      "SHAP": {
+  "LogisticRegression": {
+    "SHAP": {
       "age": 10.5,
       "ventilated_apache": 30.3,
       "apache_3j_diagnosis": -12.5,
@@ -742,7 +742,7 @@
       "mods_pentad_flag": 4.14515016018413e-05,
       "readmission_status": 0.0
     },
-        "Lime": {
+    "Lime": {
       "ventilated_apache": 22.8,
       "age": 11.5,
       "d1_lactate_min": 11.1,
@@ -1112,9 +1112,9 @@
       "mods_pentad_flag": 0.0001,
       "readmission_status": 0.0
     }
-  },
-    "DecisionTree": {
-      "SHAP": {
+},
+  "DecisionTree": {
+    "SHAP": {
       "age": 25.5,
       "ventilated_apache": 44.3,
       "apache_3j_diagnosis": -11.5,
@@ -1299,7 +1299,7 @@
       "mods_pentad_flag": 2.14515016018413e-05,
       "readmission_status": 0.0
     },
-        "Lime": {
+    "Lime": {
       "ventilated_apache": 30.8,
       "age": 13.5,
       "d1_lactate_min": 45.1,

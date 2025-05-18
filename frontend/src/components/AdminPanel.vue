@@ -4,19 +4,22 @@
       {{ currentView === 'addUser' ? 'Admin Panel - Add User to System' : 'Admin Panel - User Management' }}
     </h2>
 
+    <!-- Add User Form Section -->
     <div v-if="currentView === 'addUser'" class="add-user-form">
-      <!-- כפתור חזור -->
+      <!-- Back Button to return to user list view -->
       <button class="back-button" @click="toggleAddUserForm">
         <i class="fas fa-arrow-left"></i> Back
       </button>
 
-      <!-- אווטאר במרכז -->
+      <!-- User Avatar Display -->
       <div class="avatar-container">
         <img :src="newUser.profilePictureUrl || defaultAvatar" class="avatar-img" />
       </div>
 
-      <!-- שדות המשתמש -->
+      <!-- User Information Input Fields -->
       <div class="form-fields">
+
+        <!-- Full Name Field with validation -->
         <div class="input-group">
           <input
             v-model="newUser.fullName"
@@ -33,7 +36,7 @@
         <p></p>
 
 
-
+        <!-- Username Field with validation -->
         <div class="input-group">
           <input
             v-model="newUser.username"
@@ -48,7 +51,7 @@
           <p v-if="usernameAvailable && !usernameHasSpaces && !usernameInvalid" class="success-message">Username is available</p>
         </div>
 
-
+        <!-- Password Field with show/hide and generator -->
         <div class="password-row">
           <div class="input-wrapper password-input-wrapper">
             <input
@@ -59,36 +62,32 @@
               @input="validatePassword"
               :class="{ 'invalid-field': passwordInvalid, 'valid-field': !passwordInvalid && newUser.password }"
             />
-            <!-- כפתור עין -->
+            <!-- Toggle password visibility (eye icon) -->
             <span class="toggle-password" @click="togglePassword">
               <i :class="passwordVisible ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
             </span>
           </div>
 
-          <!-- הודעת שגיאה / הצלחה -->
+          <!-- Password Validation Message -->
           <p v-if="passwordInvalid" class="error-message">
             Password must be at least 6 characters and include only English letters, numbers or symbols
           </p>
 
-          <!-- כפתור ג'נרציה מימין -->
+          <!-- Generate Random Password Button -->
           <button class="generate-button" @click.prevent="generatePassword">
             Generate a random password
           </button>
           <p></p>
         </div>
 
-
-
-
-        <!-- טייטל -->
+        <!-- User Title Dropdown -->
         <select v-model="newUser.title">
           <option disabled value="">Select Title</option>
           <option v-for="option in titles" :key="option">{{ option }}</option>
         </select>
         <p></p>
 
-
-        <!-- מס רישיון והתמחות -->
+        <!-- License ID Field with validations -->
         <div class="input-group">
           <input
             v-model="newUser.licenseId"
@@ -99,7 +98,6 @@
             :class="{ 'invalid-field': licenseIdInvalid, 'valid-field': licenseIdValid }"
           />
 
-          <!-- הודעה אם יש תווים לא חוקיים -->
           <p v-if="licenseIdNotNumeric" class="error-message">
             License ID must contain digits only ❌
           </p>
@@ -108,7 +106,7 @@
         </div>
 
 
-
+        <!-- Specialty Field with validation -->
         <div class="input-group">
           <input
             v-model="newUser.specialty"
@@ -122,7 +120,7 @@
 
 
 
-        <!-- Email -->
+        <!-- Email Field with format validation -->
         <div class="input-group">
           <input
             v-model="newUser.email"
@@ -134,7 +132,7 @@
         </div>
 
 
-        <!-- Phone -->
+        <!-- Phone Number Field with validation for Israeli format -->
         <div class="input-group">
           <input
             v-model="newUser.phoneNumber"
@@ -147,14 +145,9 @@
           </p>
         </div>
 
-
-
-
-
-
-
+        <!-- Gender and Role Toggles -->
         <div class="toggle-row">
-          <!-- Gender Toggle -->
+          <!-- Gender Selection -->
           <div class="toggle-group">
             <span class="toggle-label">Gender:</span>
             <button
@@ -171,7 +164,7 @@
             </button>
           </div>
 
-          <!-- Role Toggle -->
+          <!-- Admin Role Selection -->
           <div class="toggle-group">
             <span class="toggle-label">Admin Permission?</span>
             <button
@@ -192,7 +185,7 @@
 
       </div>
 
-      <!-- כפתור יצירה -->
+      <!-- Submit Button to Create New User -->
       <button
         type="submit"
         class="save-button"
@@ -203,16 +196,16 @@
       </button>
 
 
-      <!-- הודעת שגיאה -->
+      <!-- General Error Message Display -->
       <div v-if="errorMessage" class="error-message">
         {{ errorMessage }}
       </div>
     </div>
 
 
-
+    <!-- User Management List View -->
     <div v-if="currentView === 'list'">
-        <!-- Search and Add Bar -->
+        <!-- Search bar and Add User button section -->
         <div class="search-and-add-bar">
           <input
             v-model="searchQuery"
@@ -225,7 +218,7 @@
           </button>
         </div>
 
-        <!-- Error Message -->
+        <!-- Error message display (if any) -->
         <div v-if="errorMessage" class="error-message">
           {{ errorMessage }}
         </div>
@@ -235,14 +228,14 @@
           Loading users...
         </div>
 
-        <!-- User List -->
+        <!-- User list rendering when data is loaded and matches found -->
         <div v-if="!isLoading && filteredUsers.length" class="user-list">
           <div
             v-for="user in filteredUsers"
             :key="user._id"
             :class="['user-card', user.status, { admin: user.isAdmin}]"
           >
-            <!-- User Card Header -->
+            <!-- User card header (username & role) with expand/collapse -->
             <div class="user-card-header" @click="toggleDetails(user)">
                 <div class="user-info">
                   <h3 :class="['username', user.status]">{{ user.username }}</h3>
@@ -256,26 +249,27 @@
               </button>
             </div>
 
-            <!-- User Details -->
+             <!-- User detailed information view (expanded state) -->
             <div v-if="selectedUser?._id === user._id" class="user-details-container">
             <div class="user-card-layout">
-              <!-- פרטי משתמש בצד שמאל -->
+              <!-- User personal information section -->
               <div class="user-info">
+
                 <div class="detail-item" v-if="user.fullName">
                   <i class="fas fa-user"></i>
                   <p><strong>Full Name:</strong> {{ user.fullName }}</p>
                 </div>
+
                 <div class="detail-item" v-if="user.email">
                   <i class="fas fa-envelope"></i>
                   <p><strong>Email:</strong> {{ user.email }}</p>
                 </div>
-                <!-- טלפון -->
+
                 <div class="detail-item" v-if="user.phoneNumber">
                   <i class="fas fa-phone"></i>
                   <p><strong>Phone:</strong> {{ user.phoneNumber }}</p>
                 </div>
 
-                <!-- מספר רישיון -->
                 <div class="detail-item" v-if="user.licenseId">
                   <i class="fas fa-id-card"></i>
                   <p><strong>License ID:</strong> {{ user.licenseId }}</p>
@@ -285,30 +279,33 @@
                   <i class="fas fa-venus-mars"></i>
                   <p><strong>Gender:</strong> {{ user.gender }}</p>
                 </div>
+
                 <div class="detail-item" v-if="user.title">
                   <i class="fas fa-briefcase"></i>
                   <p><strong>Title:</strong> {{ user.title }}</p>
                 </div>
+
                 <div class="detail-item" v-if="user.specialty">
                   <i class="fas fa-stethoscope"></i>
                   <p><strong>Specialty:</strong> {{ user.specialty }}</p>
                 </div>
+
               </div>
 
-              <!-- תמונת אווטאר + כפתורים בצד ימין -->
+              <!-- User avatar and action buttons section -->
               <div class="user-avatar-section">
-                <!-- שם המשתמש -->
+                <!-- Username badge -->
                 <div class="username-badge">
                   <i class="fas fa-at"></i> {{ user.username }}
                 </div>
 
-
+                <!-- User avatar image -->
                 <div
                   class="avatar-circle"
                   :style="{ backgroundImage: `url(${user.profilePictureUrl || defaultAvatar})` }"
                 ></div>
 
-                <!-- כפתורי פעולה מתחת לתמונה -->
+                <!-- User action buttons (edit, activate/suspend, delete) -->
                 <div class="actions"  v-if="!user.isAdmin">
                   <button class="edit-button" @click="startEditing(user)">
                     <i class="fas fa-edit"></i> Edit
@@ -330,8 +327,7 @@
             </div>
           </div>
 
-
-
+          <!-- Edit user form (inline under selected user) -->
           <div v-if="editUser && editUser._id === user._id" class="edit-form">
             <div class="input-group">
               <label>Full Name</label>
@@ -513,18 +509,8 @@
               </div>
             </div>
 
-
-
-
             </div>
-
-
-
-
-
           </div>
-
-
           </div>
         </div>
 
@@ -547,20 +533,30 @@ import {
   deleteUser,
   checkUsernameAvailability,
   checkLicenseAvailability, resetUserPassword, updateUser,
-} from "@/data/authService.js";
+} from "@/api/authService.js";
 
 export default {
   name: "AdminPanelPage",
   data() {
     return {
+      // List of all users in the system
       users: [],
+      // Currently selected user (for details view)
       selectedUser: null,
+      // Search query input from user
       searchQuery: "",
+      // Loading indicator flag
       isLoading: false,
+      // Error message to display in UI
       errorMessage: "",
-      currentView: "list", // <- זה קובע מה מוצג
+      // Current view mode: 'list' or 'addUser'
+      currentView: "list",
+      // Show/hide Add User form
       showAddUserForm: false,
+      // Titles dropdown options
+      /* TODO: reduce the options? */
       titles: ["Mr.", "Mrs.", "Miss", "Ms.", "Dr.", "Prof.", "Rev.", "Rabbi", "Fr.", "Eng.", "Adv.", "Hon.", "Sir", "Dame", "None"],
+      // New user form data model
       newUser: {
         username: "",
         fullName: "",
@@ -569,10 +565,13 @@ export default {
         gender: "male",
         role: "user",
         password: "",
-        profilePictureUrl: "", // ניתן להוסיף תמונה כברירת מחדל כאן
+        profilePictureUrl: "",
       },
+      // Default avatar image URL
+      /*TODO: update url of img */
       defaultAvatar:
           "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg",
+      // Username availability check (null = unchecked)
       usernameAvailable: null, // true / false / null
       usernameMessage: "",
       email: "",
@@ -582,14 +581,16 @@ export default {
       password: "",
       passwordInvalid: false,
       passwordVisible: false,
-      // משתנים לווידוא מספר רישיון
-      licenseIdValid: null,   // האם מספר הרישיון זמין
-      licenseIdInvalid: false, // האם מספר הרישיון כבר קיים
-      lastCheckedLicenseId: "", // משתנה למניעת קריאות מיותרות
+      // License ID validations
+      licenseIdValid: null,
+      licenseIdInvalid: false,
+      lastCheckedLicenseId: "",
       licenseIdNotNumeric: false,
+      // Full Name & Specialty validations
       fullNameInvalid: false,
       specialtyInvalid: false,
-      editUser: null, // משתמש שנערך כעת
+      // Edit User form state
+      editUser: null,
       editValidation: {
         fullName: false,
         email: false,
@@ -598,6 +599,7 @@ export default {
         specialty: false
       },
       editSubmitted: false,
+      // Reset password section state
       resetPassword: "",
       passwordInvalidReset: false,
       showResetConfirmation: false,
@@ -606,6 +608,7 @@ export default {
     };
   },
   computed: {
+    // Computed property to filter users by search query
     filteredUsers() {
       const query = this.searchQuery.toLowerCase().trim();
       if (!query) return this.users;
@@ -618,6 +621,7 @@ export default {
         );
       });
     },
+    // Form validation to enable/disable submit button
     canSubmit() {
       const { fullName, username, password, specialty, title, licenseId } = this.newUser;
 
@@ -645,6 +649,7 @@ export default {
     },
   },
   methods: {
+    // Toggle user details view
     toggleDetails(user) {
       if (this.selectedUser?._id === user._id) {
         this.selectedUser = null;
@@ -661,36 +666,42 @@ export default {
         this.selectedUser = user;
       }
     },
+    // Toggle between Add User form and List view
     toggleAddUserForm() {
       this.currentView = this.currentView === "addUser" ? "list" : "addUser";
     },
+    // Submit handler to add a new user after validations
     async handleAddUser() {
-      // סיסמה: לפחות 6 תווים, רק אותיות באנגלית, מספרים ותווים מיוחדים
+      // Validate password: at least 6 characters, only English letters, numbers, and allowed special symbols
       const passwordRegex = /^[A-Za-z0-9!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-]{6,}$/;
       this.passwordInvalid = !passwordRegex.test(this.newUser.password);
 
-      // בדיקת אימייל תקין
+      // Validate email format (standard RFC pattern)
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       this.emailInvalid = !emailRegex.test(this.newUser.email);
 
-      // בדיקת מספר טלפון ישראלי (מתחיל ב-05 ומכיל 10 ספרות)
+      // Validate Israeli phone number: must start with '05' and be exactly 10 digits
       const phoneRegex = /^05\d{8}$/;
       this.phoneInvalid = this.newUser.phoneNumber && !phoneRegex.test(this.newUser.phoneNumber);
 
-      // עצור אם יש שגיאות
+      // Stop form submission if any validation failed
       if (this.emailInvalid || this.phoneInvalid || this.passwordInvalid) {
         this.errorMessage = "Please correct the highlighted errors.";
         return;
       }
 
+      // Prepare user object for submission
       const userToSend = {
         ...this.newUser,
-        isAdmin: this.newUser.role === 'admin' // ⬅️ הוספה חשובה
+        isAdmin: this.newUser.role === 'admin' // Flag for admin privileges
       };
 
       try {
+        // Attempt to add new user via API call
         const result = await addUser(userToSend);
+
         if (result.success) {
+          // On success: refresh user list, return to user list view, and reset form state
           this.fetchUsers();
           this.currentView = 'list';
           this.newUser = {
@@ -711,42 +722,60 @@ export default {
           this.usernameAvailable = null;
           this.errorMessage = "";
         } else {
+          // Show API error message if provided, fallback to generic error
           this.errorMessage = result.message || "Failed to add user.";
         }
       } catch {
+        // Handle unexpected API failure
         this.errorMessage = "Failed to add user. Please try again.";
       }
     },
+    // Deletes a user by ID and refreshes the user list
     async handleDeleteUser(userId) {
       try {
+        // Attempt to delete user via API
         const result = await deleteUser(userId);
+        // On success: reload updated user list
         if (result.success) this.fetchUsers();
+        // Handle failure with server-provided message or fallback text
         else this.errorMessage = result.message || "Failed to delete user.";
       } catch {
+        // Handle unexpected errors during deletion request
         this.errorMessage = "Failed to delete user. Please try again.";
       }
     },
+    // Toggles the active/inactive status of a user by ID
     async handleToggleStatus(userId) {
       try {
+        // Attempt to toggle user status (active/suspended) via API
         const result = await toggleUserStatus(userId);
+        // On success: refresh the user list to reflect status change
         if (result.success) this.fetchUsers();
+        // Handle failure with server-provided message or fallback text
         else this.errorMessage = result.message || "Failed to toggle status.";
       } catch {
+        // Handle unexpected errors during status toggle request
         this.errorMessage = "Failed to update user status. Please try again.";
       }
     },
+    // Fetches the latest list of users from the server
     async fetchUsers() {
-      this.isLoading = true;
+      this.isLoading = true; // Show loading indicator while fetching
       try {
+        // API call to retrieve users
         this.users = await getUsers();
       } catch {
+        // Handle failure in fetching user data
         this.errorMessage = "Failed to load users. Please try again.";
       } finally {
+        // Always hide the loading indicator after request completes
         this.isLoading = false;
       }
     },
+    // Validates the username format and checks availability on the server
     async validateUsername() {
       if (!this.newUser.username) {
+        // Reset validation states when username is empty
         this.usernameAvailable = null;
         this.usernameMessage = "";
         this.usernameHasSpaces = false;
@@ -754,7 +783,7 @@ export default {
         return;
       }
 
-      // בדיקה אם יש רווחים
+      // Check for spaces in username (not allowed)
       if (/\s/.test(this.newUser.username)) {
         this.usernameHasSpaces = true;
         this.usernameAvailable = false;
@@ -764,7 +793,7 @@ export default {
         this.usernameHasSpaces = false;
       }
 
-      // בדיקה אם שם המשתמש מכיל **רק** אותיות באנגלית ומספרים
+      // Validate username contains only English letters and numbers
       if (!/^[a-zA-Z0-9]+$/.test(this.newUser.username)) {
         this.usernameInvalid = true;
         this.usernameAvailable = false;
@@ -774,25 +803,28 @@ export default {
         this.usernameInvalid = false;
       }
 
-      // המרה לאותיות קטנות כדי למנוע בעיות רישיות
+      // Normalize username to lowercase for consistency
       const usernameLower = this.newUser.username.toLowerCase();
 
-      // בדיקה האם שם המשתמש תפוס
+      // Check if the username is already taken (server-side validation)
       const { available, message } = await checkUsernameAvailability(usernameLower);
       this.usernameAvailable = available;
       this.usernameMessage = message;
     },
+    // Validates an email address for proper format and non-latin characters
     isValidEmail(email) {
-      const invalidCharRegex = /[^\x00-\x7F]/; // תווים לא לטיניים
+      const invalidCharRegex = /[^\x00-\x7F]/; // Checks for non-ASCII characters
       if (invalidCharRegex.test(email)) return false;
 
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailPattern.test(email);
     },
+    // Validates an Israeli phone number (must start with 05 and have 10 digits)
     isValidIsraeliPhone(phone) {
       const phonePattern = /^05\d{8}$/;
       return phonePattern.test(phone);
     },
+    // Generates a random password of 10 characters and validates it
     generatePassword() {
       const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
       let password = "";
@@ -800,8 +832,10 @@ export default {
         password += chars.charAt(Math.floor(Math.random() * chars.length));
       }
       this.newUser.password = password;
+      // Trigger validation after generation
       this.validatePassword();
     },
+    // Validates the user's password for allowed characters and minimum length
     validatePassword() {
       const value = this.newUser.password;
       if (!value) {
@@ -811,10 +845,11 @@ export default {
       const passwordRegex = /^[A-Za-z0-9!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-]{6,}$/;
       this.passwordInvalid = !passwordRegex.test(value);
     },
+    // Validates the medical license ID format and availability
     async validateLicenseId() {
       const license = this.newUser.licenseId.trim();
 
-      // בדיקה אם ריק
+      // Reset validation if field is empty
       if (!license) {
         this.licenseIdValid = null;
         this.licenseIdInvalid = false;
@@ -822,7 +857,7 @@ export default {
         return;
       }
 
-      // בדיקה אם כולל רק ספרות
+      // Ensure license ID contains only digits
       const onlyDigitsRegex = /^\d+$/;
       if (!onlyDigitsRegex.test(license)) {
         this.licenseIdValid = null;
@@ -833,10 +868,11 @@ export default {
         this.licenseIdNotNumeric = false;
       }
 
-      // בדיקה אם כבר נבדק
+      // Prevent redundant API calls for the same license ID
       if (this.lastCheckedLicenseId === license) return;
       this.lastCheckedLicenseId = license;
 
+      // Server-side validation for license availability
       try {
         const response = await checkLicenseAvailability(license);
         this.licenseIdValid = response.available;
@@ -847,52 +883,58 @@ export default {
         this.licenseIdInvalid = false;
       }
     },
+    // Validates that full name contains only English letters and spaces
     validateFullName() {
       const fullName = this.newUser.fullName.trim();
-
-      // אם השדה ריק – אין שגיאה
+      // No validation error if field is empty
       if (!fullName) {
         this.fullNameInvalid = false;
         return;
       }
-
-      // בדיקה אם כולל רק אותיות באנגלית ורווחים
       const fullNameRegex = /^[A-Za-z\s]+$/;
       this.fullNameInvalid = !fullNameRegex.test(fullName);
     },
+    // Validates that specialty field contains only English letters and spaces
     validateSpecialty() {
       const specialtyRegex = /^[A-Za-z\s]+$/;
       this.specialtyInvalid = this.newUser.specialty && !specialtyRegex.test(this.newUser.specialty.trim());
     },
+    // Toggles visibility of the password field (show/hide)
     togglePassword() {
       this.passwordVisible = !this.passwordVisible;
       console.log("passwordVisible:", this.passwordVisible);
     },
+    // Start editing a user by creating a deep copy (to avoid mutating the original list)
     startEditing(user) {
-      // יצירת עותק כדי לא לערוך ישירות ברשימת המשתמשים
       this.editUser = JSON.parse(JSON.stringify(user));
       },
+    // Saves the edited user data after validation
     async saveUserEdits() {
-      this.editSubmitted = true;
+      this.editSubmitted = true; // Enables validation messages for the edit form
 
+      // Validate each editable field
       this.handleEditInput('fullName');
       this.handleEditInput('email');
       this.handleEditInput('phone');
       this.handleEditInput('specialty');
 
-      // בדיקה מחודשת למס רישיון
+      // Re-validate license ID availability (server-side)
       const licenseRes = await checkLicenseAvailability(this.editUser.licenseId, this.editUser._id);
       this.editValidation.licenseId = !licenseRes.available;
 
+      // If there are any validation errors, abort saving
       const hasErrors = Object.values(this.editValidation).some(v => v);
       if (hasErrors) return;
 
+      // Prepare user data for update (exclude password)
       const userDataToSend = { ...this.editUser };
       delete userDataToSend.password;
 
+      // Update user data on the server
       try {
         const result = await updateUser(this.editUser._id, userDataToSend);
         if (result.success) {
+          // On success, reset edit state and refresh user list
           this.editUser = null;
           this.editSubmitted = false;
           await this.fetchUsers();
@@ -904,12 +946,14 @@ export default {
         console.error(err);
       }
     },
+    // Validates email format and ensures it only contains ASCII characters
     isValidEmailValue(value) {
       if (!value) return true;
       const invalidCharRegex = /[^\x00-\x7F]/;
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return !invalidCharRegex.test(value) && emailPattern.test(value);
     },
+    // Generates a random password of 10 characters and validates it
     generateResetPassword() {
       const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
       let password = "";
@@ -919,10 +963,13 @@ export default {
       this.resetPassword = password;
       this.validateResetPassword();
     },
+    // Validates the reset password field (minimum 6 characters, allowed symbols)
     validateResetPassword() {
       const passwordRegex = /^[A-Za-z0-9!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-]{6,}$/;
       this.passwordInvalidReset = !passwordRegex.test(this.resetPassword);
     },
+    // Sends the new password to the server to reset user's password
+    /* TODO: is it in use? if not delete it! */
     async resetUserPassword(userId) {
       this.validateResetPassword();
       if (this.passwordInvalidReset) {
@@ -932,6 +979,7 @@ export default {
       try {
         const result = await resetUserPassword(userId, this.resetPassword);
         if (result.success) {
+          // Reset form state on success
           this.resetPassword = "";
           this.passwordInvalidReset = false;
           this.errorMessage = "";
@@ -944,6 +992,7 @@ export default {
         console.error(err);
       }
     },
+    // Handles real-time validation for each editable field during edit
     async handleEditInput(field) {
       if (!this.editUser) return;
 
@@ -971,6 +1020,7 @@ export default {
           break;
       }
     },
+    // Cancels editing mode and resets validation states
     cancelEdit() {
       this.editUser = null;
       this.editSubmitted = false;
@@ -982,6 +1032,7 @@ export default {
         specialty: false
       };
     },
+    // Confirms password reset action and updates UI accordingly
     async confirmResetPassword(userId) {
       this.validateResetPassword();
       if (this.passwordInvalidReset) {
@@ -992,15 +1043,13 @@ export default {
       try {
         const result = await resetUserPassword(userId, this.resetPassword);
         if (result.success) {
+          // Success: show toast, reset form, auto-close after delay (3 sec)
           this.resetPassword = "";
           this.passwordInvalidReset = false;
           this.errorMessage = "";
           this.showResetConfirmation = false;
-
-          // ⬇️ מציגים הודעת הצלחה במקום הודעת אישור
           this.showSuccessToast = true;
 
-          // ⬇️ אחרי 3 שניות מחזיר למסך הרגיל
           setTimeout(() => {
             this.showSuccessToast = false;
             this.showResetConfirmation = false;
@@ -1027,7 +1076,7 @@ export default {
 </script>
 
 <style scoped>
-/* General Layout */
+/* === General Layout === */
 .admin-panel {
   max-width: 1200px;
   margin: 0 auto;
@@ -1035,18 +1084,17 @@ export default {
   background: #f5f7f9;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-
-  /* גובה קבוע וגלילה פנימית */
-  height: 80vh; /* גובה קבוע (90% מגובה המסך) */
-  overflow-y: auto; /* גלילה פנימית */
+  height: 80vh;   /* Fixed height with inner scroll for overflow */
+  overflow-y: auto;
 }
 
+/* Header Styling */
 .header {
   margin-bottom: 20px;
   text-align: center;
 }
 
+/* Search bar & Add user button container */
 .search-and-add-bar {
   display: flex;
   gap: 10px;
@@ -1074,7 +1122,7 @@ export default {
   background: #45a045;
 }
 
-/* User List */
+/* === User Card Styles === */
 .user-list {
   margin-top: 20px;
 }
@@ -1091,6 +1139,7 @@ export default {
   transition: box-shadow 0.3s ease;
 }
 
+/* Color indicators for active/inactive users */
 .user-card.active {
   border-left-color: #4caf50;
 }
@@ -1103,6 +1152,7 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* === User Card Header === */
 .user-card-header {
   display: flex;
   justify-content: space-between;
@@ -1123,13 +1173,13 @@ export default {
   cursor: pointer;
 }
 
-/* Details Section */
+/* === User Details Section === */
 .user-details-container {
   margin-top: 10px;
   border-top: 1px solid #e0e0e0;
   padding-top: 10px;
-  height: 260px; /* קובע גובה קבוע לקונטיינר */
-  overflow-y: hidden; /* גלילה פנימית */
+  height: 260px; /* Fixed height for details section */
+  overflow-y: hidden;
 }
 
 .user-details {
@@ -1151,7 +1201,7 @@ export default {
   font-size: 18px;
 }
 
-/* Buttons */
+/* === Action Buttons === */
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -1188,42 +1238,42 @@ export default {
   background: #d32f2f;
 }
 
-/* שם המשתמש */
+/* === Username Visuals === */
 .username {
   font-size: 18px;
   font-weight: bold;
   margin: 0;
 }
 
-/* משתמש פעיל */
+/* Active user */
 .username.active {
-  color: #4caf50; /* ירוק */
+  color: #4caf50;
 }
 
-/* משתמש לא פעיל */
+/* Non Active user */
 .username.inactive {
-  color: #e57373; /* אדום */
+  color: #e57373;
 }
 
-/* כותרת הדף */
+/* === Page Title Styling === */
 .header {
-  color: #3f51b5; /* צבע כחול לכותרת */
+  color: #3f51b5; /* Blue color for the page title */
   font-size: 24px;
   margin-bottom: 20px;
   text-align: center;
 }
 
-
-/* עיצוב המבנה הכללי */
+/* === User Details Container === */
+/* General structure for user details section with spacing and top border */
 .user-details-container {
   margin-top: 10px;
   border-top: 1px solid #e0e0e0;
   padding-top: 10px;
   height: auto;
-  overflow-y: hidden;
+  overflow-y: hidden; /* Prevents scrollbars from appearing */
 }
 
-/* מחלק את הכרטיס לשני צדדים */
+/* === User Card Layout Adjustments === */
 .user-card-layout {
   display: flex;
   justify-content: space-between;
@@ -1232,15 +1282,16 @@ export default {
   color: #000000;
 }
 
-/* אווטאר וכפתורים - צד ימין */
+/* === Avatar Styling === */
 .user-avatar-section {
   display: flex;
   flex-direction: column;
-  align-items: center; /* ממרכז את התמונה והכפתורים */
+  align-items: center;
   gap: 15px;
 }
 
-/* עיצוב תמונת האווטאר */
+/* === Avatar Image Styling === */
+/* Circular user avatar with border and subtle shadow */
 .avatar-circle {
   width: 140px;
   height: 140px;
@@ -1251,13 +1302,7 @@ export default {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-
-
-
-
-
-
-
+/* === Form Styling === */
 .add-user-form {
   background: #ffffff;
   padding: 25px;
@@ -1296,6 +1341,7 @@ export default {
   border: 3px solid #4caf50;
 }
 
+/* === Input Field Styles === */
 .form-fields input,
 .form-fields select {
   width: 98%;
@@ -1305,6 +1351,7 @@ export default {
   border-radius: 8px;
 }
 
+/* === Save Button === */
 .save-button {
   width: 100%;
   background: linear-gradient(to right, #4caf50, #45a045);
@@ -1326,33 +1373,33 @@ export default {
 }
 
 
-
-
-
-/* מסדר את שני הטוגלים באותה שורה */
+/* === Toggle Buttons === */
 .toggle-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 30px; /* רווח בין שני הטוגלים */
+  gap: 30px;
   margin-bottom: 15px;
 }
 
-/* כל טוגל יהיה מסודר בקבוצה */
+/* === Toggle Group === */
+/* Group layout for toggle buttons with spacing */
 .toggle-group {
   display: flex;
   align-items: center;
-  gap: 10px; /* רווח בין הכפתורים */
+  gap: 10px; /* Space between buttons */
 }
 
-/* עיצוב לכיתובים */
+/* === Toggle Label === */
+/* Styling for the toggle section label */
 .toggle-label {
   font-weight: bold;
   font-size: 16px;
   color: #333;
 }
 
-/* עיצוב כללי לכפתור טוגל */
+/* === Toggle Button === */
+/* Default styling for toggle buttons */
 .toggle-button {
   padding: 8px 18px;
   border: 2px solid #ddd;
@@ -1364,20 +1411,20 @@ export default {
   font-weight: 500;
 }
 
-/* עיצוב בעת ריחוף */
+/* Hover effect for toggle buttons */
 .toggle-button:hover {
   background-color: #f5f5f5;
 }
 
-/* כפתור שנבחר */
+/* Selected toggle button style */
 .toggle-button.selected {
   background-color: #4caf50;
   color: white;
   border-color: #4caf50;
 }
 
-
-/* עיצוב הקבוצה של השדה */
+/* === Input Group === */
+/* Wrapper for form fields with label and spacing */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -1385,7 +1432,8 @@ export default {
   margin-bottom: 15px;
 }
 
-/* עטיפת שדה קלט */
+/* === Input Wrapper === */
+/* Container for input fields including icons */
 .input-wrapper {
   position: relative;
   width: 100%;
@@ -1393,7 +1441,8 @@ export default {
   align-items: center;
 }
 
-/* שדה הקלט */
+/* === Input Field Styling === */
+/* Basic input field design with padding and rounded borders */
 .input-wrapper input {
   width: 100%;
   padding: 10px;
@@ -1403,45 +1452,46 @@ export default {
   transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-/* מצב של שם משתמש תפוס */
+/* Input field when username is already taken */
 .input-wrapper.taken input {
   border-color: red;
   box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }
 
-/* מצב של שם משתמש פנוי */
+/* Input field when username is available */
 .input-wrapper.available input {
   border-color: green;
   box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
-/* אייקון מצב */
+/* === Status Icon === */
+/* Icon positioned inside input fields */
 .status-icon {
   position: absolute;
   right: 10px;
   font-size: 18px;
 }
 
-/* אייקון ירוק */
+/* Icon color when available (green) */
 .available .status-icon i {
   color: green;
 }
 
-/* אייקון אדום */
+/* Icon color when taken (red) */
 .taken .status-icon i {
   color: red;
 }
 
-
-
-
-
+/* === Input Group === */
+/* Wrapper for inputs with label and spacing */
 .input-group {
   position: relative;
   display: flex;
   flex-direction: column;
 }
 
+/* === Error & Success Messages === */
+/* Generic styling for error and success messages */
 .error-message, .success-message {
   font-size: 14px;
   margin-top: 5px;
@@ -1456,19 +1506,20 @@ export default {
   color: green;
 }
 
-
-
-
-
+/* === Password Group === */
+/* Wrapper for password fields */
 .password-group {
   position: relative;
 }
 
+/* === Input Field Styling === */
 .input-wrapper {
   position: relative;
   width: 100%;
 }
 
+/* === Toggle Password Icon === */
+/* Eye icon to toggle password visibility */
 .toggle-password {
   position: absolute;
   right: 12px;
@@ -1479,6 +1530,8 @@ export default {
   font-size: 20px;
 }
 
+/* === Generate Button === */
+/* Button to generate random password */
 .generate-button {
   margin-top: 8px;
   background: #2196f3;
@@ -1495,12 +1548,7 @@ export default {
   background: #1976d2;
 }
 
-
-
-
-
-
-
+/* === Field Validity States === */
 .valid-field {
   border: 2px solid green;
   box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
@@ -1525,6 +1573,8 @@ export default {
   margin-top: 5px;
 }
 
+/* === Admin User Card Styling === */
+/* Special design for admin users */
 ::v-deep(.user-card.admin) {
   background-color: #fffde7;
   border-left: 5px solid #fbc02d;
@@ -1549,11 +1599,7 @@ export default {
   color: #fbc02d !important;
 }
 
-
-
-
-
-
+/* === No Users Found Section === */
 .no-users {
   text-align: center;
   margin-top: 60px;
@@ -1579,7 +1625,7 @@ export default {
   font-size: 14px;
 }
 
-/* אנימציה נעימה */
+/* Fade-in Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1591,8 +1637,7 @@ export default {
   }
 }
 
-
-
+/* === Username Badge === */
 .username-badge {
   background-color: #e0f7fa;
   color: #00796b;
@@ -1606,13 +1651,7 @@ export default {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-
-
-
-
-
-
-
+/* === Edit Form === */
 .edit-form {
   margin-top: 20px;
   background: #f9f9f9;
@@ -1635,6 +1674,7 @@ export default {
   gap: 10px;
 }
 
+/* Save & Cancel Buttons */
 .edit-form .save-button {
   background: #4caf50;
   color: white;
@@ -1652,9 +1692,9 @@ export default {
   cursor: pointer;
 }
 
-
+/* Edit Button on User Card */
 .edit-button {
-  background-color: #2196f3; /* כחול */
+  background-color: #2196f3;
   color: white;
   padding: 8px 15px;
   border: none;
@@ -1675,24 +1715,23 @@ export default {
   background-color: #1976d2;
 }
 
-
+/* Read-only Input Field */
 .readonly-field {
-  background-color: #f0f0f0; /* אפור בהיר */
-  color: #000000; /* שחור */
+  background-color: #f0f0f0;
+  color: #000000;
   cursor: not-allowed;
   font-weight: bold;
 }
 
+/* Input Labels */
 .input-group label {
   display: block;
   font-weight: bold;
   margin-bottom: 4px;
-  color: #000; /* צבע שחור */
+  color: #000;
 }
 
-
-
-
+/* === Reset Password Section === */
 .reset-password-section {
   margin-top: 30px;
   padding: 25px;
@@ -1716,6 +1755,7 @@ export default {
   margin-right: 6px;
 }
 
+/* Button Group */
 .center-buttons {
   display: flex;
   justify-content: center;
@@ -1723,6 +1763,7 @@ export default {
   margin-top: 15px;
 }
 
+/* Generate Password Button */
 .generate-btn {
   background-color: #2196f3;
   color: white;
@@ -1738,6 +1779,7 @@ export default {
   background-color: #1976d2;
 }
 
+/* Save Button for Password */
 .save-btn {
   background-color: #f44336;
   color: white;
@@ -1753,6 +1795,7 @@ export default {
   background-color: #d32f2f;
 }
 
+/* Toast Success Message */
 .toast-success {
   background-color: #4caf50;
   color: white;
@@ -1771,8 +1814,7 @@ export default {
   100% { opacity: 0; }
 }
 
-
-
+/* Confirmation Dialog */
 .confirmation-text {
   background-color: #fff8e1;
   border: 2px solid #ffb300;
@@ -1794,6 +1836,7 @@ export default {
   color: #d84315;
 }
 
+/* Confirmation Buttons */
 .confirm-btn {
   background-color: #f44336;
   color: white;
@@ -1824,8 +1867,7 @@ export default {
   background-color: #bbb;
 }
 
-
-
+/* Success Confirmation Block */
 .confirmation-success {
   background-color: #e8f5e9;
   border: 2px solid #4caf50;
@@ -1839,5 +1881,4 @@ export default {
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
   animation: fadeInOut 3s ease-in-out forwards;
 }
-
 </style>

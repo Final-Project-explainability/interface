@@ -22,8 +22,7 @@
 </template>
 
 <script>
-import { MockGetPatientExplanaition } from "../local_functions_mock";
-import { GetPatientExplanation } from "../src/services/predictionService.js";
+import { GetPatientExplanation } from "../api/predictionApi.js";
 import ModelExplainableSection from "./ModelExplainableSection.vue";
 
 export default {
@@ -32,31 +31,36 @@ export default {
     ModelExplainableSection,
   },
   props: {
+    // Current patient ID
     patientId: {
       type: String,
       required: true,
     },
+    // Selected ML model or "All"
     selectedModel: {
       type: String,
       required: true,
     },
+    // View mode: vital / circular / mini
     viewMode: {
       type: String,
-      default: "vital", // circular / vital / mini
+      default: "vital",
     },
+    // Selected dataset name
     selectedDataset: {
       type: String,
-      required: true, // ✅ חובה כדי שנוכל לדעת מתי לשנות את הנתונים
+      required: true,
     },
   },
   data() {
     return {
-      predictionData: [], // נתוני התחזיות הגולמיים עבור המודל שנבחר
-      filteredPredictionData: [], // נתונים לאחר סינון
-      lastFilters: null, // 🆕 לשימוש חוזר
+      predictionData: [],           // Raw explanations data
+      filteredPredictionData: [],   // Filtered & sorted data for display
+      lastFilters: null,            // Last applied filters (for re-applying on viewMode change)
     };
   },
   methods: {
+    // Load prediction explanations based on selected model/dataset/patientId
     async loadPredictionData() {
       try {
         this.predictionData = [];
@@ -65,11 +69,11 @@ export default {
         if (this.selectedModel === "All") {
           const rawData = await this.fetchAllExplanations();
 
-          // אם לא חזר כלום (כל המודלים ריקים) נזרוק שגיאה
           if (!rawData || Object.keys(rawData).length === 0) {
             throw new Error("No explanations found for any model.");
           }
 
+          // Normalize raw data structure to uniform array of groups & features
           this.predictionData = Object.entries(rawData).flatMap(([group, models]) =>
             Object.entries(models).map(([model, features]) => ({
               group,
@@ -83,7 +87,6 @@ export default {
         } else {
           const rawData = await GetPatientExplanation(this.patientId, this.selectedModel);
 
-          // אם אין נתונים כלל עבור המודל הזה
           if (!rawData || Object.keys(rawData).length === 0) {
             throw new Error(`No explanation data found for ${this.selectedModel}`);
           }
@@ -98,7 +101,7 @@ export default {
           }));
         }
 
-        // הפעלת פילטרים ברירת מחדל אחרי הטעינה
+        // Apply default filters after loading data
         this.applyFilters({
           filterType: "all",
           sortOrder: "default",
@@ -111,6 +114,7 @@ export default {
         this.filteredPredictionData = [];
       }
     },
+    // Fetch explanations for all models (XGBOOST, LogisticRegression, DecisionTree)
     async fetchAllExplanations() {
       const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
       const explanationData = {};
@@ -131,6 +135,7 @@ export default {
 
       return explanationData;
     },
+    // Apply filters and sorting to prediction data
     applyFilters(filters) {
       this.lastFilters = filters;
 
@@ -139,21 +144,21 @@ export default {
       filteredData = filteredData.map((group) => {
         let features = [...group.features];
 
-        // סינון צבע
+        // Filter by positive (red) / negative (green) contributions
         if (filters.filterType === "red") {
           features = features.filter((f) => f.percentage > 0);
         } else if (filters.filterType === "green") {
           features = features.filter((f) => f.percentage < 0);
         }
 
-        // חיפוש
+        // Search query filter
         if (filters.searchQuery) {
           features = features.filter((f) =>
             f.name.toLowerCase().includes(filters.searchQuery.toLowerCase())
           );
         }
 
-        // 🧠 מיון לפי ממוצע מוחלט של מודל נוכחי
+        // Sorting modes: default ranking, absolute desc/asc, alphabetical
         if (filters.sortOrder === "default") {
           const modelKey = group.model || this.selectedModel;
           const rankMap = this.getModelFeatureRanking(modelKey);
@@ -176,6 +181,7 @@ export default {
 
       this.filteredPredictionData = filteredData;
     },
+    // Get feature ranking for given model based on average absolute contribution
     getModelFeatureRanking(modelName) {
       const featureStats = {}; // { name: [abs1, abs2, ...] }
 
@@ -193,7 +199,7 @@ export default {
           name,
           avg: values.reduce((a, b) => a + b, 0) / values.length,
         }))
-        .sort((a, b) => b.avg - a.avg); // הכי חשובים קודם
+        .sort((a, b) => b.avg - a.avg); // Highest importance first
 
       return ranked.reduce((map, item, index) => {
         map[item.name] = index;
@@ -203,19 +209,19 @@ export default {
 
   },
   watch: {
-    // ניטור שינויים ב-patientId או ב-selectedModel
+    // Reload data when patientId, selectedModel or selectedDataset changes
     patientId: "loadPredictionData",
     selectedModel: "loadPredictionData",
-    selectedDataset: "loadPredictionData", // ✅ מוסיפים את זה
+    selectedDataset: "loadPredictionData",
     viewMode(newVal) {
-      // כאשר מצב תצוגה משתנה, נריץ את הסינון מחדש
+      // When the view mode changes, re-apply the filters
       if (this.lastFilters) {
         this.applyFilters(this.lastFilters);
       }
     },
   },
   mounted() {
-    // טעינת המידע בזמן עליית הקומפוננטה
+    // Load prediction data when the component is mounted
     this.loadPredictionData();
   },
 };
@@ -232,6 +238,7 @@ export default {
 
 }
 
+/* Horizontal slider wrapper for the explanation sections */
 .horizontal-slider-wrapper {
   display: flex;
   align-items: center;
@@ -241,6 +248,7 @@ export default {
   flex: 1;
 }
 
+/* Scrollable vertical container to hold model explanations */
 .vertical-scroll-container {
   overflow-y: auto;
   height: 100%;
@@ -249,11 +257,12 @@ export default {
   flex-direction: column;
 }
 
+/* Wrapper for multiple model sections displayed in vertical list */
 .models-wrapper {
   display: flex;
-  flex-direction: column; /* כל מודל יוצג בשורה נפרדת */
-  gap: 0px; /* רווח בין השורות */
-  justify-content: flex-start; /* יישור לשמאל */
-  align-items: flex-start; /* יישור אלמנטים לשמאל */
+  flex-direction: column;
+  gap: 0px;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 </style>

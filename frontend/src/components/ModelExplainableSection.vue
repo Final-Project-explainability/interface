@@ -1,8 +1,10 @@
 <template>
   <div class="model-section" :class="groupClass">
+    <!-- Model title -->
     <h3 class="model-title">{{ modelName }}</h3>
-
+    <!-- Feature items list -->
     <div class="model-items" v-if="modelData && modelData.length">
+      <!-- Render appropriate component for each feature dynamically -->
       <component
         v-for="(feature, index) in modelData"
         :key="feature.name"
@@ -27,29 +29,38 @@ export default {
     MinimalDataTile,
   },
   props: {
+    // Name of the model (e.g., "XGBoost", "Neural Net")
     modelName: {
       type: String,
       required: true,
     },
+    // Array of features with { name, percentage } structure
     modelData: {
       type: Array,
       required: true,
     },
+    // Indicates if the view is in 'All Mode' (affects parent display logic)
     isAllMode: {
       type: Boolean,
       default: false,
     },
+    // Group type (SHAP, LIME, Inherent) for coloring
     group: {
       type: String,
       default: "",
     },
+    // Determines which component is used to display each feature
     viewMode: {
       type: String,
-      default: "vital",
+      default: "vital", // "vital", "circular", or "mini"
     },
 
   },
   computed: {
+    /**
+     * Returns CSS class based on group prop.
+     * Used to differentiate background colors per group.
+     */
     groupClass() {
       const map = {
         SHAP: "group-shap",
@@ -58,6 +69,10 @@ export default {
       };
       return map[this.group] || "group-default";
     },
+    /**
+     * Dynamically returns the component to render for each feature
+     * Based on the 'viewMode' prop.
+     */
     getComponent() {
       switch (this.viewMode) {
         case "circular":
@@ -74,6 +89,7 @@ export default {
 </script>
 
 <style scoped>
+/* ===== Main Container ===== */
 .model-section {
   min-width: 300px;
   margin-bottom: 12px;
@@ -83,7 +99,7 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-/* כותרת קבוצה */
+/* ===== Model Title ===== */
 .model-title {
   font-size: 18px;
   font-weight: bold;
@@ -92,7 +108,7 @@ export default {
   margin-top: 0;
 }
 
-/* רשימת כרטיסים */
+/* ===== Feature Items List ===== */
 .model-items {
   display: flex;
   gap: 15px;
@@ -104,6 +120,7 @@ export default {
   scrollbar-gutter: stable both-edges;
 }
 
+/* Scrollbar styles */
 .model-items::-webkit-scrollbar {
   height: 8px;
 }
@@ -117,20 +134,20 @@ export default {
   background: #a0a0a0;
 }
 
-/* רקעים לפי קבוצות הסבר */
+/* ===== Background Colors per Group Type ===== */
 .group-shap {
-  background-color: #e8f5e9; /* ירקרק עדין */
+  background-color: #e8f5e9; /* Soft green for SHAP explanations */
 }
 
 .group-lime {
-  background-color: #fff9e6; /* צהבהב עדין */
+  background-color: #fff9e6; /* Soft yellow for LIME explanations */
 }
 
 .group-inherent {
-  background-color: #e3f2fd; /* תכלת רך */
+  background-color: #e3f2fd; /* Soft blue for inherent features */
 }
 
 .group-default {
-  background-color: #f5f5f5;
+  background-color: #f5f5f5; /* Neutral gray for default */
 }
 </style>

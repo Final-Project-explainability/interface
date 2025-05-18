@@ -1,6 +1,6 @@
 <template>
   <div class="user-profile">
-    <!-- אווטאר ופרטי משתמש -->
+    <!-- User Avatar & Details -->
     <div
       class="user-avatar"
       :style="{ backgroundImage: `url(${user.profilePictureUrl || defaultAvatar})` }"
@@ -22,9 +22,9 @@
 
     <div class="separator"></div>
 
-    <!-- כפתורי ניווט -->
+    <!-- Navigation Buttons -->
     <div class="action-buttons">
-      <!-- ✅ כפתורי בחירת דאטה סט כאן -->
+      <!-- Dataset Selector Component -->
       <DataSelector />
 
       <button class="action-button" @click="navigateTo('Home')">
@@ -39,7 +39,6 @@
         <i class="fas fa-user-circle"></i> My Profile
       </button>
 
-
       <button
         v-if="user.isAdmin"
         class="action-button admin-button"
@@ -48,33 +47,15 @@
         <i class="fa fa-tools"></i> User Management
       </button>
 
-      <!-- ✔️ עכשיו זה באמת מנתק -->
+      <!-- Logout Button -->
       <button class="logout-button" @click="$emit('logout')">Logout</button>
     </div>
-
-    <!-- מודלים -->
-    <PatientModal
-      v-if="showPatientModal"
-      :showModal="showPatientModal"
-      @onClose="closePatientModal"
-    />
-
-    <AdminPanelModal
-      v-if="showAdminModal"
-      :showModal="showAdminModal"
-      @onClose="closeAdminModal"
-      :currentUser="user"
-    />
   </div>
 </template>
 
 <script setup>
-import PatientModal from "../pages/PatientModal.vue";
-import AdminPanelModal from "../pages/AdminPanelModal.vue";
 import { usePanelStore } from "@/stores/panelStore";
-import { ref } from "vue";
 import DataSelector from "../components/DatasetSelector.vue";
-
 
 const props = defineProps({
   user: {
@@ -83,35 +64,18 @@ const props = defineProps({
   },
 });
 
+/*TODO: check about this url.. neede? if yes, than replace it in real url*/
+// Default avatar fallback image
 const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg";
 
-const showPatientModal = ref(false);
-const showAdminModal = ref(false);
-
-// ⬇️ שימוש ב־store של הפאנלים
+// Access panel store to control navigation
 const panelStore = usePanelStore();
 
+// Navigate to selected panel (Home, PatientList, PersonalArea, AdminPanel)
 const navigateTo = (panelName) => {
   panelStore.setPanel(panelName); // 🔥 משנה את הפאנל דרך Pinia
 };
-
-const openPatientModal = () => {
-  showPatientModal.value = true;
-};
-
-const closePatientModal = () => {
-  showPatientModal.value = false;
-};
-
-const openAdminModal = () => {
-  showAdminModal.value = true;
-};
-
-const closeAdminModal = () => {
-  showAdminModal.value = false;
-};
 </script>
-
 
 <style>
 .open-modal-button {
@@ -133,7 +97,7 @@ const closeAdminModal = () => {
   font-size: 16px;
 }
 
-
+/* Main User Profile Card */
 .user-profile {
     background: linear-gradient(135deg, #f0f8ff, #e6f7f7); /* Soft gradient for a calming medical look */
     color: #004d66; /* Dark teal text for a professional and clean look */
@@ -147,6 +111,7 @@ const closeAdminModal = () => {
     text-align: center; /* Center-aligns all child elements */
 }
 
+/* Decorative blur effect behind profile card */
 .user-profile::before {
     content: ''; /* Decorative blur background */
     position: absolute;
@@ -159,6 +124,7 @@ const closeAdminModal = () => {
     z-index: 0; /* Ensures it's behind all other elements */
 }
 
+/* Profile Avatar */
 .user-avatar {
     width: 180px;
     height: 180px;
@@ -173,7 +139,7 @@ const closeAdminModal = () => {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Adds subtle depth */
 }
 
-
+/* Action buttons (Navigation) */
 .action-buttons {
     display: flex;
     flex-direction: column; /* Stacks buttons vertically */
@@ -183,6 +149,7 @@ const closeAdminModal = () => {
     width: 100%; /* Ensures buttons fill the container width */
 }
 
+/* General action button style */
 .action-button {
     background: linear-gradient(90deg, #ffffff, #f0f8ff); /* Light gradient for a clean look */
     color: #004d66; /* Dark teal for text */
@@ -201,7 +168,7 @@ const closeAdminModal = () => {
     transform: translateY(-5px); /* Subtle movement for interactivity */
 }
 
-/* כפתור "Manage Users" */
+/* Special styling for admin button */
 .admin-button {
     background: linear-gradient(90deg, #ffd700, #ffef9f); /* זהב עד צהוב בהיר */
     color: #004d66;
@@ -220,6 +187,7 @@ const closeAdminModal = () => {
     box-shadow: 0 5px 15px rgba(227, 184, 0, 0.3); /* צל זהוב */
 }
 
+/* Logout button with red tones */
 .logout-button {
     background: linear-gradient(90deg, #ff6f61, #ff867c); /* Soft gradient in red tones */
     color: white; /* White text for good contrast */
@@ -235,7 +203,7 @@ const closeAdminModal = () => {
     transform: scale(1.05); /* Slight enlargement for interactivity */
 }
 
-
+/* User Details Styling */
 .user-details h2 {
     font-size: 22px; /* Slightly larger for prominence */
     color: #004d66; /* Consistent with the teal color scheme */
@@ -251,7 +219,4 @@ const closeAdminModal = () => {
     margin: 5px 0; /* Adds space between paragraphs */
     z-index: 1;
 }
-
-
-
 </style>

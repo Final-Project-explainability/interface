@@ -1,8 +1,10 @@
 <template>
   <div class="patient-details-container">
     <h2 class="section-title">Patient Details</h2>
+
     <div class="details-slider">
       <div class="details-items" ref="slider">
+        <!-- Render PatientDetailItem for each patient data key-value -->
         <PatientDetailItem
           v-for="(value, key, index) in filteredPatientData"
           :key="index"
@@ -25,23 +27,30 @@ export default {
     PatientDetailItem,
   },
   props: {
+    // Patient data object (key-value pairs)
     patientData: {
       type: Object,
       required: true,
     },
+    // Function that returns visual config for each key (icon, backgroundColor)
     getItemVisualConfig: {
       type: Function,
-      default: () => () => ({}), // fallback ל־function ריקה אם לא הועבר
+      default: () => () => ({}), // Fallback empty function
     },
+    // Search string to filter patient data by key or value
     searchQuery: {
       type: String,
       default: "",
     },
   },
   computed: {
+    /**
+     * Filters patient data based on search query.
+     * Matches either key names or values (case insensitive).
+     */
     filteredPatientData() {
       const result = {};
-      const query = (this.searchQuery || "").toLowerCase(); // ✅ הגנה מקריסה
+      const query = (this.searchQuery || "").toLowerCase(); // Defensive null handling
 
       for (const [key, value] of Object.entries(this.patientData || {})) {
         const keyMatch = key.toLowerCase().includes(query);
@@ -55,51 +64,59 @@ export default {
     },
   },
   methods: {
+    /**
+     * Converts key names from snake_case to Title Case.
+     * Example: "heart_rate" -> "Heart Rate"
+     */
     formatKey(key) {
       return key
-        .replace(/_/g, " ") // החלפת _ ברווחים
-        .replace(/\b[a-z]/g, (char) => char.toUpperCase()); // אותיות ראשונות לגדולות
+        .replace(/_/g, " ") // Replace underscores with spaces
+        .replace(/\b[a-z]/g, (char) => char.toUpperCase()); // Capitalize first letter
     },
   },
 };
 </script>
 
 <style scoped>
+/* ==== Main Container ==== */
 .patient-details-container {
-  background: #f9fafb; /* צבע רקע בהיר מאוד */
-  border-radius: 16px; /* פינות עגלגלות יותר */
+  background: #f9fafb;
+  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08); /* צל עדין יותר */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
   margin-bottom: 0px;
 }
 
+/* ==== Section Title ==== */
 .section-title {
   font-size: 20px;
   font-weight: 600;
   text-align: left;
-  color: #2c3e50; /* צבע כהה יותר לכותרת */
+  color: #2c3e50;
   margin-bottom: 15px;
   margin-top: 0;
 }
 
+/* ==== Horizontal Scroll Slider ==== */
 .details-slider {
   overflow-x: auto;
   white-space: nowrap;
   padding: 12px 0;
-  //background: #ffffff; /* רקע לבן */
   border-radius: 12px;
-  //box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* צל עדין */
 }
 
+/* ==== Items Container (flex layout) ==== */
 .details-items {
   display: flex;
   gap: 20px;
 }
 
+/* Prevent items from shrinking */
 .details-items > * {
-  flex-shrink: 0; /* שלא יתקמטו */
+  flex-shrink: 0;
 }
 
+/* ==== Legacy .patient-detail-item styles (should be removed if using PatientDetailItem.vue instead) ==== */
 .patient-detail-item {
   background: #ffffff;
   padding: 12px 16px;
@@ -110,6 +127,7 @@ export default {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Hover effect for card */
 .patient-detail-item:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -122,9 +140,8 @@ export default {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
   margin-bottom: 11px;
 
-  /* תוספות: */
-  border: 1px solid #e3e8ee; /* צבע מסגרת עדין */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03); /* צל עדין יותר */
-}
 
+  border: 1px solid #e3e8ee;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03); /* TODO: there is dobule from this. choose one. */
+}
 </style>

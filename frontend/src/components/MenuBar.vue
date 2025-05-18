@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- סיידבר -->
+    <!-- Sidebar Navigation -->
     <transition name="slide">
       <aside v-if="isSidebarOpen" class="sidebar-overlay" @click.self="isSidebarOpen = false">
         <div class="sidebar">
@@ -22,16 +22,15 @@
       </aside>
     </transition>
 
-    <!-- בר עליון -->
+    <!-- Top Menu Bar -->
     <header class="menu-bar">
-      <!-- כפתור תפריט -->
+      <!-- Hamburger Menu Button -->
       <button class="hamburger" @click="isSidebarOpen = !isSidebarOpen">
         <i class="material-icons">menu</i>
       </button>
 
 
-
-      <!-- חיפוש ודאטהסט (רק אם מחובר) -->
+      <!-- Search Bar and Dataset Switch (Only when user is logged in) -->
       <div class="search-bar-wrapper" v-if="user">
         <div class="search-input-wrapper">
           <i class="material-icons search-icon">search</i>
@@ -44,18 +43,20 @@
         </div>
         <button class="search-btn" @click="submitSearch">Go</button>
 
+        <!-- Current Dataset Display -->
         <div class="dataset-indicator">
           <i class="material-icons">storage</i>
           <span>{{ dataSourceStore.selectedDataset }}</span>
         </div>
 
+        <!-- Dataset Toggle Button -->
         <button class="dataset-toggle-btn" @click="toggleDataset" title="Switch dataset">
           <i class="material-icons">autorenew</i>
         </button>
       </div>
 
 
-      <!-- הצגת הדאטה סט - תמיד מוצג -->
+      <!-- Always show dataset when user is not logged in -->
       <div class="dataset-indicator-wrapper"  v-if="!user">
         <div class="dataset-indicator">
           <i class="material-icons">storage</i>
@@ -67,15 +68,13 @@
       </div>
 
 
-
-
-      <!-- לוגו -->
+      <!-- Application Logo in Center -->
       <div class="logo-wrapper">
         <span class="logo-text">ICU MediClear</span>
       </div>
 
 
-      <!-- תפריט משתמש -->
+      <!-- User Menu Dropdown -->
       <div class="user-menu-wrapper">
         <button class="user-menu" @click="toggleUserDropdown">
           <img
@@ -85,13 +84,13 @@
           />
           <span class="greeting">
             Hello, {{ user?.fullName || 'Guest' }}
-<!--            <small class="role-label">{{ user?.isAdmin ? 'Admin' : 'User' }}</small>-->
           </span>
             <i v-if="user" class="material-icons arrow-icon">
               {{ isUserDropdownOpen ? 'expand_less' : 'expand_more' }}
             </i>
         </button>
 
+        <!-- User Dropdown Menu -->
         <transition name="fade">
           <ul v-if="isUserDropdownOpen && user" class="user-dropdown">
             <li @click="navigateTo('Home')">
@@ -106,11 +105,12 @@
               <i class="material-icons">assignment</i> Patient List
             </li>
 
+            <!-- Admin Panel Entry (Only for admins) -->
             <li class="admin-entry" v-if="user?.isAdmin" @click="navigateTo('AdminPanel')">
               <i class="material-icons">admin_panel_settings</i> Admin Panel
             </li>
 
-
+            <!-- Logout Entry -->
             <li class="logout-entry" @click="handleLogout">
               <i class="material-icons">logout</i> Logout
             </li>
@@ -123,29 +123,36 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { getUserProfile } from "@/data/authService";
+import { getUserProfile } from "@/api/authService";
 import { useRouter } from "vue-router";
 import { eventBus } from "@/utils/eventBus";
 import { usePanelStore } from "@/stores/panelStore";
 import { useDataSourceStore } from "@/stores/dataSourceStore";
-import { GetPatientDetails } from "../src/services/predictionService.js"; // ⚠️ משתמש בקובץ החדש
 
+
+// States
 const searchText = ref("");
 const isSidebarOpen = ref(false);
 const isUserDropdownOpen = ref(false);
 const user = ref(null);
-const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/6073/6073873.png";
+const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/6073/6073873.png"; /* TODO: change the url after uploading to git */
 
+// Stores
 const panelStore = usePanelStore();
 const dataSourceStore = useDataSourceStore();
+
+// Router
 const router = useRouter();
 
+// Emit search event
 const emit = defineEmits(["search"]);
 
+// Toggle user dropdown menu
 const toggleUserDropdown = () => {
   isUserDropdownOpen.value = !isUserDropdownOpen.value;
 };
 
+// Toggle between datasets
 const toggleDataset = () => {
   const current = dataSourceStore.selectedDataset;
   const next = current === "DataSet 1" ? "DataSet 2" : "DataSet 1";
@@ -154,8 +161,7 @@ const toggleDataset = () => {
 };
 
 
-
-
+// Handle search submission
 const submitSearch = () => {
   const query = searchText.value.trim();
   if (query) {
@@ -164,13 +170,14 @@ const submitSearch = () => {
     if (router.currentRoute.value.path !== "/local") {
       router.push({ path: "/local", query: { patientId: query } });
     } else {
-      // אם כבר נמצא ב־/local, נעדכן רק את הפרמטרים
+      // Update query params if already on /local
       router.replace({ path: "/local", query: { patientId: query } });
     }
   }
 };
 
 
+// Load user profile from local storage and API
 const loadUser = async () => {
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
@@ -183,10 +190,12 @@ const loadUser = async () => {
   }
 };
 
+// Handle logout by emitting token expiration
 const handleLogout = () => {
   eventBus.emit("token-expired");
 };
 
+// Navigate to a specific panel and close dropdowns
 const navigateTo = (panelName) => {
   isUserDropdownOpen.value = false;
   isSidebarOpen.value = false;
@@ -196,15 +205,17 @@ const navigateTo = (panelName) => {
   }
 };
 
+// Load user profile on component mount
 onMounted(loadUser);
 </script>
 
-
 <style scoped>
+/* Import Material Icons */
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
+/* ===== Top Menu Bar ===== */
 .menu-bar {
-  position: relative; /* חשוב כדי שה-logo-wrapper שמבוסס על absolute יתייחס אליה */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -216,7 +227,7 @@ onMounted(loadUser);
   gap: 20px;
 }
 
-
+/* ===== Hamburger Button ===== */
 .hamburger {
   background: none;
   border: none;
@@ -225,6 +236,7 @@ onMounted(loadUser);
   color: #007bff;
 }
 
+/* ===== Logo ===== */
 .logo-wrapper {
   position: absolute;
   left: 50%;
@@ -239,7 +251,7 @@ onMounted(loadUser);
   color: #007bff;
 }
 
-/* חיפוש */
+/* ===== Search Bar Section ===== */
 .search-bar-wrapper {
   display: flex;
   align-items: center;
@@ -287,7 +299,7 @@ onMounted(loadUser);
   background-color: #004d40;
 }
 
-/* תפריט משתמש */
+/* ===== User Menu Section ===== */
 .user-menu-wrapper {
   position: relative;
   display: flex;
@@ -324,6 +336,8 @@ onMounted(loadUser);
   font-size: 20px;
   color: #007bff;
 }
+
+/* ===== User Dropdown Menu ===== */
 .user-dropdown {
   position: absolute;
   top: 100%;
@@ -356,7 +370,7 @@ onMounted(loadUser);
   background-color: #f1f1f1;
 }
 
-/* סיידבר */
+/* ===== Sidebar ===== */
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.3s ease;
@@ -409,7 +423,7 @@ onMounted(loadUser);
   font-size: 22px;
 }
 
-/* אנימציה Dropdown */
+/* ===== Animations ===== */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -419,7 +433,7 @@ onMounted(loadUser);
   opacity: 0;
 }
 
-
+/* ===== Logout Button in Dropdown ===== */
 .user-dropdown li.logout-entry {
   border-top: 1px solid #eee;
   color: #d32f2f;
@@ -440,11 +454,11 @@ onMounted(loadUser);
   color: #b71c1c;
 }
 
-/* ADMIN PANEL בסטייל זהוב */
+/* ===== Admin Panel Entry in Dropdown (Gold Style) ===== */
 .user-dropdown li.admin-entry {
-  background: linear-gradient(to right, #fff8dc, #fceabb); /* רקע עדין וזהוב */
+  background: linear-gradient(to right, #fff8dc, #fceabb);
   font-weight: bold;
-  color: #d4af37; /* זהב מלכותי לטקסט */
+  color: #d4af37;
   border-top: 1px solid #ecd9a3;
   margin-top: 8px;
 }
@@ -454,7 +468,7 @@ onMounted(loadUser);
 }
 
 .user-dropdown li.admin-entry:hover {
-  background: linear-gradient(to right, #f5d76e, #f0c14b); /* הבהוב זהוב יפה */
+  background: linear-gradient(to right, #f5d76e, #f0c14b);
   color: #8c6f1e;
 }
 
@@ -462,20 +476,17 @@ onMounted(loadUser);
   color: #8c6f1e;
 }
 
-
-
-
-
+/* ===== Dataset Indicator Capsule ===== */
 .dataset-indicator {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: linear-gradient(to right, #e3f2fd, #bbdefb); /* תכלת עם מעבר */
+  background: linear-gradient(to right, #e3f2fd, #bbdefb);
   color: #0d47a1;
   font-weight: 600;
   font-size: 13.5px;
-  border-radius: 999px; /* קפסולה עגולה */
+  border-radius: 999px;
   box-shadow: 0 1px 3px rgba(33, 150, 243, 0.2);
   margin-left: 14px;
   white-space: nowrap;
@@ -493,17 +504,7 @@ onMounted(loadUser);
   box-shadow: 0 2px 5px rgba(33, 150, 243, 0.3);
 }
 
-
-
-
-
-
-
-
-
-
-
-
+/* ===== Dataset Toggle Button ===== */
 .dataset-toggle-btn {
   background: #e3f2fd;
   border: 1px solid #90caf9;
@@ -527,14 +528,13 @@ onMounted(loadUser);
   font-size: 20px;
 }
 
-
+/* Wrapper for dataset indicator when user is not logged in */
 .dataset-indicator-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-left: 14px;
 }
-
 
 .dataset-toggle-btn {
   border: none;
@@ -546,9 +546,9 @@ onMounted(loadUser);
   border-radius: 50%;
 }
 
+/* Rotate effect on hover for dataset toggle */
 .dataset-toggle-btn:hover {
   transform: rotate(180deg);
-  background-color: rgba(25, 118, 210, 0.1); /* אפקט עדין של רקע */
+  background-color: rgba(25, 118, 210, 0.1);
 }
-
 </style>

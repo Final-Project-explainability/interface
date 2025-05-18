@@ -1,6 +1,8 @@
 <template>
   <div class="data-selector-row">
+    <!-- Label for the selector -->
     <span class="selector-label">DataSet Selector:</span>
+    <!-- Toggle button group for dataset selection -->
     <div class="toggle-group">
       <button
         v-for="source in sources"
@@ -15,25 +17,29 @@
 </template>
 
 <script setup>
+// Importing Pinia store for shared data source selection state
 import { useDataSourceStore } from "@/stores/dataSourceStore";
 
+// Reactive store instance
 const store = useDataSourceStore();
+
+// Available dataset options
 const sources = ["DataSet 1", "DataSet 2"];
 
+// Updates selected dataset in store & persists to localStorage
 function select(source) {
   store.selectedDataset = source;
-  localStorage.setItem("selectedDataset", source); // ✅ שמירה ל-localStorage
+  localStorage.setItem("selectedDataset", source); // Persist selection in localStorage
 }
 
-
+// Formats dataset labels (replace dashes, capitalize first letters)
 function formatLabel(label) {
   return label.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 </script>
 
-
-
 <style scoped>
+/* Container for the entire selector row */
 .data-selector-row {
   display: flex;
   align-items: center;
@@ -48,6 +54,7 @@ function formatLabel(label) {
   flex-wrap: wrap;
 }
 
+/* Styling for the label text */
 .selector-label {
   font-size: 14px;
   font-weight: 600;
@@ -55,6 +62,7 @@ function formatLabel(label) {
   white-space: nowrap;
 }
 
+/* Wrapper for toggle buttons */
 .toggle-group {
   display: flex;
   border: 1px solid #bbb;
@@ -62,6 +70,7 @@ function formatLabel(label) {
   overflow: hidden;
 }
 
+/* Individual toggle button styling */
 .toggle-button {
   padding: 6px 14px;
   font-size: 13px;
@@ -75,14 +84,17 @@ function formatLabel(label) {
   border-right: 1px solid #ccc;
 }
 
+/* Remove right border from last toggle button */
 .toggle-button:last-child {
   border-right: none;
 }
 
+/* Hover state styling for toggles */
 .toggle-button:hover {
   background-color: #dddddd;
 }
 
+/* Active toggle button styling */
 .toggle-button.active {
   background-color: #4db6ac;
   color: white;

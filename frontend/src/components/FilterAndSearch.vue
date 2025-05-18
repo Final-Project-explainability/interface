@@ -56,30 +56,31 @@ export default {
   props: {
     onUpdateFilters: {
       type: Function,
-      required: true,
+      required: true, // Callback to update filters in parent component
     },
     viewMode: {
       type: String,
-      default: "vital",
+      default: "vital", // Default view mode
     },
     searchQuery: {
       type: String,
-      default: "",
+      default: "", // Initial search query value
     },
   },
   data() {
     return {
-      selectedFilterType: "all",
-      selectedSortOrder: "default",
-      searchQuery: "",
+      selectedFilterType: "all", // Default filter type
+      selectedSortOrder: "default", // Default sorting option
+      searchQuery: "", // Local search query state
     };
   },
   methods: {
+    // Change view mode and notify parent component
     changeViewMode(mode) {
-      // שדר את השינוי החוצה להורה (v-model:viewMode)
+      // Emit v-model update for viewMode (parent binding)
       this.$emit("update:viewMode", mode);
 
-      // שלח גם את כל הפילטרים האחרים
+      // Emit updated filter state as well
       this.$emit("updateFilters", {
         filterType: this.selectedFilterType,
         sortOrder: this.selectedSortOrder,
@@ -87,6 +88,7 @@ export default {
         viewMode: mode,
       });
     },
+    // Trigger filter update on dropdown changes
     updateFilters() {
       this.$emit("updateFilters", {
         filterType: this.selectedFilterType,
@@ -95,16 +97,17 @@ export default {
         viewMode: this.viewMode,
       });
     },
+    // Handle search input typing
     handleSearchInput() {
-      this.updateFilters(); // עדיין שולח את הפילטרים
-      this.$emit("update:searchQuery", this.searchQuery); // 👈 שליחה ל־v-model
+      this.updateFilters(); // Apply filters on each keystroke
+      this.$emit("update:searchQuery", this.searchQuery); // Sync with v-model binding
     },
   },
 };
 </script>
 
-
 <style scoped>
+/* Main container for filter controls */
 .filters-container {
   display: flex;
   flex-wrap: wrap;
@@ -119,6 +122,7 @@ export default {
   border: 1px solid #e3e8ee;
 }
 
+/* Input fields styling */
 .search-input,
 .filter-dropdown {
   padding: 10px 14px;
@@ -132,6 +136,7 @@ export default {
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
+/* Focus state highlight */
 .search-input:focus,
 .filter-dropdown:focus {
   border-color: #6366f1;
@@ -139,23 +144,27 @@ export default {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
+/* Hover effect on inputs */
 .filter-dropdown:hover,
 .search-input:hover {
   background-color: #f3f4f6;
   border-color: #a5b4fc;
 }
 
+/* Search input expands to available space */
 .search-input {
   flex: 1;
   min-width: 220px;
 }
 
+/* View mode buttons group */
 .view-mode-buttons {
   display: flex;
   gap: 8px;
-  margin-left: auto;
+  margin-left: auto; /* Pushes to the right */
 }
 
+/* View mode buttons appearance */
 .view-button {
   background: #f3f4f6;
   border: 1px solid #d1d5db;
@@ -166,17 +175,20 @@ export default {
   transition: all 0.2s ease-in-out;
 }
 
+/* Hover effect for view buttons */
 .view-button:hover {
   background-color: #e0e7ff;
   border-color: #6366f1;
 }
 
+/* Active state styling */
 .view-button.active {
   background-color: #6366f1;
   color: white;
   border-color: #4f46e5;
 }
 
+/* Responsive behavior for mobile */
 @media (max-width: 600px) {
   .filters-container {
     flex-direction: column;

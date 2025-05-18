@@ -5,35 +5,37 @@
         My Profile
       </h2>
 
+    <!-- Profile Section (default view) -->
     <div v-if="!showChangePassword">
-      <!-- תוכן הפרופיל הרגיל -->
       <div class="profile-card">
-        <!-- הודעת הצלחה -->
+
+        <!-- Success Toast Message -->
         <div v-if="successMessage" class="toast">
           {{ successMessage }}
         </div>
 
-        <!-- כפתור עריכה בצד ימין למעלה -->
+        <!-- Edit Profile Button -->
         <button class="edit-button" @click="toggleEditMode">
           <i class="fas fa-edit"></i> {{ editMode ? "Cancel" : "Edit Profile" }}
         </button>
 
+        <!-- Profile Header (avatar + name) -->
         <div class="profile-header">
-          <!-- תמונת פרופיל -->
+          <!-- Profile Picture -->
           <div class="avatar-container" @click="editMode ? (showGallery = true) : null">
             <img :src="form.profilePictureUrl || defaultAvatar" alt="User Avatar" class="avatar" />
-            <!-- שכבת עריכה עם אייקון מצלמה (שיופיע רק בעריכה) -->
+            <!-- Edit overlay with camera icon (visible only in edit mode) -->
             <div v-if="editMode" class="edit-avatar-overlay">
               <i class="fas fa-camera"></i>
             </div>
           </div>
 
-        <!-- גלריית בחירת אווטאר -->
+        <!-- Avatar Selection Gallery -->
         <div v-if="showGallery" class="avatar-gallery-overlay" @click="showGallery = false">
           <div class="avatar-gallery" @click.stop>
             <h3 class="avatar-title">Choose an Avatar</h3>
 
-            <!-- Tabs -->
+            <!-- Gender Filter Tabs -->
             <div class="avatar-filter-tabs">
               <button @click="selectGender('all')" :class="{ active: selectedGenderFilter === 'all' }">All</button>
               <button @click="selectGender('male')" :class="{ active: selectedGenderFilter === 'male' }">Male</button>
@@ -62,19 +64,19 @@
               </button>
             </div>
 
+            <!-- Close Gallery Button -->
             <button class="close-button" @click="showGallery = false">Close</button>
           </div>
         </div>
 
-
-          <!-- שם המשתמש -->
+          <!-- User Name & Username -->
           <div class="user-info">
             <h2 class="name">{{ form.fullName }}</h2>
             <p class="username">@{{ form.username }}</p>
           </div>
         </div>
 
-        <!-- פרטי משתמש -->
+        <!-- User Profile Fields -->
         <div class="profile-info">
           <div class="info-item">
             <i class="fas fa-id-card icon"></i>
@@ -83,6 +85,7 @@
             <input v-else v-model="form.fullName" type="text" />
           </div>
 
+          <!-- Title Field (admin editable only) -->
           <div class="info-item readonly">
             <i class="fas fa-user-tie icon"></i>
             <label>Title</label>
@@ -101,6 +104,7 @@
             </template>
           </div>
 
+          <!-- Specialty Field -->
           <div class="info-item readonly">
             <i class="fas fa-stethoscope icon"></i>
             <label>Specialty</label>
@@ -117,6 +121,7 @@
             </template>
           </div>
 
+          <!-- License ID Field (admin editable + validation) -->
           <div class="info-item readonly">
             <i class="fas fa-id-badge icon"></i>
             <label>License ID</label>
@@ -145,6 +150,7 @@
             </template>
           </div>
 
+          <!-- Email Field -->
           <div class="info-item">
             <i class="fas fa-envelope icon"></i>
             <label>Email</label>
@@ -154,7 +160,7 @@
 
           <p v-if="emailErrorMessage" class="error-message">{{ emailErrorMessage }}</p>
 
-
+          <!-- Phone Number Field -->
           <div class="info-item">
             <i class="fas fa-phone icon"></i>
             <label>Phone Number</label>
@@ -173,7 +179,7 @@
 
           <p v-if="phoneErrorMessage" class="error-message">{{ phoneErrorMessage }}</p>
 
-
+          <!-- Gender Field -->
           <div class="info-item">
             <i class="fas fa-venus-mars icon"></i>
             <label>Gender</label>
@@ -185,18 +191,19 @@
           </div>
         </div>
 
-        <!-- כפתור שמירה (רק במצב עריכה) -->
+        <!-- Save Profile Button (edit mode only) -->
         <button v-if="editMode" class="save-button" @click="updateProfile">
           <i class="fas fa-save"></i> Save Changes
         </button>
 
-        <!-- כפתור החלפת סיסמה (רק אם לא במצב עריכה) -->
+        <!-- Change Password Button (non-edit mode) -->
         <button v-if="!editMode" class="change-password-button" @click="showChangePassword = true">
           <i class="fas fa-key"></i> Change Password
         </button>
       </div>
     </div>
 
+    <!-- Password Change Section -->
     <div v-if="showChangePassword" class="profile-card">
       <h2 class="name">Change Password</h2>
 
@@ -233,8 +240,8 @@
 
 <script>
 import { ref, computed, onMounted } from "vue";
-import { updateUserProfile, getUserProfile, changeUserPassword } from "@/data/authService";
-import { checkLicenseAvailability } from "@/data/authService";
+import { updateUserProfile, getUserProfile, changeUserPassword } from "@/api/authService";
+import { checkLicenseAvailability } from "@/api/authService";
 
 
 export default {
@@ -243,7 +250,7 @@ export default {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
     const isAdminUser = ref(false);
-    const titles = [
+    const titles = [ /* TODO: maybe to reduce the options? */
       "Mr.",
       "Mrs.",
       "Miss",
@@ -259,13 +266,10 @@ export default {
       "Sir",
       "Dame",
       "None"
-    ];
-    const licenseIdValid = ref(null);
-    const licenseIdError = ref("");
-    const lastCheckedLicenseId = ref("");
-
-
-
+    ]; // Possible titles (editable for admin users only)
+    const licenseIdValid = ref(null);  // Validation status of license ID
+    const licenseIdError = ref("");    // Error message for license ID
+    const lastCheckedLicenseId = ref(""); // Cache for last checked license ID to avoid redundant requests
 
     const form = ref({
       profilePictureUrl: "",
@@ -277,9 +281,10 @@ export default {
       title: "",
       licenseId: "",
       gender: "",
-    });
+    }); // Reactive form model for user profile
 
-    const editMode = ref(false);
+    const editMode = ref(false); // Tracks whether profile is in edit mode
+    // Default avatar fallback image
     const defaultAvatar =
       "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg";
 
@@ -304,6 +309,9 @@ export default {
       return titleMap[form.value.title] || "N/A";
     });
 
+    /**
+     * Loads the user's profile from API and populates form data.
+     */
     const loadUserProfile = async () => {
       if (!userId || !token) return;
       try {
@@ -319,14 +327,17 @@ export default {
       editMode.value = !editMode.value;
     };
 
+    /**
+     * Updates the user's profile after validation.
+     */
     const updateProfile = async () => {
       if (!userId || !token) return;
 
-      // איפוס הודעות קודמות
+      // Reset error messages before validation
       phoneErrorMessage.value = "";
       emailErrorMessage.value = "";
 
-      // אימות אימייל
+      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(form.value.email)) {
         emailErrorMessage.value = "Please enter a valid email address.";
@@ -350,7 +361,7 @@ export default {
           profilePictureUrl: form.value.profilePictureUrl,
         };
 
-        // 🔓 אם המשתמש הוא אדמין – נוסיף גם שדות נוספים
+        // Include admin-specific fields if user has admin permissions
         if (isAdminUser.value) {
           updatedUserData.title = form.value.title;
           updatedUserData.specialty = form.value.specialty;
@@ -363,15 +374,10 @@ export default {
           form.value = { ...result.user };
           editMode.value = false;
 
-          // ✅ הצגת הודעת הצלחה
+          // Show success message (auto-hide after 3 seconds)
           successMessage.value = "Profile updated successfully! 🎉";
-
-          // 🔥 שולח את המשתמש החדש החוצה
           emit("profile-updated", result.user);
 
-
-
-          // הסרת ההודעה לאחר 3 שניות
           setTimeout(() => {
             successMessage.value = "";
           }, 3000);
@@ -381,10 +387,13 @@ export default {
       }
     };
 
+    /**
+     * Validates the license ID field.
+     */
     const validateLicenseId = async () => {
       const license = form.value.licenseId.trim();
 
-      // ריק = אין שגיאה
+
       if (!license) {
         licenseIdValid.value = null;
         licenseIdError.value = "";
@@ -398,7 +407,7 @@ export default {
         return;
       }
 
-      // בדיקה אם כבר נבדק
+
       if (lastCheckedLicenseId.value === license) return;
       lastCheckedLicenseId.value = license;
 
@@ -415,12 +424,16 @@ export default {
     };
 
 
+    /**
+     * Normalizes phone number input by removing non-digit characters.
+     */
     const validatePhoneNumber = () => {
-      form.value.phoneNumber = form.value.phoneNumber.replace(/\D/g, ""); // מסיר תווים לא מספריים
+      form.value.phoneNumber = form.value.phoneNumber.replace(/\D/g, "");
     };
 
-    const showGallery = ref(false);
+    const showGallery = ref(false); // Controls avatar gallery modal visibility
 
+    // List of available avatars
     const avatarOptions = ref([
       { src: "/images/avatars/female1.webp", gender: "female" },
       { src: "/images/avatars/male1.jpg", gender: "male" },
@@ -511,21 +524,22 @@ export default {
       showGallery.value = false;
     };
 
-    const successMessage = ref(""); // משתנה להודעת הצלחה
+    const successMessage = ref(""); // Temporary success message
+    const phoneErrorMessage = ref(""); // Phone validation error message
+    const emailErrorMessage = ref(""); // Email validation error message
 
-    const phoneErrorMessage = ref("");
-    const emailErrorMessage = ref("");
 
-
-    const showChangePassword = ref(false); // מציג/מסתיר את טופס שינוי הסיסמה
+    const showChangePassword = ref(false); // Controls change password form visibility
     const passwordForm = ref({
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     });
-    const passwordMessage = ref(""); // הודעת הצלחה או שגיאה
+    const passwordMessage = ref(""); // Message for password change feedback
 
-
+    /**
+     * Validates and updates the user's password.
+     */
     const changePassword = async () => {
       if (!userId || !token) return;
 
@@ -565,14 +579,9 @@ export default {
       }
     };
 
-
-
-
     onMounted(async () => {
       await loadUserProfile(); // זה יטפל גם ב־isAdmin בפנים
     });
-
-
 
     return {
       form,
@@ -609,7 +618,7 @@ export default {
 </script>
 
 <style scoped>
-/* סגנון כללי */
+/* General container for Personal Area screen */
 .personal-area {
   display: flex;
   justify-content: center;
@@ -617,7 +626,7 @@ export default {
   min-height: 100vh;
 }
 
-/* כרטיס פרופיל */
+/* Profile card styling */
 .profile-card {
   background: white;
   padding: 30px;
@@ -629,7 +638,7 @@ export default {
   position: relative;
 }
 
-/* כפתור עריכה */
+/* Edit button in profile card (top-right corner) */
 .edit-button {
   position: absolute;
   top: 15px;
@@ -651,7 +660,7 @@ export default {
   background: #0056b3;
 }
 
-/* אזור הכותרת */
+/* Header section: avatar + name */
 .profile-header {
   display: flex;
   align-items: center;
@@ -659,7 +668,7 @@ export default {
   margin-bottom: 15px;
 }
 
-/* תמונת פרופיל */
+/* Avatar image styling */
 .avatar {
   width: 90px;
   height: 90px;
@@ -668,7 +677,7 @@ export default {
   border: 3px solid #007bff;
 }
 
-/* שם וכינוי */
+/* User info container (name + username) */
 .user-info {
   text-align: left;
 }
@@ -684,13 +693,13 @@ export default {
   font-size: 14px;
 }
 
-/* פרטי משתמש */
+/* User profile details section */
 .profile-info {
   text-align: left;
   margin-top: 15px;
 }
 
-/* פריטים בטופס */
+/* Individual info field in the profile (row style) */
 .info-item {
   display: flex;
   align-items: center;
@@ -699,6 +708,7 @@ export default {
   border-bottom: 1px solid #ddd;
 }
 
+/* Icon column in info item */
 .info-item .icon {
   flex: 0 0 25px;
   text-align: center;
@@ -706,6 +716,7 @@ export default {
   color: black;
 }
 
+/* Label for profile fields */
 .info-item label {
   font-weight: bold;
   color: black;
@@ -713,6 +724,7 @@ export default {
   margin-left: 10px;
 }
 
+/* Value fields: span, input, select inside info item */
 .info-item span,
 .info-item input,
 .info-item select {
@@ -724,7 +736,7 @@ export default {
   color: black;
 }
 
-/* כפתור שמירה */
+/* Save button styling */
 .save-button {
   background: #28a745;
   color: white;
@@ -740,16 +752,17 @@ export default {
   background: #218838;
 }
 
-/* תיבות טקסט לקריאה בלבד במצב עריכה */
+/* Read-only fields appearance in edit mode */
 .readonly-input {
-  background-color: #b6b6b6; /* רקע אפור */
+  background-color: #b6b6b6;
   border: 1px solid #ccc;
   padding: 6px;
   border-radius: 5px;
   color: #333;
-  cursor: not-allowed; /* מסמן למשתמש שהתיבה לא ניתנת לעריכה */
+  cursor: not-allowed;
 }
 
+/* Phone number input specific styling */
 .phone-input {
   background-color: #fff;
   border: 1px solid #ccc;
@@ -758,13 +771,14 @@ export default {
   text-align: right;
 }
 
-/* שכבת עריכה עם אייקון מצלמה מעל האווטאר */
+/* Avatar container for hover edit effect */
 .avatar-container {
   position: relative;
   display: inline-block;
   cursor: pointer;
 }
 
+/* Edit icon overlay on avatar (visible on hover) */
 .edit-avatar-overlay {
   position: absolute;
   top: 50%;
@@ -790,7 +804,7 @@ export default {
   font-size: 18px;
 }
 
-/* שכבת רקע לגלריה */
+/* Full-screen dark overlay for avatar gallery modal */
 .avatar-gallery-overlay {
   position: fixed;
   top: 0;
@@ -804,6 +818,7 @@ export default {
   z-index: 9999;
 }
 
+/* Main avatar gallery box */
 .avatar-gallery {
   background: white;
   padding: 30px 40px;
@@ -817,7 +832,7 @@ export default {
   position: relative;
 }
 
-/* עיצוב גלריית האווטארים */
+/* Grid layout for avatar selection */
 .avatars {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -827,7 +842,7 @@ export default {
 }
 
 
-/* עיצוב כל תמונה בגלריה */
+/* Styling for each avatar image option */
 .avatar-option {
   width: 100px;
   height: 100px;
@@ -852,6 +867,7 @@ export default {
   box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
 }
 
+/* Pagination controls inside gallery */
 .pagination-controls {
   display: flex;
   justify-content: center;
@@ -860,7 +876,7 @@ export default {
   margin-top: 10px;
 }
 
-/* כפתור סגירת הגלריה */
+/* Close gallery button */
 .close-button {
   margin-top: 20px;
   padding: 10px 20px;
@@ -875,7 +891,8 @@ export default {
 .close-button:hover {
   background: #b52a36;
 }
-/* הודעת הצלחה (Toast Notification) */
+
+/* Toast notification message (success) */
 .toast {
   position: fixed;
   top: 20px;
@@ -889,7 +906,7 @@ export default {
   animation: fadeInOut 3s ease-in-out;
 }
 
-/* אנימציה להופעה והיעלמות */
+/* Fade in/out animation for toast */
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translateY(-10px); }
   10% { opacity: 1; transform: translateY(0); }
@@ -897,19 +914,20 @@ export default {
   100% { opacity: 0; transform: translateY(-10px); }
 }
 
-
+/* Fade in animation for gallery */
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
 
+/* Avatar gallery title */
 .avatar-title {
   font-size: 24px;
   margin-bottom: 20px;
   color: #333;
 }
 
-/* כפתור החלפת סיסמה */
+/* Change password button styling */
 .change-password-button {
   background: #ffc107;
   color: black;
@@ -917,7 +935,7 @@ export default {
   padding: 10px;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%; /* כפתור רחב כמו "Save Changes" */
+  width: 100%;
   margin-top: 10px;
   font-size: 14px;
 }
@@ -926,7 +944,7 @@ export default {
   background: #e0a800;
 }
 
-
+/* Back button (in password change mode) */
 .back-button {
   position: absolute;
   top: 15px;
@@ -940,23 +958,19 @@ export default {
 }
 
 .back-button:hover {
-  color: #007bff; /* כחול עדין כמו שאר העיצוב */
+  color: #007bff;
   transform: scale(1.1);
 }
 
-
+/* Message after password change attempt */
 .password-message {
   margin-top: 10px;
-  color: black; /* ← כאן אנחנו קובעים את הצבע השחור */
+  color: black;
   font-weight: bold;
 }
 
 
-
-
-
-
-
+/* Filter tabs for avatar gender selection */
 .avatar-filter-tabs {
   display: flex;
   justify-content: center;
@@ -980,6 +994,7 @@ export default {
   border-color: #007bff;
 }
 
+/* Pagination arrow buttons in gallery */
 .nav-arrow {
   font-size: 20px;
   background: none;
@@ -994,7 +1009,7 @@ export default {
   cursor: not-allowed;
 }
 
-
+/* Profile wrapper layout */
 .profile-wrapper {
   display: flex;
   flex-direction: column;
@@ -1002,7 +1017,7 @@ export default {
   width: 100%;
 }
 
-
+/* Main page title (My Profile) */
 .main-title {
   font-size: 30px;
   font-weight: bold;
@@ -1016,7 +1031,7 @@ export default {
   color: #007bff;
 }
 
-
+/* Error message styling (email, license ID, etc.) */
 .error-message {
   background-color: #ffe6e6;
   color: #cc0000;
@@ -1028,10 +1043,10 @@ export default {
   text-align: left;
 }
 
+/* Wrapper for input fields with error message below */
 .input-with-message {
   display: flex;
   flex-direction: column;
   flex: 2;
 }
-
 </style>

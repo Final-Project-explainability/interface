@@ -1,6 +1,6 @@
 <template>
   <div class="comparison-table">
-    <!-- 🔍 חיפוש חיצוני -->
+    <!-- 🔍 External Search Filter -->
     <div class="top-row">
       <div class="external-search">
         <input
@@ -10,7 +10,7 @@
         />
       </div>
 
-      <!-- 🔽 Dropdown לבחירה -->
+      <!-- 🔽 Feature Selection Dropdown -->
       <div class="dropdown-container" @click="toggleDropdown">
         <div class="dropdown-toggle">
           {{ selectedFeatures.length ? `${selectedFeatures.length} features selected` : 'Select features...' }}
@@ -18,6 +18,7 @@
         </div>
 
         <div class="dropdown-content" v-if="dropdownOpen" @click.stop>
+          <!-- Internal Search within Dropdown -->
           <input
             type="text"
             v-model="searchQuery"
@@ -25,6 +26,7 @@
             class="search-input"
           />
 
+          <!-- Select All / Clear All Actions -->
           <div class="dropdown-actions">
             <button @click.stop="selectAll">
               <i class="fas fa-check-circle"></i> Select All
@@ -34,6 +36,7 @@
             </button>
           </div>
 
+          <!-- List of Available Features with Checkboxes -->
           <div class="feature-list">
             <label
               v-for="feature in filteredFeatureList"
@@ -48,7 +51,7 @@
       </div>
     </div>
 
-    <!-- 🧾 הטבלה -->
+    <!-- 🧾 Comparison Table -->
     <div class="table-wrapper">
       <table v-if="filteredDisplayedFeatures.length">
         <thead>
@@ -88,6 +91,7 @@ export default {
     };
   },
   computed: {
+    // Retrieves the selected model data or defaults to empty objects
     model() {
       return this.data?.[this.selectedModel] ?? {
         SHAP: {},
@@ -95,14 +99,17 @@ export default {
         Inherent: {},
       };
     },
+    // Returns all available features from SHAP keys
     allFeatures() {
       return Object.keys(this.model.SHAP || {});
     },
+    // Filters feature list based on dropdown internal search query
     filteredFeatureList() {
       return this.allFeatures.filter((f) =>
         f.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
+    // Filters selected features based on external search input
     filteredDisplayedFeatures() {
       return this.selectedFeatures.filter((f) =>
         f.toLowerCase().includes(this.externalSearchQuery.toLowerCase())
@@ -110,6 +117,7 @@ export default {
     },
   },
   watch: {
+    // Updates selected features when model changes
     model: {
       handler() {
         this.selectedFeatures = [...this.allFeatures];
@@ -127,6 +135,7 @@ export default {
     clearAll() {
       this.selectedFeatures = [];
     },
+    // Calculates cell background color based on value intensity
     cellStyle(value) {
       const alpha = Math.min(1, value / 7);
       return {
@@ -139,6 +148,7 @@ export default {
 </script>
 
 <style scoped>
+/* 🗂 Main container for the comparison table layout */
 .comparison-table {
   display: flex;
   flex-direction: column;
@@ -146,7 +156,7 @@ export default {
   height: 100%;
 }
 
-/* 🔍 Top Controls */
+/* 🔍 Top control bar: external search & feature selection dropdown */
 .top-row {
   display: flex;
   justify-content: space-between;
@@ -154,6 +164,7 @@ export default {
   gap: 12px;
 }
 
+/* 🔎 External search input styling */
 .external-search input {
   padding: 8px 12px;
   border: 1px solid #ccc;
@@ -162,7 +173,7 @@ export default {
   width: 220px;
 }
 
-/* 🔽 Dropdown */
+/* 🔽 Dropdown container for feature selection */
 .dropdown-container {
   position: relative;
   width: 260px;
@@ -171,6 +182,7 @@ export default {
   direction: ltr;
 }
 
+/* 🖱 Dropdown toggle button styling */
 .dropdown-toggle {
   padding: 10px 14px;
   background-color: #f1f1f1;
@@ -183,10 +195,12 @@ export default {
   align-items: center;
 }
 
+/* ⬇️ Dropdown arrow icon */
 .arrow {
   font-size: 12px;
 }
 
+/* 📋 Dropdown content panel (feature list & actions) */
 .dropdown-content {
   position: absolute;
   top: 105%;
@@ -202,6 +216,7 @@ export default {
   direction: ltr;
 }
 
+/* 🔎 Internal search input inside the dropdown */
 .search-input {
   width: 100%;
   max-width: 92%;
@@ -212,6 +227,7 @@ export default {
   font-size: 13px;
 }
 
+/* 🎛 Actions row: Select All / Clear All buttons */
 .dropdown-actions {
   display: flex;
   justify-content: space-between;
@@ -219,6 +235,7 @@ export default {
   margin-bottom: 8px;
 }
 
+/* 🖱 Dropdown action buttons styling */
 .dropdown-actions button {
   flex: 1;
   background: #e9f5f5;
@@ -236,11 +253,13 @@ export default {
   gap: 6px;
 }
 
+/* 🖱 Hover effect for dropdown action buttons */
 .dropdown-actions button:hover {
   background-color: #007a78;
   color: #fff;
 }
 
+/* 📜 Scrollable feature list inside dropdown */
 .feature-list {
   display: flex;
   flex-direction: column;
@@ -249,6 +268,7 @@ export default {
   gap: 6px;
 }
 
+/* 🔘 Individual feature option (checkbox + label) */
 .feature-option {
   font-size: 13px;
   display: flex;
@@ -257,17 +277,21 @@ export default {
   color: #333;
 }
 
-/* 📊 Table */
+/* 📊 Table container with scroll if needed */
 .table-wrapper {
   flex: 1;
   overflow-y: auto;
 }
 
+/* 🗒 Table structure and layout */
 table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
+
+
+/* 🧱 Table cells styling */
 
 th,
 td {
@@ -276,12 +300,14 @@ td {
   border: 1px solid #ddd;
 }
 
+/* 🏷 Table header cells styling */
 .header-cell {
   background-color: #f2f2f2;
   color: #000;
   font-weight: 600;
 }
 
+/* 🏷 Feature name column styling */
 .feature-name {
   color: #000;
   text-align: left;

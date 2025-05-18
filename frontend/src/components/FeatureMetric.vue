@@ -1,31 +1,23 @@
 <template>
   <div class="feature-metric">
-    <!-- כותרת + טוגל -->
-<!--    <div class="header">-->
-<!--      <h2>Feature Metric:</h2>-->
-<!--      <div class="toggle-container">-->
-<!--        <span class="toggle-label">Agreement</span>-->
-<!--        <label class="switch">-->
-<!--          <input type="checkbox" v-model="showAgreement" />-->
-<!--          <span class="slider round"></span>-->
-<!--        </label>-->
-<!--      </div>-->
-<!--    </div>-->
-
-
+    <!-- Title & Toggle Switch -->
     <div class="header-glass-centered">
       <h2>Correlation</h2>
 
       <div class="glass-toggle-wrapper">
         <div class="glass-toggle">
+          <!-- Animated background for toggle slider -->
           <div class="slider-bg" :class="{ right: !showAgreement }"></div>
 
+          <!-- Agreement button -->
           <button
             :class="{ active: showAgreement }"
             @click="showAgreement = true"
           >
             Agreement
           </button>
+
+          <!-- Disagreement button -->
           <button
             :class="{ active: !showAgreement }"
             @click="showAgreement = false"
@@ -36,7 +28,7 @@
       </div>
     </div>
 
-    <!-- רשימת פיצ'רים -->
+    <!-- Feature list with dynamic values (agreement/disagreement) -->
     <ul class="feature-list">
       <li v-for="feature in displayedFeatures" :key="feature.name">
         <span class="feature-name">{{ feature.name }}</span>
@@ -52,23 +44,24 @@
 </template>
 
 <script>
-import featureData from "../JSON/global_correlation.json";
+import featureData from "../../public/data/JSON/global_correlation.json";
 
 export default {
   name: "FeatureMetric",
   props: {
-    selectedModel: String, // ✅ קלט חדש
+    selectedModel: String, // Input prop to select model key from JSON
   },
   data() {
     return {
-      showAgreement: true // ברירת מחדל: הצגת Agreement
+      showAgreement: true // Default view: Agreement values
     };
   },
   computed: {
-    // מחזיר את רשימת הפיצ'רים להצגה לפי מצב הטוגל
+    // Computed property to return the sorted feature list based on toggle state
     displayedFeatures() {
       const modelFeatures = featureData[this.selectedModel] || [];
 
+      // Sort features descending by agreement or disagreement depending on toggle
       return modelFeatures.sort((a, b) =>
         this.showAgreement ? b.agreement - a.agreement : b.disagreement - a.disagreement
       );
@@ -78,6 +71,7 @@ export default {
 </script>
 
 <style scoped>
+/* === Main container === */
 .feature-metric {
   display: flex;
   flex-direction: column;
@@ -89,18 +83,14 @@ export default {
   overflow-y: auto;
   scroll-behavior: smooth;
   font-family: "Segoe UI", "Roboto", sans-serif;
-  direction: rtl; /* ✅ מעביר את הסקרול לשמאל */
+  direction: rtl; /* Scrollbar on the left side */
 }
 
-/* מחזיר את התוכן הרגיל לשמאל */
+/* Override content inside back to LTR */
 .feature-metric * {
   direction: ltr;
 }
 
-
-
-
-/* כותרת + טוגל */
 .header {
   display: flex;
   justify-content: space-between;
@@ -177,7 +167,6 @@ input:checked + .slider:before {
   transform: translateX(18px);
 }
 
-/* רשימת פיצ'רים */
 .feature-list {
   list-style: none;
   padding: 0;
@@ -198,12 +187,14 @@ input:checked + .slider:before {
   border-radius: 8px;
 }
 
+/* Feature name text */
 .feature-name {
   font-size: 15px;
   color: #333;
   font-weight: 500;
 }
 
+/* Feature value (agreement/disagreement %) */
 .feature-value {
   font-size: 15px;
   font-weight: bold;
@@ -211,15 +202,17 @@ input:checked + .slider:before {
   text-align: right;
 }
 
+/* Color for Agreement values */
 .feature-value.agreement {
   color: #26a69a;
 }
 
+/* Color for Disagreement values */
 .feature-value.disagreement {
   color: #e74c3c;
 }
 
-/* Scrollbar עיצוב */
+/* === Custom Scrollbar Styling === */
 .feature-metric::-webkit-scrollbar {
   width: 8px;
 }
@@ -234,7 +227,7 @@ input:checked + .slider:before {
 }
 
 
-
+/* === Toggle section === */
 .header-glass-centered {
   display: flex;
   flex-direction: column;
@@ -250,14 +243,14 @@ input:checked + .slider:before {
   margin: 0;
 }
 
-/* עטיפה */
+/* Toggle wrapper for centering */
 .glass-toggle-wrapper {
   display: flex;
   justify-content: center;
   width: 100%;
 }
 
-/* טוגל מודרני */
+/* Modern glass-like toggle container */
 .glass-toggle {
   display: flex;
   position: relative;
@@ -271,7 +264,7 @@ input:checked + .slider:before {
   position: relative;
 }
 
-/* המסגרת המונפשת */
+/* Animated sliding background inside toggle */
 .slider-bg {
   position: absolute;
   top: 2px;
@@ -288,7 +281,7 @@ input:checked + .slider:before {
   transform: translateX(100%);
 }
 
-/* הכפתורים עצמם */
+/* Toggle buttons styling */
 .glass-toggle button {
   flex: 1;
   z-index: 1;
@@ -306,5 +299,4 @@ input:checked + .slider:before {
   color: #007a78;
   font-weight: 600;
 }
-
 </style>

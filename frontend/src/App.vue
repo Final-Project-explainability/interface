@@ -2,7 +2,7 @@
   <div id="app">
     <router-view />
 
-    <!-- טוסט על התחברות שפגה -->
+    <!-- Toast notification for expired session -->
     <transition name="fade">
       <div v-if="showExpiredToast" class="toast-error">
         🔒 Session expired. Please log in again.
@@ -23,15 +23,15 @@ export default {
     };
   },
   created() {
-    this.checkTokenOnce();
-    this.startTokenWatcher();
+    this.checkTokenOnce();  // Check token expiration on first load
+    this.startTokenWatcher(); // Start periodic token expiration check
   },
   beforeUnmount() {
-    clearInterval(this.tokenCheckInterval);
+    clearInterval(this.tokenCheckInterval);  // Clean up interval on component destroy
   },
   watch: {
     $route(to) {
-      // אם חזרנו לדף הבית אחרי expiration – נסתיר את ההודעה
+      // If returning to home page after expiration, hide the toast after delay
       if (this.showExpiredToast && to.path === "/") {
         setTimeout(() => {
           this.showExpiredToast = false;
@@ -40,20 +40,20 @@ export default {
     },
   },
   methods: {
-    // ✅ בדיקה חד־פעמית מה-query string (אם הגענו דרך expired=true)
+    // ✅ One-time token expiration check from query string (if arrived with expired=true)
     checkTokenOnce() {
       if (this.$route.query.expired === "true") {
         this.showExpiredToast = true;
 
         setTimeout(() => {
           this.showExpiredToast = false;
-          // מנקה את query מה-URL
+          // Clear query params from URL after showing toast
           this.$router.replace({ path: "/", query: {} });
         }, 3000);
       }
     },
 
-    // ⏱️ בודק כל כמה זמן אם הטוקן פג תוקף
+    // ⏱️ Starts interval to periodically check token expiration
     startTokenWatcher() {
       this.tokenCheckInterval = setInterval(() => {
         const token = localStorage.getItem("token");
@@ -67,10 +67,10 @@ export default {
         if (payload.exp < now) {
           this.triggerTokenExpired();
         }
-      }, 10000); // כל 10 שניות
+      }, 10000); // Check every 10 seconds
     },
 
-    // מפענח JWT בצורה פשוטה
+    // Simple JWT parser to decode payload
     parseJwt(token) {
       try {
         const base64Payload = token.split(".")[1];
@@ -81,14 +81,14 @@ export default {
       }
     },
 
-    // ⛔ פעולה כשנגמר הטוקן
+    // ⛔ Trigger actions when token expires
     triggerTokenExpired() {
       this.showExpiredToast = true;
 
-      // משדר התנתקות לכל הרכיבים
+      // Emit token-expired event to notify other components
       eventBus.emit("token-expired");
 
-      // לאחר 5 שניות: נקה הכל ועבור לדף הבית עם query (שיציג הודעה)
+      // After 5 seconds: clear everything and redirect to home with expired query
       setTimeout(() => {
         localStorage.clear();
         this.$router.push({ path: "/", query: { expired: "true" } });

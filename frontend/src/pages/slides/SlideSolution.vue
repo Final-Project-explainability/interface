@@ -1,10 +1,18 @@
 <template>
   <div class="slide">
-    <h2>💡 הפתרון שלנו</h2>
+    <!-- 💡 Section title for the solution -->
+    <h2>💡Our Solution</h2>
+
+    <!-- List of key solution components -->
     <ul>
-      <li>שימוש ב־SHAP / LIME / PDP</li>
-      <li>ממשק הסבר אינטראקטיבי</li>
-      <li>פידבק מקלינאים</li>
+      <!-- Use of explainability methods -->
+      <li>Use of SHAP / LIME / PDP</li>
+
+      <!-- Interactive explanation interface for users -->
+      <li>Interactive explanation interface</li>
+
+      <!-- Feedback loop from clinical experts -->
+      <li>Feedback from clinicians</li>
     </ul>
   </div>
 </template>

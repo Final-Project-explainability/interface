@@ -1,11 +1,16 @@
 <template>
   <div class="about-slider">
+      <!-- Top menu bar -->
     <MenuBar />
 
     <!-- Timeline at the top (now narrower) -->
     <div class="timeline">
       <div class="timeline-path-background"></div>
+
+      <!-- Progress indicator on the timeline -->
       <div class="timeline-path-progress" :style="{ width: progressWidth }"></div>
+
+      <!-- Timeline steps for each slide -->
       <div
         v-for="(slide, index) in slides"
         :key="index"
@@ -13,9 +18,11 @@
         :ref="el => stepRefs[index] = el"
         @click="goToSlide(index)"
       >
+        <!-- Step marker with active state styling -->
         <div class="step-marker" :class="{ active: index <= currentSlideIndex }">
           <span class="step-icon">{{ index + 1 }}</span>
         </div>
+        <!-- Step label below the marker -->
         <span class="step-label" :class="{ active: index <= currentSlideIndex }">{{ slide.name }}</span>
       </div>
     </div>
@@ -58,7 +65,7 @@ export default {
   },
   data() {
     return {
-      currentSlideIndex: 0,
+      currentSlideIndex: 0, // Current slide index
       slides: [
         { name: "Introduction", component: "SlideIntro" },
         { name: "Team & Mentors", component: "AboutHero" },
@@ -68,14 +75,16 @@ export default {
         { name: "Team", component: "SlideTeam" },
         { name: "Links", component: "SlideLinks" },
       ],
-      stepRefs: [],
-      timelineLeftOffset: 0,
+      stepRefs: [], // References to timeline step elements
+      timelineLeftOffset: 0, // Offset for calculating progress width
     };
   },
   computed: {
+    // Returns the current slide object based on currentSlideIndex
     currentSlide() {
       return this.slides[this.currentSlideIndex];
     },
+    // Dynamically calculates the progress bar width based on current step position
     progressWidth() {
       const el = this.stepRefs[this.currentSlideIndex];
       if (!el || !this.timelineLeftOffset) return "0px";
@@ -95,22 +104,26 @@ export default {
     window.removeEventListener("resize", this.setTimelineOffset);
   },
   methods: {
+    // Calculates the left offset of the timeline background (used for progress calculation)
     setTimelineOffset() {
       const timelineEl = this.$el.querySelector(".timeline-path-background");
       if (timelineEl) {
         this.timelineLeftOffset = timelineEl.getBoundingClientRect().left;
       }
     },
+    // Moves to the next slide
     nextSlide() {
       if (this.currentSlideIndex < this.slides.length - 1) {
         this.currentSlideIndex++;
       }
     },
+    // Moves to the previous slide
     prevSlide() {
       if (this.currentSlideIndex > 0) {
         this.currentSlideIndex--;
       }
     },
+    // Direct navigation to a specific slide by index
     goToSlide(index) {
       this.currentSlideIndex = index;
     },
@@ -128,6 +141,7 @@ export default {
   overflow: hidden;
 }
 
+/* === Timeline Bar Styling === */
 .timeline {
   display: flex;
   justify-content: space-between;
@@ -140,6 +154,7 @@ export default {
   min-height: 70px;
 }
 
+/* Timeline dashed background path */
 .timeline-path-background {
   position: absolute;
   top: 24px;
@@ -157,6 +172,7 @@ export default {
   z-index: 0;
 }
 
+/* Timeline progress bar */
 .timeline-path-progress {
   position: absolute;
   top: 24px;
@@ -169,6 +185,7 @@ export default {
   z-index: 1;
 }
 
+/* Timeline step (marker & label) */
 .timeline-step {
   display: flex;
   flex-direction: column;
@@ -183,6 +200,7 @@ export default {
   transform: scale(1.1);
 }
 
+/* Marker circle for each step */
 .step-marker {
   width: 26px;
   height: 24px;
@@ -196,12 +214,14 @@ export default {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+/* Active step marker highlight */
 .step-marker.active {
   border-color: #3b82f6;
   background-color: #dbeafe;
   transform: scale(1.1);
 }
 
+/* Marker icon number */
 .step-icon {
   font-size: 12px;
   font-weight: bold;
@@ -212,6 +232,7 @@ export default {
   color: #1e3a8a;
 }
 
+/* Label under each marker */
 .step-label {
   margin-top: 6px;
   font-size: 12px;
@@ -226,8 +247,9 @@ export default {
   color: #1e3a8a;
 }
 
+/* Slide display area */
 .slide-container {
-  height: calc(100vh - 110px - 80px);
+  height: calc(100vh - 110px - 80px); /* Full height minus top & bottom bars */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -235,6 +257,7 @@ export default {
   overflow: hidden;
 }
 
+/* Navigation buttons area */
 .nav-buttons {
   display: flex;
   justify-content: space-between;
@@ -243,6 +266,7 @@ export default {
   border-top: 1px solid #e2e8f0;
 }
 
+/* General button styling */
 button {
   background: #3b82f6;
   color: white;
@@ -265,6 +289,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Slide transition animations */
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.6s ease;

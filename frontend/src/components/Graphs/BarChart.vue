@@ -1,8 +1,8 @@
 <template>
   <div class="bar-chart-container">
-    <!-- 🔧 שורת שליטה -->
+    <!-- 🔧 Control bar (Search, Zoom, Dropdown) -->
     <div class="top-controls">
-      <!-- 🔍 חיפוש -->
+      <!-- 🔍 Search box for filtering visible features -->
       <div class="search-bar">
         <input
           type="text"
@@ -12,9 +12,9 @@
         />
       </div>
 
-      <!-- 📦 Dropdown + Zoom -->
+      <!-- 📦 Right group: Zoom buttons + Features dropdown -->
       <div class="right-group">
-        <!-- כפתורי זום -->
+        <!-- 🔍 Zoom controls for chart scaling -->
         <div class="zoom-controls">
           <button class="zoom-button" @click="zoomIn" title="Zoom In">
             <i class="fas fa-search-plus"></i>
@@ -24,19 +24,25 @@
           </button>
         </div>
 
-        <!-- Dropdown -->
+        <!-- 📝 Features selection dropdown -->
         <div class="dropdown-container" @click="toggleDropdown">
           <div class="dropdown-toggle">
             {{ selectedFeatures.length ? `${selectedFeatures.length} features selected` : 'Select features...' }}
             <span class="arrow">&#9662;</span>
           </div>
+
+          <!-- Dropdown content panel -->
           <div class="dropdown-content" v-if="dropdownOpen" @click.stop>
+
+            <!-- Search inside dropdown list -->
             <input
               type="text"
               v-model="dropdownSearch"
               placeholder="Search in dropdown..."
               class="search-input"
             />
+
+            <!-- Select All / Clear All actions -->
             <div class="dropdown-actions">
               <button @click.stop="selectAll">
                 <i class="fas fa-check-circle"></i> Select All
@@ -45,6 +51,8 @@
                 <i class="fas fa-times-circle"></i> Clear All
               </button>
             </div>
+
+            <!-- Features checklist -->
             <div class="feature-list">
               <label
                 v-for="f in filteredDropdownList"
@@ -62,7 +70,7 @@
       </div>
     </div>
 
-    <!-- 📊 גרף -->
+    <!-- 📊 The bar chart visualization itself -->
     <div ref="chart" class="chart"></div>
   </div>
 </template>
@@ -73,31 +81,37 @@ import * as echarts from "echarts";
 export default {
   name: "BarChart",
   props: {
+    // The dataset object with SHAP, LIME, Inherent values
     data: Object,
+    // Currently selected model name (string key)
     selectedModel: String,
   },
   data() {
     return {
-      searchQuery: "",
-      dropdownSearch: "",
-      dropdownOpen: false,
-      selectedFeatures: [],
+      searchQuery: "",        // Search term for filtering chart categories
+      dropdownSearch: "",     // Search term for filtering dropdown list
+      dropdownOpen: false,    // Whether dropdown is open
+      selectedFeatures: [],   // List of selected features to display
     };
   },
   computed: {
+    // Get data for the currently selected model
     modelData() {
       return this.data?.[this.selectedModel] ?? {};
     },
+    // List of all features available in SHAP data
     allFeatures() {
       return Object.keys(this.modelData.SHAP || {});
     },
+    // Filtered feature list for dropdown search
     filteredDropdownList() {
       return this.allFeatures.filter((f) =>
         f.toLowerCase().includes(this.dropdownSearch.toLowerCase())
       );
     },
+    // Filtered feature list for the actual bar chart display
     filteredCategories() {
-      if (!this.selectedFeatures.length) return []; // 🔥 מחזיר כלום אם אין בחירה
+      if (!this.selectedFeatures.length) return []; // Return empty if none selected
 
       return this.selectedFeatures.filter((f) =>
         f.toLowerCase().includes(this.searchQuery.toLowerCase())
@@ -105,6 +119,7 @@ export default {
     },
   },
   watch: {
+    // When selectedModel changes, re-select all features and re-render chart
     selectedModel: {
       immediate: true,
       handler() {
@@ -112,9 +127,11 @@ export default {
         this.$nextTick(this.initChart);
       },
     },
+    // Re-render chart on feature selection change
     selectedFeatures() {
       this.$nextTick(this.initChart);
     },
+    // Re-render chart on search input change
     searchQuery() {
       this.$nextTick(this.initChart);
     },
@@ -229,7 +246,7 @@ export default {
   gap: 12px;
 }
 
-/* Search input */
+/* Generic input styling for search bars */
 .search-bar input,
 .dropdown-content {
   width: 240px;
@@ -239,6 +256,7 @@ export default {
   font-size: 14px;
 }
 
+/* Search input field */
 .search-input {
   width: 100%;
   max-width: 92%;
@@ -249,13 +267,14 @@ export default {
 }
 
 
-/* Dropdown */
+/* Dropdown container styling */
 .dropdown-container {
   position: relative;
   width: 260px;
   font-size: 14px;
 }
 
+/* Dropdown toggle button */
 .dropdown-toggle {
   padding: 10px 14px;
   background-color: #f1f1f1;
@@ -267,6 +286,7 @@ export default {
   align-items: center;
 }
 
+/* Dropdown content panel */
 .dropdown-content {
   position: absolute;
   top: 105%;
@@ -281,6 +301,7 @@ export default {
   z-index: 100;
 }
 
+/* Actions inside dropdown (select all, clear all) */
 .dropdown-actions {
   display: flex;
   justify-content: space-between;
@@ -310,6 +331,7 @@ export default {
   color: #ffffff;
 }
 
+/* Feature list (checkboxes) */
 .feature-list {
   max-height: 160px;
   overflow-y: auto;
@@ -357,12 +379,14 @@ export default {
   transform: scale(0.96);
 }
 
+/* Chart container */
 .chart {
   flex: 1;
   width: 100%;
   height: 100%;
 }
 
+/* Force text color (prevents override issues) */
 .dropdown-toggle,
 .dropdown-content,
 .feature-option {

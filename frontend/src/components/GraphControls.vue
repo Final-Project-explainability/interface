@@ -1,6 +1,6 @@
 <template>
   <div class="graph-controls">
-    <!-- סוג הגרף -->
+    <!-- Graph Type Selector -->
     <div class="graph-buttons">
       <button
         v-for="type in graphTypes"
@@ -13,7 +13,7 @@
       </button>
     </div>
 
-    <!-- בחירת מודל -->
+    <!-- Model Selector -->
     <div class="model-buttons">
       <button
         v-for="model in modelList"
@@ -28,21 +28,20 @@
   </div>
 </template>
 
-
 <script>
 export default {
   name: "GraphControls",
   props: {
     activeType: {
-      type: String,
+      type: String, // Currently selected graph type
       required: true,
     },
     graphTypes: {
-      type: Array,
+      type: Array, // Available graph types to select from
       required: true,
     },
-    selectedModel: String,
-    modelList: Array,
+    selectedModel: String, // Currently selected model
+    modelList: Array,      // Available models to select from
   },
   emits: ["updateType", "updateModel"],
   methods: {
@@ -54,6 +53,7 @@ export default {
 </script>
 
 <style scoped>
+/* Graph type buttons wrapper */
 .graph-buttons {
   display: flex;
   gap: 4px;
@@ -61,6 +61,7 @@ export default {
   position: relative;
 }
 
+/* Individual graph type button */
 .graph-button {
   position: relative;
   padding: 10px 16px;
@@ -74,10 +75,12 @@ export default {
   transition: color 0.25s ease;
 }
 
+/* Hover effect for graph button */
 .graph-button:hover {
   color: #1565c0;
 }
 
+/* Active graph button styling */
 .graph-button.active {
   color: #1565c0;
   font-weight: 600;
@@ -88,7 +91,7 @@ export default {
   border-bottom-right-radius: 0;
 }
 
-
+/* Bottom highlight bar for active graph button */
 .graph-button.active::after {
   content: "";
   position: absolute;
@@ -101,7 +104,7 @@ export default {
   transition: all 0.3s ease;
 }
 
-
+/* Container for graph and model controls */
 .graph-controls {
   display: flex;
   justify-content: space-between;
@@ -110,18 +113,16 @@ export default {
 }
 
 
-
-
-
-
+/* Model selection buttons wrapper */
 .model-buttons {
   display: flex;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgba(0, 122, 120, 0.2);
-  background: rgba(0, 122, 120, 0.06); /* רקע עדין */
+  background: rgba(0, 122, 120, 0.06); /* Light turquoise background */
 }
 
+/* Individual model button */
 .model-button {
   flex: 1;
   padding: 3px 18px;
@@ -135,7 +136,7 @@ export default {
   transition: all 0.25s ease;
 }
 
-/* מפריד בין כפתורים */
+/* Vertical divider between model buttons */
 .model-button:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -146,14 +147,14 @@ export default {
   background-color: rgba(0, 122, 120, 0.2);
 }
 
+/* Hover effect for model button */
 .model-button:hover {
   background-color: rgba(0, 122, 120, 0.08);
 }
 
+/* Active model button styling */
 .model-button.active {
   background-color: #007a78;
   color: #fff;
 }
-
-
 </style>

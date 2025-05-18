@@ -1,16 +1,16 @@
 <template>
   <div class="feature-container" :title="feature">
-    <!-- עיגול דינמי עם רקע צבעוני -->
+    <!-- Dynamic circle with colored background -->
     <div class="circle-container" :style="circleBackgroundStyle">
       <svg class="progress-ring" width="80" height="80">
-        <!-- רקע העיגול -->
+        <!-- Circle background (grey stroke) -->
         <circle
           class="progress-ring__background"
           r="35"
           cx="40"
           cy="40"
         />
-        <!-- עיגול ההתקדמות -->
+        <!-- Progress circle (color fills based on value) -->
         <circle
           class="progress-ring__progress"
           r="35"
@@ -19,10 +19,10 @@
           :style="progressStyle"
         />
       </svg>
-      <!-- אחוזים במרכז -->
+      <!-- Percentage text in center -->
       <div class="circle-text">{{ Math.abs(value).toFixed(1) }}%</div>
     </div>
-    <!-- שם המאפיין -->
+    <!-- Feature name below the circle -->
     <div class="feature-name" :title="feature">
       {{ formatFeature(feature) }}
     </div>
@@ -35,143 +35,145 @@ export default {
   props: {
     feature: {
       type: String,
-      required: true,
+      required: true, // Feature name (e.g., accuracy, precision)
     },
     value: {
       type: Number,
-      required: true,
+      required: true, // Percentage value (-100 to 100)
     },
   },
   computed: {
-    // סגנון עבור עיגול ההתקדמות
+    // Styling for the progress circle stroke
     progressStyle() {
-      const radius = 35; // רדיוס העיגול
-      const circumference = 2 * Math.PI * radius; // היקף המעגל
-      const absoluteValue = Math.abs(this.value); // ערך מוחלט
-      const offset = circumference - (absoluteValue / 100) * circumference; // חישוב התקדמות
-      const color = this.getColor(this.value); // צבע דינמי לפי אחוזים
+      const radius = 35; // Circle radius in pixels
+      const circumference = 2 * Math.PI * radius; // Full circumference of the circle (used for stroke calculations)
+      const absoluteValue = Math.abs(this.value); // Absolute value of the percentage (ensures positive values)
+      const offset = circumference - (absoluteValue / 100) * circumference;
+      // Offset determines how much of the stroke is hidden to visualize progress (0% = full hidden, 100% = full visible)
+      const color = this.getColor(this.value); // Dynamically computed color based on positive/negative percentage
 
       return {
-        strokeDasharray: `${circumference} ${circumference}`, // היקף המעגל
-        strokeDashoffset: offset, // קיזוז לפי האחוזים
-        stroke: color, // צבע דינמי
-        transition: "stroke-dashoffset 0.8s ease, stroke 0.8s ease", // אנימציה חלקה
+        strokeDasharray: `${circumference} ${circumference}`, // Defines the dash pattern of the stroke
+        strokeDashoffset: offset,  // Controls visible progress by offsetting stroke
+        stroke: color, // Stroke color based on feature value
+        transition: "stroke-dashoffset 0.8s ease, stroke 0.8s ease", // Smooth animation on value changes
       };
     },
-    // סגנון עבור הרקע של העיגול
+    // Styling for the circle background color
     circleBackgroundStyle() {
-      const color = this.getColor(this.value, true); // צבע הרקע של העיגול
+      const color = this.getColor(this.value, true); // Faded version
       return {
-        backgroundColor: color, // צבע רקע
-        borderRadius: "50%", // עיגול
+        backgroundColor: color,  // Soft background color reflecting the feature value
+        borderRadius: "50%", // Ensures perfect circle
         width: "80px",
         height: "80px",
-        display: "flex",
+        display: "flex", // Centering text inside
         justifyContent: "center",
         alignItems: "center",
-        transition: "background-color 0.8s ease", // מעבר חלק של צבע הרקע
+        transition: "background-color 0.8s ease", // Smooth background color transitions
       };
     },
   },
   methods: {
+    // Formats feature name: replaces underscores, capitalizes words
     formatFeature(feature) {
-      // בדיקה האם feature הוא מחרוזת
       if (!feature || typeof feature !== "string") {
-        return ""; // אם הערך אינו מחרוזת או ריק, נחזיר מחרוזת ריקה
+        return "";
       }
       return feature
-        .replace(/_/g, " ") // החלפת "_" ברווח
-        .replace(/\b[a-z]/g, (char) => char.toUpperCase()); // אות ראשונה גדולה בכל מילה
+        .replace(/_/g, " ") // Replace underscores with spaces
+        .replace(/\b[a-z]/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
     },
+    // Returns dynamic color based on value (positive = red, negative = green)
     getColor(value, faded = false) {
-      // פונקציה להחזרת צבע בהתאם לחיובי/שלילי
       let baseColor;
       if (value < 0) {
-        // שלילי = ירוק כהה יותר ככל שיותר שלילי
-        const greenStrength = Math.min(100, Math.abs(value) * 5); // מגבלת מקסימום 100
-        baseColor = `hsl(120, ${greenStrength}%, 50%)`; // ירוק בגוון משתנה
+        // Negative values map to shades of green (stronger green for larger negative values)
+        const greenStrength = Math.min(100, Math.abs(value) * 5); // Cap at 100% saturation
+        baseColor = `hsl(120, ${greenStrength}%, 50%)`; // green
       } else {
-        // חיובי = אדום כהה יותר ככל שיותר חיובי
-        const redStrength = Math.min(100, value * 5); // מגבלת מקסימום 100
-        baseColor = `hsl(0, ${redStrength}%, 50%)`; // אדום בגוון משתנה
+        // Positive values map to shades of red (stronger red for larger positive values)
+        const redStrength = Math.min(100, value * 5); // Cap at 100% saturation
+        baseColor = `hsl(0, ${redStrength}%, 50%)`; // red
       }
 
-      // אם זה צבע רקע, נוסיף גוון בהיר יותר
       if (faded) {
-        return baseColor.replace("hsl", "hsla").replace(")", ", 0.2)"); // שקיפות 20%
+        // Convert to HSLA with alpha transparency for background usage
+        return baseColor.replace("hsl", "hsla").replace(")", ", 0.2)");
       }
-      return baseColor;
+      return baseColor; // Return solid color for stroke
     },
   },
 };
 </script>
 
 <style scoped>
-/* הקונטיינר הראשי */
+/* Main container for the feature item */
 .feature-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  width: 100px; /* גודל הקונטיינר */
+  width: 100px;
   font-family: Arial, sans-serif;
-  gap: 10px; /* רווחים */
-  padding: 10px; /* ריווח פנימי */
-  background-color: #f1f1f1; /* רקע אפור בהיר */
-  border-radius: 8px; /* פינות מעוגלות */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* צל עדין */
-  overflow: hidden; /* למנוע גלישת תוכן */
-  position: relative; /* עבור Tooltip */
+  gap: 10px;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
 }
 
+/* Hover effect to slightly elevate the container with a stronger shadow */
 .feature-container:hover {
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* הצללה חזקה יותר */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* עיגול */
+/* Container for the circular progress element */
 .circle-container {
   position: relative;
   width: 80px;
   height: 80px;
 }
 
-/* רקע המעגל */
+/* Background ring of the SVG progress circle */
 .progress-ring__background {
   stroke: #ffffff;
-  stroke-width: 8; /* עובי */
+  stroke-width: 8;
   fill: none;
 }
 
-/* עיגול ההתקדמות */
+/* Foreground progress ring representing dynamic value */
 .progress-ring__progress {
-  stroke-width: 8; /* עובי */
+  stroke-width: 8;
   fill: none;
-  stroke-linecap: round; /* קצוות מעוגלים */
-  transform: rotate(-90deg); /* להתחיל מהחלק העליון */
+  stroke-linecap: round;
+  transform: rotate(-90deg);
   transform-origin: center;
 }
 
-/* טקסט במרכז העיגול */
+/* Percentage value displayed in the center of the circle */
 .circle-text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 14px; /* גודל הפונט */
+  font-size: 14px;
   font-weight: bold;
-  color: #000000; /* טקסט שחור */
+  color: #000000;
 }
 
-/* שם המאפיין */
+/* Feature label under the circle */
 .feature-name {
-  font-size: 12px; /* גודל הפונט */
+  font-size: 12px;
   font-weight: bold;
   color: #333;
-  white-space: nowrap; /* מניעת שבירת שורה */
-  overflow: hidden; /* מניעת גלישת טקסט */
-  text-overflow: ellipsis; /* הצגת "..." במקרה של גלישה */
-  max-width: 100%; /* הגבלת רוחב */
-  cursor: help; /* שינוי הסמן */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  cursor: help;
 }
 </style>
 

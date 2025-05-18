@@ -1,12 +1,12 @@
 <template>
   <div class="info-panel">
-    <!-- כותרת עם אפקט הקלדה -->
+    <!-- Title with typing effect -->
     <h2 :class="['typewriter', { done: isTitleTypingDone }]">{{ typedTitle }}</h2>
 
-    <!-- פסקה עם אפקט הקלדה -->
+    <!-- Paragraph with typing effect -->
     <p :class="['typewriter', { done: isParagraphTypingDone }]">{{ typedParagraph }}</p>
 
-    <!-- כרטיסים -->
+    <!-- Card buttons for navigation -->
     <div class="card-container">
       <Card
         title="Global Data"
@@ -38,7 +38,7 @@ export default {
   name: "InfoPanel",
   props: {
     isLoggedIn: {
-      type: Boolean,
+      type: Boolean, // Determines if the user is logged in (controls access to personal data)
       required: true,
     },
   },
@@ -53,11 +53,12 @@ export default {
     const fullParagraph =
       "ICU MediClear specializes in mortality prediction for ICU patients, combining artificial intelligence models with explainability to help clinicians and enhance decision-making in critical care.";
 
-    const typedTitle = ref("");
-    const typedParagraph = ref("");
-    const isTitleTypingDone = ref(false);
-    const isParagraphTypingDone = ref(false);
+    const typedTitle = ref(""); // Title text that is revealed progressively
+    const typedParagraph = ref(""); // Paragraph text revealed progressively
+    const isTitleTypingDone = ref(false); // Flag when title typing is finished
+    const isParagraphTypingDone = ref(false); // Flag when paragraph typing is finished
 
+    // Simulates typing effect by incrementally adding characters
     const typeText = (fullText, refVar, speed = 50, onComplete = null) => {
       let i = 0;
       const interval = setInterval(() => {
@@ -71,14 +72,17 @@ export default {
       }, speed);
     };
 
+    // Navigation method for card buttons
     const navigate = (path) => {
       router.push(path);
     };
 
+    // When component is mounted, start typing effect
     onMounted(() => {
       typeText(fullTitle, typedTitle, 50, () => {
         isTitleTypingDone.value = true;
 
+        // Small delay before paragraph starts typing
         setTimeout(() => {
           typeText(fullParagraph, typedParagraph, 20, () => {
             isParagraphTypingDone.value = true;
@@ -99,6 +103,7 @@ export default {
 </script>
 
 <style scoped>
+/* Main container styling */
 .info-panel {
   display: flex;
   flex-direction: column;
@@ -111,15 +116,18 @@ export default {
   box-sizing: border-box;
 }
 
+/* Typing effect base class */
 .typewriter {
   white-space: nowrap;
   overflow: hidden;
 }
 
+/* Styling once typing is done (currently empty but extendable) */
 .typewriter.done {
 
 }
 
+/* Title with typing effect */
 h2.typewriter {
   font-size: 28px;
   margin-bottom: 20px;
@@ -127,6 +135,7 @@ h2.typewriter {
   min-height: 36px; /* שמירה על גובה קבוע */
 }
 
+/* Paragraph with typing effect */
 p.typewriter {
   font-size: 16px;
   color: #555555;
@@ -139,8 +148,7 @@ p.typewriter {
   min-height: 64px; /* שמירה על גובה קבוע */
 }
 
-
-
+/* Container for the cards */
 .card-container {
   display: flex;
   justify-content: center;
@@ -150,5 +158,4 @@ p.typewriter {
   width: 100%;
   box-sizing: border-box;
 }
-
 </style>

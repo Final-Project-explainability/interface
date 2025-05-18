@@ -13,6 +13,7 @@
         </div>
       </transition>
 
+      <!-- Top Row: Mortality card + Patient info -->
       <div class="top-row-container" v-if="isDataVisible">
         <div class="mortality-card-container">
           <MortalityRisk
@@ -37,6 +38,7 @@
         </div>
       </div>
 
+      <!-- Main Prediction Data Section -->
       <div class="main-data-section">
         <PredictionExplanations
           v-if="isDataVisible"
@@ -48,6 +50,7 @@
           :selectedDataset="selectedDataset"
         />
 
+        <!-- Placeholder Messages -->
         <div v-else class="centered-message">
           <template v-if="patientNotFoundId">
             <i class="material-icons" style="font-size: 36px; color: #e53935;">block</i>
@@ -75,7 +78,7 @@ import MortalityRisk from "../components/MortalityRisk.vue";
 import PatientDetails from "../components/PatientDetails.vue";
 import PredictionExplanations from "../components/PredictionExplanations.vue";
 import FilterAndSearch from "../components/FilterAndSearch.vue";
-import visualConfig from "../JSON/visualConfig.json";
+import visualConfig from "../../public/data/visualConfig.json";
 import { eventBus } from "@/utils/eventBus";
 
 import {
@@ -84,7 +87,7 @@ import {
   GetPatientPredictLogisticRegression,
   GetPatientDetails,
   IsPatientInCurrentDataset,
-} from "../src/services/predictionService.js";
+} from "../api/predictionApi.js";
 
 import { useDataSourceStore } from "@/stores/dataSourceStore";
 
@@ -125,11 +128,13 @@ export default {
     },
   },
   methods: {
+    // Fetch basic patient details
     async fetchPatientDetails() {
       const details = await GetPatientDetails(this.patientId);
       this.patientDetails = details;
     },
 
+    // Fetch mortality risk for a specific model
     async fetchMortalityRisk(model) {
       if (model === "XGBOOST") {
         return await GetPatientPredictXGBOOST(this.patientId);
@@ -140,6 +145,7 @@ export default {
       }
     },
 
+    // Fetch mortality risk from all available models
     async fetchAllModels() {
       const models = ["XGBOOST", "LogisticRegression", "DecisionTree"];
       const percentages = {};
@@ -149,6 +155,7 @@ export default {
       this.modelPercentages = percentages;
     },
 
+    // Handles patient search from MenuBar
     async handlePatientSearch(query) {
       this.hasSearched = true;
       this.patientNotFoundId = null;
@@ -179,6 +186,7 @@ export default {
       }
     },
 
+    // Reset patient data to default values
     resetPatientData() {
       this.patientDetails = {
         name: "No Data",
@@ -190,6 +198,7 @@ export default {
       this.modelPercentages = {};
     },
 
+    // Handle user logout on token expiration
     handleLogout() {
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
@@ -197,6 +206,7 @@ export default {
       this.$router.push("/");
     },
 
+    // Apply filters to the prediction explanations component
     applyFiltersToPrediction(filters) {
       const explanationRef = this.$refs.predictionExplanations;
       if (explanationRef?.applyFilters) {
@@ -208,6 +218,7 @@ export default {
       }
     },
 
+    // Retrieve visual configuration for a specific item key
     getItemVisualConfig(key) {
       return visualConfig[key] || {};
     },
@@ -239,6 +250,7 @@ export default {
     eventBus.off("token-expired", this.handleLogout);
   },
   watch: {
+    // Re-fetch data when selected model changes
     async selectedModel(newValue) {
       if (this.isDataVisible) {
         if (newValue === "All") {
@@ -251,6 +263,7 @@ export default {
       }
     },
 
+    // Reset all data when dataset is switched
     selectedDataset() {
       this.resetPatientData();
       this.isDataVisible = false;
@@ -265,15 +278,12 @@ export default {
 };
 </script>
 
-
-
-
 <style scoped>
 .local-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100vw; /* תופס את כל רוחב המסך */
+  width: 100vw;
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   overflow: hidden;
@@ -282,7 +292,7 @@ export default {
 .main-content {
   display: flex;
   flex-direction: column;
-  gap: 2px; /* צמצום הריווח בין הרכיבים */
+  gap: 2px; /* Reduce spacing between components */
   padding: 20px;
   height: 100%;
   overflow: auto;
@@ -291,8 +301,8 @@ export default {
 
 .top-row-container {
   display: flex;
-  justify-content: flex-start; /* יישור רכיבים בצמוד לשמאל */
-  gap: 20px; /* ריווח בין רכיבים */
+  justify-content: flex-start; /* Align items to the left */
+  gap: 20px; /* Space between child elements */
   flex-wrap: wrap;
   align-items: flex-start;
   width: 100%;
@@ -300,26 +310,26 @@ export default {
 }
 
 .mortality-card-container {
-  flex: 0 1 320px; /* קובע את הרוחב המקסימלי */
-  max-width: 350px; /* גבול רוחב */
+  flex: 0 1 320px; /* Defines maximum width behavior */
+  max-width: 350px; /* Maximum width limit */
 }
 
 .patient-info-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0px; /* צמצום ריווח */
-  overflow: hidden; /* מונע גלישה של התוכן */
+  gap: 0px; /* Reduce spacing */
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .search-in-panel {
   background-color: #f1f8f7;
-  padding: 12px 16px; /* ריווח פנימי של שורת החיפוש */
+  padding: 12px 16px; /* Inner padding for search bar */
   border-radius: 12px;
   border: 1px solid #c8e6c9;
   color: #004d40;
   font-weight: 500;
-  width: 100%; /* מבטיח שהחיפוש יתפשט עד הקצה */
+  width: 100%; /* Ensure search input stretches to full width */
 }
 
 .patient-id-display {
@@ -330,7 +340,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px; /* צמצום הריווח בין הרכיבים */
+  gap: 15px; /* Reduce spacing between items */
   margin-top: 16px;
 }
 
@@ -340,7 +350,7 @@ export default {
   font-weight: 600;
   color: #444444;
   text-align: center;
-  padding: 20px 15px; /* צמצום ריווח */
+  padding: 20px 15px; /* Reduce padding */
   background: #ffffff;
   border: 1px solid #dddddd;
   border-radius: 8px;
@@ -353,7 +363,6 @@ export default {
   width: 80%;
   max-width: 400px;
 }
-
 </style>
 
 

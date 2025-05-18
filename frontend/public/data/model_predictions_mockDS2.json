@@ -1,8 +1,0 @@
-[
-  {
-    "patient_id": "999001",
-    "DecisionTree_Pred": "0.0047179927085567236",
-    "LogisticRegression_Pred": "0.10623817966117038",
-    "XGBoost_Pred": "0.02464361"
-  }
-]

@@ -1,8 +1,15 @@
 <template>
   <div class="card">
+    <!-- Team member image (shown only if 'img' prop is provided) -->
     <img v-if="img" :src="img" alt="team member" class="avatar" />
+
+    <!-- Team member's name -->
     <h3 class="name">{{ name }}</h3>
+
+    <!-- Links section (GitHub, LinkedIn) -->
     <div class="links">
+
+      <!-- GitHub button (shown only if 'github' prop is provided) -->
       <a
         v-if="github"
         :href="github"
@@ -10,7 +17,7 @@
         class="outlined-button"
       >
         <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-          <!-- GitHub icon -->
+          <!-- GitHub SVG icon path -->
           <path
             d="M12 0.5C5.37 0.5 0 5.87 0 12.5C0 17.8 3.438 22.23 8.205 23.73C8.805 23.84 9.025 23.48 9.025 23.17C9.025 22.89 9.015 22.19 9.01 21.25C5.672 21.91 4.968 19.63 4.968 19.63C4.422 18.21 3.633 17.82 3.633 17.82C2.545 17.07 3.717 17.09 3.717 17.09C4.922 17.17 5.555 18.33 5.555 18.33C6.635 20.16 8.388 19.63 9.048 19.32C9.155 18.54 9.465 17.99 9.81 17.67C7.145 17.35 4.343 16.3 4.343 11.63C4.343 10.29 4.805 9.21 5.573 8.37C5.445 8.05 5.04 6.8 5.685 5.1C5.685 5.1 6.703 4.75 9.01 6.34C9.975 6.07 11.025 5.93 12.075 5.93C13.125 5.93 14.175 6.07 15.14 6.34C17.447 4.75 18.465 5.1 18.465 5.1C19.11 6.8 18.705 8.05 18.577 8.37C19.345 9.21 19.807 10.29 19.807 11.63C19.807 16.31 17.005 17.34 14.335 17.66C14.76 18.04 15.145 18.81 15.145 20.02C15.145 21.74 15.13 22.89 15.13 23.17C15.13 23.48 15.35 23.85 15.955 23.73C20.725 22.23 24.16 17.8 24.16 12.5C24.16 5.87 18.79 0.5 12.16 0.5H12z"
           />
@@ -18,41 +25,42 @@
         GitHub
       </a>
 
-<a
-  v-if="linkedin"
-  :href="linkedin"
-  target="_blank"
-  class="outlined-button"
->
-  <svg class="icon linkedin-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor">
-    <path
-      d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.52 0 53.79
-      0 24.07 24.09 0 53.79 0s53.79 24.07 53.79 53.79c0
-      29.73-24.08 54.31-53.79 54.31zM447.9 448h-92.68V302.4c0-34.7-12.47-58.4-43.61-58.4-23.8
-      0-38 16-44.3 31.4-2.3 5.6-2.8 13.4-2.8 21.2V448h-92.78s1.2-267.4
-      0-295h92.68v41.8c12.3-19 34.3-46.1 83.4-46.1
-      60.9 0 106.7 39.8 106.7 125.4V448z"
-    />
-  </svg>
-  LinkedIn
-</a>
+      <!-- LinkedIn button (shown only if 'linkedin' prop is provided) -->
+      <a
+        v-if="linkedin"
+        :href="linkedin"
+        target="_blank"
+        class="outlined-button"
+      >
+        <svg class="icon linkedin-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor">
+          <!-- LinkedIn SVG icon path -->
+          <path
+            d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.52 0 53.79
+            0 24.07 24.09 0 53.79 0s53.79 24.07 53.79 53.79c0
+            29.73-24.08 54.31-53.79 54.31zM447.9 448h-92.68V302.4c0-34.7-12.47-58.4-43.61-58.4-23.8
+            0-38 16-44.3 31.4-2.3 5.6-2.8 13.4-2.8 21.2V448h-92.78s1.2-267.4
+            0-295h92.68v41.8c12.3-19 34.3-46.1 83.4-46.1
+            60.9 0 106.7 39.8 106.7 125.4V448z"
+          />
+        </svg>
+        LinkedIn
+      </a>
 
     </div>
   </div>
 </template>
 
-
-
-
-
-
 <script>
 export default {
   name: "TeamCard",
   props: {
+    // Team member's name (required for display)
     name: String,
+    // Profile image URL
     img: String,
+    // GitHub profile link (optional)
     github: String,
+    // LinkedIn profile link (optional)
     linkedin: String,
   },
 };
@@ -71,11 +79,13 @@ export default {
   flex: 1 1 240px;
 }
 
+/* Hover effect for card lift */
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
+/* Circular avatar styling */
 .avatar {
   width: 100px;
   height: 100px;
@@ -85,6 +95,7 @@ export default {
   border: 4px solid #bfdbfe;
 }
 
+/* Team member's name styling */
 .name {
   font-size: 1.15rem;
   font-weight: 700;
@@ -92,6 +103,7 @@ export default {
   margin-bottom: 16px;
 }
 
+/* Container for social links */
 .links {
   display: flex;
   justify-content: center;
@@ -100,6 +112,7 @@ export default {
   flex-wrap: wrap;
 }
 
+/* Generic outlined button style */
 .outlined-button {
   display: inline-flex;
   align-items: center;
@@ -116,6 +129,7 @@ export default {
   box-shadow: 0 2px 4px rgba(30, 58, 138, 0.04);
 }
 
+/* Hover effect for buttons */
 .outlined-button:hover {
   background-color: #e0e7ff;
   border-color: #3b82f6;
@@ -123,8 +137,7 @@ export default {
   transform: translateY(-1px);
 }
 
-
-
+/* Icon styling for SVG icons */
 .icon {
   width: 18px;
   height: 18px;
@@ -132,12 +145,10 @@ export default {
   vertical-align: middle;
 }
 
+/* LinkedIn icon specific adjustment */
 .linkedin-icon {
   width: 18px;
   height: 18px;
   margin-bottom: 3px;
 }
-
-
 </style>
-
