@@ -132,7 +132,7 @@ h2.typewriter {
   font-size: 28px;
   margin-bottom: 20px;
   color: #004d4d;
-  min-height: 36px; /* שמירה על גובה קבוע */
+  min-height: 36px;
 }
 
 /* Paragraph with typing effect */
@@ -145,7 +145,7 @@ p.typewriter {
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
-  min-height: 64px; /* שמירה על גובה קבוע */
+  min-height: 64px;
 }
 
 /* Container for the cards */

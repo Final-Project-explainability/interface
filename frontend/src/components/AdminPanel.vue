@@ -464,9 +464,9 @@
                 Reset Password
               </label>
 
-            <!-- מצב רגיל / הצלחה / אישור -->
+            <!-- Default / Success / Confirmation Mode -->
             <div v-if="!showResetConfirmation">
-              <!-- טופס שינוי סיסמה רגיל -->
+              <!-- Regular password reset form -->
               <div v-if="!showSuccessToast">
                 <div class="input-group">
                   <input
@@ -478,10 +478,12 @@
                   />
                 </div>
 
+                <!-- Error message if password is invalid -->
                 <p v-if="passwordInvalidReset" class="error-message">
                   Password must be at least 6 characters with valid symbols
                 </p>
 
+                <!-- Action buttons for generating and saving password -->
                 <div class="button-group center-buttons">
                   <button class="generate-btn" @click="generateResetPassword">
                     <i class="fas fa-random"></i> Generate New Password
@@ -492,13 +494,13 @@
                 </div>
               </div>
 
-              <!-- הודעת הצלחה במקום טופס -->
+              <!-- Success message instead of form -->
               <div v-else class="confirmation-success">
                 ✅ Password was reset successfully!
               </div>
             </div>
 
-            <!-- תצוגת אישור -->
+            <!-- Confirmation view before final reset -->
             <div v-else class="confirmation-text">
               <p class="confirmation-text">
                 ❗ Are you sure you want to reset the password?
@@ -570,7 +572,8 @@ export default {
       // Default avatar image URL
       /*TODO: update url of img */
       defaultAvatar:
-          "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg",
+          // "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg",
+          "/images/avatars/defaultAvatar.jpg",
       // Username availability check (null = unchecked)
       usernameAvailable: null, // true / false / null
       usernameMessage: "",
@@ -862,7 +865,8 @@ export default {
       if (!onlyDigitsRegex.test(license)) {
         this.licenseIdValid = null;
         this.licenseIdInvalid = false;
-        this.licenseIdNotNumeric = true; // מוסיף שגיאה
+        this.licenseIdNotNumeric = true; // Adds error
+
         return;
       } else {
         this.licenseIdNotNumeric = false;
@@ -967,30 +971,6 @@ export default {
     validateResetPassword() {
       const passwordRegex = /^[A-Za-z0-9!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-]{6,}$/;
       this.passwordInvalidReset = !passwordRegex.test(this.resetPassword);
-    },
-    // Sends the new password to the server to reset user's password
-    /* TODO: is it in use? if not delete it! */
-    async resetUserPassword(userId) {
-      this.validateResetPassword();
-      if (this.passwordInvalidReset) {
-        return;
-      }
-
-      try {
-        const result = await resetUserPassword(userId, this.resetPassword);
-        if (result.success) {
-          // Reset form state on success
-          this.resetPassword = "";
-          this.passwordInvalidReset = false;
-          this.errorMessage = "";
-          alert("Password reset successfully!");
-        } else {
-          this.errorMessage = result.message || "Failed to reset password.";
-        }
-      } catch (err) {
-        this.errorMessage = "Error while resetting password.";
-        console.error(err);
-      }
     },
     // Handles real-time validation for each editable field during edit
     async handleEditInput(field) {
@@ -1446,7 +1426,7 @@ export default {
 .input-wrapper input {
   width: 100%;
   padding: 10px;
-  padding-right: 35px; /* מקום לאייקון */
+  padding-right: 35px;
   border: 2px solid #ccc;
   border-radius: 8px;
   transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -1582,7 +1562,7 @@ export default {
 }
 
 ::v-deep(.user-card.admin .username) {
-  color: #fbc02d; /* זהב */
+  color: #fbc02d; /* gold */
 }
 
 ::v-deep(.user-card.admin .user-role) {
@@ -1592,7 +1572,7 @@ export default {
 
 
 ::v-deep(.user-card.admin .expand-button) {
-  color: #fbc02d !important; /* תשפיע גם על האייקון */
+  color: #fbc02d !important;
 }
 
 ::v-deep(.user-card.admin .expand-button i) {

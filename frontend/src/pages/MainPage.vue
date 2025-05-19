@@ -134,20 +134,6 @@ const handleProfileUpdate = (updatedUser) => {
 }
 
 
-.left-panel::before {
-    content: ''; /* Empty content for background */
-    position: absolute; /* Positioned relative to parent */
-    top: 0; /* Aligns to the top */
-    left: 0; /* Aligns to the left */
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    /* TODO: upload an new url to the background img for dashboard. */
-    background: url('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzhzODh5bGZ2M2t1YnRpZnhyZ3JsbjByeWpsa20zMDRvNG8ydndwcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3bc8pP1rVdfgN1uoMV/giphy.webp') no-repeat center; /* Background image */
-    background-size: cover; /* Image covers entire area */
-    opacity: 0.1; /* Faint transparency */
-    z-index: 0; /* Behind all content */
-}
-
 /* Left Panel Title Styling */
 .left-panel h1 {
     font-size: 48px; /* Large font size */

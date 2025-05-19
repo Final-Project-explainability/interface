@@ -24,7 +24,7 @@ export default {
     },
     models: {
       type: Array,
-      default: () => ["XGBOOST", "LogisticRegression", "DecisionTree"], // מודלים זמינים
+      default: () => ["XGBOOST", "LogisticRegression", "DecisionTree"], // Available models
     },
   },
 };

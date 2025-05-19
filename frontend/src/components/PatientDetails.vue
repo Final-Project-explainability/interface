@@ -137,11 +137,8 @@ export default {
   background: #f9fafb;
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
   margin-bottom: 11px;
-
-
   border: 1px solid #e3e8ee;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03); /* TODO: there is dobule from this. choose one. */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
 }
 </style>

@@ -67,7 +67,7 @@ const graphData = ref({
 });
 
 // Mapping of dataset names to JSON file names
-const datasetNameToFileMap = { /* TODO: change names to files. */
+const datasetNameToFileMap = {
   "DataSet 1": "global_graph_DataSet1.json",
   "DataSet 2": "global_graph_DataSet2.json",
 };

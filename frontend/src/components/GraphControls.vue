@@ -84,7 +84,7 @@ export default {
 .graph-button.active {
   color: #1565c0;
   font-weight: 600;
-  background-color: #eaeaea; /* רקע אפור בהיר */
+  background-color: #eaeaea;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   border-bottom-left-radius: 0;

@@ -65,9 +65,13 @@
 6. תחת **users**, לחצו על ***Import JSON or CSV file*** ← ***ADD DATA***.
 7. טענו את קובץ משתמשי המערכת `users.json` שנמצא בנתיב:
    
+<div dir="ltr" align="left">
+
    
     interface/frontend/public/data/
    
+<div dir="rtl" align="right">
+
    
    (ניתן להגיע לקובץ זה דרך *PyCharm* לאחר פתיחת הפרויקט).
 8. לחצו על ***Import***.
@@ -92,16 +96,16 @@ nodemon server.js
 ```
 
 ```sh
-node updatePassword.js
+node updatePasswords.js
 ```
 <div dir="rtl" align="right">
 
-> *הערה:* הצפנת הסיסמאות (updatePassword.js) *הכרחית* לפעולה תקינה של המערכת.
+> *הערה:* הצפנת הסיסמאות (updatePasswords.js) *הכרחית* לפעולה תקינה של המערכת במידה שהDataBase (mongoDB) לא מכיל נתוני משתמשים כלל (צריך להיות לפחות משתמש אחד לפעילות תקינה של המערכת).
 
 ---
 
 
-### 5. הפעלת ממשק המשתמש (Frontend)
+### 5. הפעלת ממשק המשתמש (Frontend) - הפעלה לוקאלית
 פתחו *Terminal* נוסף ובצעו:
 
 <div dir="ltr" align="left">
@@ -122,6 +126,94 @@ http://localhost:8080/
 (קישור זה אינו בהכרח פעיל והוא ***רק דוגמה*** – אין ללחוץ עליו ישירות)
 
 ---
+
+## ⚙️ הפעלת המערכת דרך מכונה וירטואלית - שרת האוניברסיטה (חיבור לכתובת https://mediclear.cs.bgu.ac.il/)
+
+בכל פעם שהמכונה (המחשב או השרת) מאותחלת – יש להפעיל ידנית את רכיבי המערכת.
+
+### 🪪 שלב 1: הפעלת MongoDB  
+1. פתחו את אפליקציית **MongoDB Compass**.  
+2. לחצו על **Connect** (אין צורך לשנות הגדרות).
+
+---
+
+### 🖥 שלב 2: הפעלת שרת ה-Backend  
+פתחו טרמינל חדש ובצעו:
+
+<div dir="ltr" align="left">
+
+```sh
+cd backend
+```
+```sh
+nodemon server.js
+```
+
+---
+<div dir="rtl" align="right">
+
+### 🔐 שלב 3: הצפנת סיסמאות (בדרך כלל נדרש רק בפעם הראשונה כאשר הDB ריק)  
+
+<div dir="ltr" align="left">
+
+```sh
+node updatePassword.js
+```
+
+---
+
+<div dir="rtl" align="right">
+
+### 🖼 שלב 4: הפעלת ממשק המשתמש (Frontend)  
+בטרמינל נוסף:
+
+<div dir="ltr" align="left">
+
+```sh
+cd frontend
+```
+```sh
+npm install
+```
+```sh
+npm run build
+```
+
+---
+
+<div dir="rtl" align="right">
+
+### 🧩 שלב 5: הפעלת שרת NGINX (לאחר הפעלת `npm run build`)
+
+1. פתחו את שורת הפקודה (CMD) או PowerShell **כמנהל מערכת (Run as Administrator)**.
+2. עברו לתיקייה הראשית של NGINX:
+
+<div dir="ltr" align="left">
+
+   ```sh
+   cd C:\nginx-1.27.4\nginx-1.27.4
+   ```
+
+<div dir="rtl" align="right">
+
+3. הפעילו את NGINX:
+
+<div dir="ltr" align="left">
+
+   ```sh
+   nginx
+   ```
+
+<div dir="rtl" align="right">
+
+4. כעת ניתן לגשת למערכת דרך הדפדפן בכתובת:
+
+<div dir="ltr" align="left">
+
+   [https://mediclear.cs.bgu.ac.il](https://mediclear.cs.bgu.ac.il)
+
+---
+
 
 <div dir="ltr" align="left">
 
@@ -169,7 +261,7 @@ If the *Open in JetBrains PyCharm* option is missing, follow these steps:
 ---
 
 ### 3. Setting Up the MongoDB Database
-1. Open ***MongoDB*** on your computer.
+1. Open ***MongoDB Compass*** on your computer.
 2. Click ***Add new connection → Save & Connect*** (no need to change settings).
 3. Click ***+*** to create a ***Database***.
 4. Name it ***ExplainabilityDataBase*** and create a collection named ***users***.
@@ -202,14 +294,14 @@ nodemon server.js
 ```
 
 ```sh
-node updatePassword.js
+node updatePasswords.js
 ```
 
 > *Note:* Encrypting passwords (updatePassword.js) is *essential* for the system to function properly.
 
 ---
 
-### 5. Running the Frontend Interface
+### 5. Running the Frontend Interface - Local only!
 Open ***a new Terminal*** and run:
 
 ```sh
@@ -226,6 +318,83 @@ For example:  http://localhost:8080/
 (This link is just an example format and may not be functional — do not click on it directly.)
 
 </div>
+
+---
+
+## ⚙️ Running the System on the University Server (Virtual Machine Access at https://mediclear.cs.bgu.ac.il/)
+
+Whenever the server (or virtual machine) restarts, the following components must be manually launched.
+
+---
+
+### 🪪 Step 1: Launch MongoDB
+1. Open the **MongoDB Compass** application.
+2. Click **Connect** (no need to change any settings).
+
+---
+
+### 🖥 Step 2: Start the Backend Server
+Open a terminal and run the following commands:
+
+```sh
+cd backend
+```
+```sh
+nodemon server.js
+```
+
+---
+
+### 🔐 Step 3: Encrypt User Passwords  
+> Usually required only the **first time**, if the MongoDB database is empty or has unencrypted passwords.
+
+In the same or new terminal:
+
+```sh
+node updatePasswords.js
+```
+
+---
+
+### 🖼 Step 4: Build the Frontend
+In a new terminal:
+
+```sh
+cd frontend
+```
+```sh
+npm install
+```
+```sh
+npm run build
+```
+
+
+---
+
+### 🧩 Step 5: Start the NGINX Server
+
+1. Open **Command Prompt (CMD)** or **PowerShell** as **Administrator** (Right click → "Run as Administrator").
+
+2. Navigate to the NGINX directory:
+
+```sh
+cd C:\nginx-1.27.4\nginx-1.27.4
+```
+
+3. Start the NGINX server:
+
+```sh
+nginx
+```
+
+---
+
+### 🌐 Step 6: Access the System
+
+Once NGINX is running, the system will be accessible in your browser via:
+
+[https://mediclear.cs.bgu.ac.il](https://mediclear.cs.bgu.ac.il)
 
 ---
 

@@ -10,7 +10,7 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Failed to connect to MongoDB:", err));
 
-// סכימת המשתמש שלך
+
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true }, // Unique username
   fullName: { type: String, required: true }, // Full name is required
@@ -27,7 +27,7 @@ async function updatePasswords() {
     for (const user of users) {
       // Check if password is already hashed (bcrypt hashes start with "$2b$")
       if (!user.password.startsWith("$2b$")) {
-        // בודק אם הסיסמה כבר מוצפנת
+        // Check if the password is already hashed
         const salt = await bcrypt.genSalt(10); // Generate salt
         const hashedPassword = await bcrypt.hash(user.password, salt); // Hash the password
 

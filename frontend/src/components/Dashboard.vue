@@ -66,14 +66,15 @@ const props = defineProps({
 
 /*TODO: check about this url.. neede? if yes, than replace it in real url*/
 // Default avatar fallback image
-const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg";
+// const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg";
+const defaultAvatar = "/images/avatars/defaultAvatar.jpg";
 
 // Access panel store to control navigation
 const panelStore = usePanelStore();
 
 // Navigate to selected panel (Home, PatientList, PersonalArea, AdminPanel)
 const navigateTo = (panelName) => {
-  panelStore.setPanel(panelName); // 🔥 משנה את הפאנל דרך Pinia
+  panelStore.setPanel(panelName); // 🔥 Changes the panel using Pinia
 };
 </script>
 
@@ -170,21 +171,21 @@ const navigateTo = (panelName) => {
 
 /* Special styling for admin button */
 .admin-button {
-    background: linear-gradient(90deg, #ffd700, #ffef9f); /* זהב עד צהוב בהיר */
+    background: linear-gradient(90deg, #ffd700, #ffef9f); /* Gold to light yellow gradient */
     color: #004d66;
-    border: 2px solid #e3b800; /* מסגרת זהובה כהה */
+    border: 2px solid #e3b800; /* Dark golden border */
     font-size: 16px;
     font-weight: bold;
     padding: 12px;
     border-radius: 8px;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
 }
 
 .admin-button:hover {
-    background: linear-gradient(90deg, #e3b800, #ffca28); /* זהב כהה יותר */
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(227, 184, 0, 0.3); /* צל זהוב */
+    background: linear-gradient(90deg, #e3b800, #ffca28); /* Darker gold gradient on hover */
+    transform: scale(1.05); /* Slight zoom on hover */
+    box-shadow: 0 5px 15px rgba(227, 184, 0, 0.3); /* Golden glow shadow */
 }
 
 /* Logout button with red tones */

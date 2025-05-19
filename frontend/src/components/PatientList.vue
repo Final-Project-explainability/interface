@@ -56,7 +56,7 @@ const patients = ref([]);
 
 
 // Maps dataset names to file paths
-const datasetMap = { /* TODO: change names here */
+const datasetMap = {
   "DataSet 1": "patients_details_DataSet1.json",
   "DataSet 2": "patients_details_DataSet2.json",
 };

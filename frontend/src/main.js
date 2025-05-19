@@ -11,8 +11,6 @@ import { createPinia } from 'pinia'; // Import Pinia for state management
 // Set the browser tab title
 document.title = "ICU MediClear";
 
-// createApp(App).use(router).mount("#app"); /*TODO: Remove this? */
-
 // Create the Vue application instance
 const app = createApp(App);
 

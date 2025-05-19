@@ -444,41 +444,43 @@ export default {
       { src: "/images/avatars/female4.png", gender: "female" },
       { src: "/images/avatars/male4.png", gender: "male" },
       { src: "/images/avatars/female5.png", gender: "female" },
-      { src: "https://static.vecteezy.com/system/resources/previews/027/312/349/non_2x/portrait-of-a-surgeon-isolated-essential-workers-avatar-icons-characters-for-social-media-and-networking-user-profile-website-and-app-3d-render-illustration-png.png", gender: "male" },
+      { src: "/images/avatars/male5.png", gender: "male" },
       { src: "/images/avatars/female6.jpg", gender: "female" },
       { src: "/images/avatars/male6.webp", gender: "male" },
       { src: "/images/avatars/female7.jpg", gender: "female" },
-      { src: "https://png.pngtree.com/png-clipart/20240321/original/pngtree-avatar-job-doctor-flat-portrait-of-man-png-image_14640094.png", gender: "male" },
+      { src: "/images/avatars/male7.png", gender: "male" },
       { src: "/images/avatars/female8.png", gender: "female" },
       { src: "/images/avatars/male8.png", gender: "male" },
-      { src: "https://static.vecteezy.com/system/resources/previews/034/466/010/non_2x/cartoon-blood-character-and-medical-doctor-stethoscope-for-health-care-hospital-pulse-heartbeat-design-vector.jpg", gender: ["male", "female"] },
       { src: "/images/avatars/female9.jpg", gender: "female" },
       { src: "/images/avatars/male9.jpeg", gender: "male" },
-      // { src: "/images/avatars/female10.jpg", gender: "female" },
+      { src: "/images/avatars/female10.png", gender: "female" },
       { src: "/images/avatars/male10.png", gender: "male" },
-      // { src: "/images/avatars/female11.jpg", gender: "female" },
+      { src: "/images/avatars/female11.jpeg", gender: "female" },
       { src: "/images/avatars/male11.webp", gender: "male" },
       { src: "/images/avatars/female12.webp", gender: "female" },
-      // { src: "/images/avatars/male12.png", gender: "male" },
-      // { src: "/images/avatars/female13.jpg", gender: "female" },
-      // { src: "/images/avatars/male13.png", gender: "male" },
-      // { src: "/images/avatars/female14.jpg", gender: "female" },
+      { src: "/images/avatars/male12.png", gender: "male" },
+      { src: "/images/avatars/female13.avif", gender: "female" },
+      { src: "/images/avatars/male13.jpeg", gender: "male" },
+      { src: "/images/avatars/female14.png", gender: "female" },
       { src: "/images/avatars/male14.jpg", gender: "male" },
-      // { src: "/images/avatars/female15.jpg", gender: "female" },
+      { src: "/images/avatars/female15.jpg", gender: "female" },
       { src: "/images/avatars/male15.webp", gender: "male" },
-      // { src: "/images/avatars/female16.jpg", gender: "female" },
+      { src: "/images/avatars/female16.avif", gender: "female" },
       { src: "/images/avatars/male16.webp", gender: "male" },
       { src: "/images/avatars/female17.webp", gender: "female" },
       { src: "/images/avatars/male17.webp", gender: "male" },
       { src: "/images/avatars/female18.webp", gender: "female" },
-      // { src: "/images/avatars/male18.png", gender: "male" },
+      { src: "/images/avatars/male18.jpg", gender: "male" },
       { src: "/images/avatars/female19.webp", gender: "female" },
-      // { src: "/images/avatars/male19.png", gender: "male" },
+      { src: "/images/avatars/male19.jpg", gender: "male" },
       { src: "/images/avatars/female20.webp", gender: "female" },
-      // { src: "/images/avatars/male20.png", gender: "male" },
-      // { src: "/images/avatars/female21.jpg", gender: "female" },
-      // { src: "/images/avatars/male21.png", gender: "male" },
-
+      { src: "/images/avatars/male20.avif", gender: "male" },
+      { src: "/images/avatars/female21.avif", gender: "female" },
+      { src: "/images/avatars/male21.avif", gender: "male" },
+      { src: "/images/avatars/female22.avif", gender: "female" },
+      { src: "/images/avatars/male22.avif", gender: "male" },
+      { src: "/images/avatars/defaultAvatar.jpg", gender: ["male", "female"] },
+      { src: "/images/avatars/unisex.jpg", gender: ["male", "female"] },
     ]);
 
     const selectedGenderFilter = ref("all");
@@ -580,7 +582,7 @@ export default {
     };
 
     onMounted(async () => {
-      await loadUserProfile(); // זה יטפל גם ב־isAdmin בפנים
+      await loadUserProfile(); // This will also handle the `isAdmin` property internally
     });
 
     return {

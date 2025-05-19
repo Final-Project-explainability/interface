@@ -1,312 +1,283 @@
-/* עיצוב בסיסי לדף Global */
-.global-page {
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* גובה מלא של הדף */
-  background-color: #eaf7f9; /* רקע תכלת */
-  font-family: Arial, sans-serif;
-  overflow: hidden; /* מונע גלילה חיצונית */
-}
+/*!* Base layout for Global page *!*/
+/*.global-page {*/
+/*  display: flex;*/
+/*  flex-direction: column;*/
+/*  height: 100vh; !* Full height of the page *!*/
+/*  background-color: #eaf7f9; !* Light blue background *!*/
+/*  font-family: Arial, sans-serif;*/
+/*  overflow: hidden; !* Prevents outer scrolling *!*/
+/*}*/
 
-/* אזור התוכן הראשי */
-.main-content {
-  display: flex;
-  flex-grow: 1; /* ממלא את כל הגובה הזמין */
-  justify-content: space-between; /* ריווח בין צד שמאל לימין */
-  gap: 20px;
-  padding: 20px;
-  height: calc(100% - 40px); /* גובה הדף פחות הפדינג */
-  overflow: hidden; /* מונע גלילה חיצונית */
-}
+/*!* Main content area *!*/
+/*.main-content {*/
+/*  display: flex;*/
+/*  flex-grow: 1; !* Fills all available height *!*/
+/*  justify-content: space-between; !* Space between left and right sections *!*/
+/*  gap: 20px;*/
+/*  padding: 20px;*/
+/*  height: calc(100% - 40px); !* Page height minus padding *!*/
+/*  overflow: hidden; !* Prevents outer scrolling *!*/
+/*}*/
 
-/* צד שמאלי (Feature Metric) */
-/*.feature-metric {*/
-/*  flex: 1; !* יחס גודל של צד שמאל *!*/
+/*!* Title and text in Feature Metric *!*/
+/*.feature-metric h2 {*/
+/*  font-size: 24px;*/
+/*  color: #004d40;*/
+/*  margin-bottom: 10px;*/
+/*}*/
+
+/*.feature-metric p {*/
+/*  font-size: 16px;*/
+/*  color: #555;*/
+/*}*/
+
+/*!* Toggle switch styling *!*/
+/*.switch {*/
+/*  position: relative;*/
+/*  display: inline-block;*/
+/*  width: 34px;*/
+/*  height: 20px;*/
+/*}*/
+
+/*.switch input {*/
+/*  opacity: 0;*/
+/*  width: 0;*/
+/*  height: 0;*/
+/*}*/
+
+/*.slider {*/
+/*  position: absolute;*/
+/*  cursor: pointer;*/
+/*  top: 0;*/
+/*  left: 0;*/
+/*  right: 0;*/
+/*  bottom: 0;*/
+/*  background-color: #ccc;*/
+/*  transition: 0.4s;*/
+/*  border-radius: 34px;*/
+/*}*/
+
+/*.slider:before {*/
+/*  position: absolute;*/
+/*  content: "";*/
+/*  height: 14px;*/
+/*  width: 14px;*/
+/*  left: 3px;*/
+/*  bottom: 3px;*/
+/*  background-color: white;*/
+/*  transition: 0.4s;*/
+/*  border-radius: 50%;*/
+/*}*/
+
+/*input:checked + .slider {*/
+/*  background-color: #4caf50;*/
+/*}*/
+
+/*input:checked + .slider:before {*/
+/*  transform: translateX(14px);*/
+/*}*/
+
+/*!* Right section (Graph Container) *!*/
+/*.graph-container {*/
+/*  flex: 2; !* Size ratio for right side *!*/
 /*  background-color: #ffffff;*/
 /*  border: 2px solid #004d40;*/
 /*  border-radius: 10px;*/
 /*  padding: 20px;*/
 /*  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
 /*  display: flex;*/
-/*  flex-direction: column; !* עיצוב פנימי אנכי *!*/
-/*  height: calc(100% - 20px); !* מעט יותר קטן מהגובה הכולל *!*/
-/*  max-height: 95%; !* מגבלת גובה לקיצור נוסף *!*/
-/*  overflow: auto; !* גלילה פנימית *!*/
+/*  flex-direction: column; !* Vertical inner layout *!*/
+/*  height: calc(100% - 20px);*/
+/*  max-height: 95%; !* Height limit for extra spacing *!*/
+/*  overflow: hidden;*/
 /*}*/
 
-/* כותרת וטקסט ב-Feature Metric */
-.feature-metric h2 {
-  font-size: 24px;
-  color: #004d40;
-  margin-bottom: 10px;
-}
+/*!* Content inside the graph container *!*/
+/*.chart-wrapper {*/
+/*  flex: 1; !* Fills remaining space *!*/
+/*  overflow: auto; !* Enables scroll if chart is too big *!*/
+/*}*/
 
-.feature-metric p {
-  font-size: 16px;
-  color: #555;
-}
+/*.chart {*/
+/*  width: 100%;*/
+/*  height: 100%;*/
+/*}*/
 
-/* מתג Agreement */
-/*.toggle-container {*/
+/*!* Buttons and menu *!*/
+/*.graph-buttons-container {*/
+/*  display: flex;*/
+/*  justify-content: space-between; !* Left side for graph buttons, right for fullscreen *!*/
+/*  align-items: center;*/
+/*  padding: 10px;*/
+/*  background-color: #f7f7f7;*/
+/*  border-bottom: 1px solid #ddd;*/
+/*  margin-bottom: 20px;*/
+/*}*/
+
+/*.graph-buttons {*/
+/*  display: flex;*/
+/*  gap: 10px; !* Space between buttons *!*/
+/*}*/
+
+/*.graph-button {*/
+/*  padding: 8px 16px;*/
+/*  border-radius: 20px;*/
+/*  background-color: #e0f7fa;*/
+/*  border: 2px solid #004d40;*/
+/*  color: #004d40;*/
+/*  font-size: 14px;*/
+/*  font-weight: bold;*/
+/*  cursor: pointer;*/
+/*  transition: background-color 0.3s ease, transform 0.2s ease;*/
+/*}*/
+
+/*.graph-button:hover {*/
+/*  background-color: #004d40;*/
+/*  color: #ffffff;*/
+/*  transform: scale(1.05); !* Subtle enlarge *!*/
+/*}*/
+
+/*.graph-button.active {*/
+/*  background-color: #004d40;*/
+/*  color: #ffffff;*/
+/*}*/
+
+/*!* Full screen button *!*/
+/*.fullscreen-button {*/
 /*  display: flex;*/
 /*  align-items: center;*/
-/*  gap: 10px;*/
-/*  margin-bottom: 20px;*/
-/*  font-size: 16px;*/
-/*  color: #004d40;*/
+/*  gap: 8px; !* Space between icon and text *!*/
+/*  padding: 8px 16px;*/
+/*  border: 2px solid #6c757d;*/
+/*  border-radius: 20px;*/
+/*  background-color: #e9ecef;*/
+/*  color: #495057;*/
+/*  font-size: 14px;*/
+/*  font-weight: bold;*/
+/*  cursor: pointer;*/
+/*  transition: background-color 0.3s ease, transform 0.2s ease;*/
 /*}*/
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 34px;
-  height: 20px;
-}
+/*.fullscreen-button:hover {*/
+/*  background-color: #6c757d;*/
+/*  color: #ffffff;*/
+/*  transform: scale(1.05);*/
+/*}*/
 
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
+/*!* Full Screen icon *!*/
+/*.fullscreen-icon {*/
+/*  width: 20px;*/
+/*  height: 20px;*/
+/*  fill: #495057;*/
+/*}*/
 
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 34px;
-}
+/*.fullscreen-button:hover .fullscreen-icon {*/
+/*  fill: #ffffff;*/
+/*}*/
 
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
+/*!* Control buttons *!*/
+/*.controls {*/
+/*  margin-bottom: 10px;*/
+/*  display: flex;*/
+/*  gap: 10px;*/
+/*}*/
 
-input:checked + .slider {
-  background-color: #4caf50;
-}
+/*.controls button {*/
+/*  padding: 5px 10px;*/
+/*  background-color: #3498db;*/
+/*  color: #fff;*/
+/*  border: none;*/
+/*  border-radius: 3px;*/
+/*  cursor: pointer;*/
+/*  font-size: 14px;*/
+/*}*/
 
-input:checked + .slider:before {
-  transform: translateX(14px);
-}
-
-/* צד ימני (Graph Container) */
-.graph-container {
-  flex: 2; /* יחס גודל של צד ימין */
-  background-color: #ffffff;
-  border: 2px solid #004d40;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column; /* עיצוב פנימי אנכי */
-  height: calc(100% - 20px); /* מעט יותר קטן מהגובה הכולל */
-  max-height: 95%; /* מגבלת גובה לקיצור נוסף */
-  overflow: hidden; /* גלילה פנימית */
-}
-
-/* תוכן בתוך ה-Graph Container */
-.chart-wrapper {
-  flex: 1; /* ממלא את שטח התיבה */
-  overflow: auto; /* גלילה במקרה שהגרף גדול מדי */
-}
-
-.chart {
-  width: 100%;
-  height: 100%;
-}
-
-/* כפתורים ותפריט */
-.graph-buttons-container {
-  display: flex;
-  justify-content: space-between; /* כפתורי גרפים משמאל, כפתור מסך מלא מימין */
-  align-items: center; /* יישור כפתורים לגובה אחיד */
-  padding: 10px;
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 20px;
-}
-
-.graph-buttons {
-  display: flex;
-  gap: 10px; /* ריווח בין כפתורים */
-}
-
-.graph-button {
-  padding: 8px 16px;
-  border-radius: 20px;
-  background-color: #e0f7fa;
-  border: 2px solid #004d40;
-  color: #004d40;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.graph-button:hover {
-  background-color: #004d40;
-  color: #ffffff;
-  transform: scale(1.05); /* הגדלה עדינה */
-}
-
-.graph-button.active {
-  background-color: #004d40;
-  color: #ffffff;
-}
-
-/* כפתור Full Screen */
-.fullscreen-button {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* ריווח בין האייקון לטקסט */
-  padding: 8px 16px;
-  border: 2px solid #6c757d; /* גבול אפור כהה */
-  border-radius: 20px;
-  background-color: #e9ecef; /* רקע אפור בהיר */
-  color: #495057; /* טקסט אפור כהה */
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.fullscreen-button:hover {
-  background-color: #6c757d; /* רקע אפור כהה יותר בעת מעבר */
-  color: #ffffff; /* טקסט לבן */
-  transform: scale(1.05); /* הגדלה עדינה */
-}
-
-/* אייקון Full Screen */
-.fullscreen-icon {
-  width: 20px;
-  height: 20px;
-  fill: #495057; /* צבע אייקון אפור כהה */
-}
-
-.fullscreen-button:hover .fullscreen-icon {
-  fill: #ffffff; /* צבע אייקון משתנה ללבן בעת מעבר */
-}
+/*.controls button:hover {*/
+/*  background-color: #2980b9;*/
+/*}*/
 
 
+/*!* Structure of the main area *!*/
+/*.main-content {*/
+/*  display: flex;*/
+/*  flex-grow: 1; !* Fills all available height *!*/
+/*  justify-content: space-between; !* Space between left and right sides *!*/
+/*  gap: 20px;*/
+/*  padding: 20px;*/
+/*  height: calc(100% - 40px); !* Page height minus padding *!*/
+/*  overflow: hidden; !* Prevents outer scrolling *!*/
+/*}*/
+
+/*!* Graph section structure *!*/
+/*.graph-section {*/
+/*  flex: 2; !* Ratio for right section *!*/
+/*  display: flex;*/
+/*  flex-direction: column; !* Buttons above graph *!*/
+/*  background-color: #ffffff;*/
+/*  border: 2px solid #004d40;*/
+/*  border-radius: 10px;*/
+/*  padding: 20px;*/
+/*  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
+/*  height: calc(100% - 20px);*/
+/*  max-height: 95%;*/
+/*  overflow: hidden;*/
+/*}*/
+
+/*!* Buttons above the graph *!*/
+/*.graph-buttons-container {*/
+/*  display: flex;*/
+/*  justify-content: flex-start; !* Align buttons to the left *!*/
+/*  align-items: center;*/
+/*  margin-bottom: 20px;*/
+/*  background-color: transparent;*/
+/*  border-bottom: none;*/
+/*}*/
+
+/*.graph-buttons {*/
+/*  display: flex;*/
+/*  gap: 10px;*/
+/*}*/
+
+/*.graph-button {*/
+/*  padding: 8px 16px;*/
+/*  border-radius: 20px;*/
+/*  background-color: #e0f7fa;*/
+/*  border: 2px solid #004d40;*/
+/*  color: #004d40;*/
+/*  font-size: 14px;*/
+/*  font-weight: bold;*/
+/*  cursor: pointer;*/
+/*  transition: background-color 0.3s ease, transform 0.2s ease;*/
+/*}*/
+
+/*.graph-button:hover {*/
+/*  background-color: #004d40;*/
+/*  color: #ffffff;*/
+/*  transform: scale(1.05);*/
+/*}*/
+
+/*.graph-button.active {*/
+/*  background-color: #004d40;*/
+/*  color: #ffffff;*/
+/*}*/
 
 
+/*!* Empty state when no graph is available *!*/
+/*.empty-graph {*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*  justify-content: center;*/
+/*  height: 100%;*/
+/*  color: #777;*/
+/*  font-size: 16px;*/
+/*  font-weight: bold;*/
+/*}*/
 
-
-
-.controls {
-  margin-bottom: 10px;
-  display: flex;
-  gap: 10px;
-}
-
-.controls button {
-  padding: 5px 10px;
-  background-color: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.controls button:hover {
-  background-color: #2980b9;
-}
-
-
-/* מבנה של האזור הראשי */
-.main-content {
-  display: flex;
-  flex-grow: 1; /* ממלא את כל הגובה הזמין */
-  justify-content: space-between; /* ריווח בין צד שמאל לימין */
-  gap: 20px;
-  padding: 20px;
-  height: calc(100% - 40px); /* גובה הדף פחות הפדינג */
-  overflow: hidden; /* מונע גלילה חיצונית */
-}
-
-/* אזור הגרף (Graph Section) */
-.graph-section {
-  flex: 2; /* יחס גודל לצד ימין */
-  display: flex;
-  flex-direction: column; /* אנכי: כפתורים מעל הגרף */
-  background-color: #ffffff;
-  border: 2px solid #004d40;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  height: calc(100% - 20px); /* מעט יותר קטן מהגובה הכולל */
-  max-height: 95%; /* מגבלת גובה לקיצור נוסף */
-  overflow: hidden;
-}
-
-/* קונטיינר הכפתורים מעל הגרף */
-.graph-buttons-container {
-  display: flex;
-  justify-content: flex-start; /* כפתורים בצד שמאל */
-  align-items: center;
-  margin-bottom: 20px; /* רווח בין הכפתורים לגרף */
-  background-color: transparent; /* מסיר את הרקע */
-  border-bottom: none; /* מסיר גבול תחתון אם קיים */
-}
-
-.graph-buttons {
-  display: flex;
-  gap: 10px; /* ריווח בין כפתורים */
-}
-
-.graph-button {
-  padding: 8px 16px;
-  border-radius: 20px;
-  background-color: #e0f7fa;
-  border: 2px solid #004d40;
-  color: #004d40;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.graph-button:hover {
-  background-color: #004d40;
-  color: #ffffff;
-  transform: scale(1.05); /* הגדלה עדינה */
-}
-
-.graph-button.active {
-  background-color: #004d40;
-  color: #ffffff;
-}
-
-
-/* אזור ריק כאשר הגרף לא מיושם */
-.empty-graph {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%; /* תופס את כל שטח הקונטיינר */
-  color: #777;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-
-.graph-container {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
+/*!* Graph container layout *!*/
+/*.graph-container {*/
+/*  display: flex;*/
+/*  flex: 1;*/
+/*  flex-direction: column;*/
+/*  height: 100%;*/
+/*  overflow: hidden;*/
+/*}*/

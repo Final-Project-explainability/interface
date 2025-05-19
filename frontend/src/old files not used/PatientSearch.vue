@@ -1,13 +1,13 @@
 <template>
   <div class="search-container">
-    <!-- שדה חיפוש -->
+    <!-- Search input field -->
     <input
       type="text"
       class="search-input"
       v-model="searchQuery"
       placeholder="Enter patient ID..."
     />
-    <!-- כפתור חיפוש -->
+    <!-- Search button -->
     <button class="search-button" @click="onSearch">
       Search
     </button>
@@ -19,16 +19,16 @@ export default {
   name: "PatientSearch",
   data() {
     return {
-      searchQuery: "", // ערך השדה
+      searchQuery: "", // Value of the input field
     };
   },
   methods: {
     onSearch() {
       if (this.searchQuery.trim()) {
-        this.$emit("search", this.searchQuery.trim()); // פליטת אירוע עם ID
-        this.searchQuery = ""; // איפוס תיבת החיפוש
+        this.$emit("search", this.searchQuery.trim());// Emit event with patient ID
+        this.searchQuery = ""; // Clear the input field
       } else {
-        alert("Please enter a valid patient ID."); // הודעת שגיאה אם השדה ריק
+        alert("Please enter a valid patient ID."); // Show error message if input is empty
       }
     },
   },
@@ -36,77 +36,76 @@ export default {
 </script>
 
 <style scoped>
-/* קונטיינר ראשי */
+/* Main container for search components */
 .search-container {
-  display: flex; /* שימוש בפריסת Flexbox */
-  flex-wrap: nowrap; /* שמירה על אלמנטים באותה שורה */
-  justify-content: flex-start; /* יישור האלמנטים בצד שמאל */
-  align-items: center; /* יישור אנכי של האלמנטים */
-  gap: 10px; /* מרווח בין שדה לכפתור */
-  background-color: rgba(255, 255, 255, 0.8); /* רקע לבן שקוף */
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
   padding: 10px 20px;
-  border-radius: 20px; /* פינות מעוגלות */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* צל עדין */
-  max-width: 100%; /* התאמה למקסימום רוחב */
-  margin: 0 auto; /* יישור מרכזי */
-  border: 1px solid #ddd; /* קו דק סביב */
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  margin: 0 auto;
+  border: 1px solid #ddd;
 }
 
-/* שדה החיפוש */
+/* Search input field */
 .search-input {
-  flex: 1; /* גמישות למלא את השורה */
-  min-width: 0; /* מינימום כדי למנוע גלישה */
+  flex: 1;
+  min-width: 0;
   padding: 12px 15px;
   border: 2px solid #ddd;
-  border-radius: 10px; /* פינות מעוגלות */
+  border-radius: 10px;
   font-size: calc(6px + 0.5vw);
   transition: all 0.3s ease;
   outline: none;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* צל פנימי */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .search-input:focus {
-  border-color: #4caf50; /* צבע ירוק בעת פוקוס */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* צל חיצוני */
+  border-color: #4caf50;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* כפתור החיפוש */
+/* Search button */
 .search-button {
-  flex-shrink: 0; /* מניעת שינוי גודל הכפתור */
+  flex-shrink: 0;
   padding: 12px 20px;
   font-size: 16px;
   font-weight: bold;
   color: white;
-  background-color: #00796b; /* צבע רקע ירוק */
+  background-color: #00796b;
   border: none;
-  border-radius: 10px; /* פינות מעוגלות */
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* צל קל */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .search-button:hover {
-  background-color: #004d40; /* צבע ירוק כהה יותר */
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* צל חזק יותר */
+  background-color: #004d40; /* Darker teal on hover */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Stronger shadow */
 }
 
 .search-button:active {
-  transform: scale(0.95); /* אפקט לחיצה */
+  transform: scale(0.95); /* Click animation effect */
 }
 
-/* רספונסיביות למסכים קטנים */
+/* Responsive adjustments for small screens */
 @media (max-width: 480px) {
   .search-container {
-    flex-direction: column; /* מעבר לפריסה אנכית */
-    gap: 10px; /* רווח בין השדה לכפתור */
-    width: 90%; /* התאמת גודל למסכים קטנים */
-    margin: 0 auto; /* יישור מרכזי */
+    flex-direction: column; /* Stack elements vertically */
+    gap: 10px;
+    width: 90%;
+    margin: 0 auto;
   }
 
   .search-input,
   .search-button {
-    width: 100%; /* הכפתור והשדה תופסים את כל הרוחב */
+    width: 100%; /* Full width for input and button */
   }
 }
-
 </style>

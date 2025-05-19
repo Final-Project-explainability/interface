@@ -44,29 +44,72 @@
 </template>
 
 <script>
-import featureData from "../../public/data/JSON/global_correlation.json";
+import { computed } from 'vue';
+
+import { watch, ref, onMounted } from "vue";
+import { useDataSourceStore } from "@/stores/dataSourceStore";
 
 export default {
   name: "FeatureMetric",
   props: {
-    selectedModel: String, // Input prop to select model key from JSON
+    selectedModel: String,
   },
-  data() {
+  setup(props) {
+    const showAgreement = ref(true);
+    const features = ref([]);
+    const dataSourceStore = useDataSourceStore();
+
+    const datasetMap = {
+      "DataSet 1": "global_correlation_DataSet1.json",
+      "DataSet 2": "global_correlation_DataSet2.json",
+    };
+
+    const loadFeatures = async (datasetName) => {
+      const fileName = datasetMap[datasetName];
+      if (!fileName) {
+        console.warn("⚠️ Unknown dataset:", datasetName);
+        features.value = [];
+        return;
+      }
+
+      try {
+        const res = await fetch(`/data/JSON/${fileName}`);
+        const json = await res.json();
+        features.value = json[props.selectedModel] || [];
+      } catch (err) {
+        console.error("❌ Failed to load features:", err);
+        features.value = [];
+      }
+    };
+
+    // Load on mount
+    onMounted(() => {
+      loadFeatures(dataSourceStore.selectedDataset);
+    });
+
+    // Reload on dataset change
+    watch(() => dataSourceStore.selectedDataset, (newDataset) => {
+      loadFeatures(newDataset);
+    });
+
+    // Also reload on selected model change
+    watch(() => props.selectedModel, () => {
+      loadFeatures(dataSourceStore.selectedDataset);
+    });
+
+    const displayedFeatures = computed(() => {
+      return [...features.value].sort((a, b) =>
+        showAgreement.value
+          ? b.agreement - a.agreement
+          : b.disagreement - a.disagreement
+      );
+    });
+
     return {
-      showAgreement: true // Default view: Agreement values
+      showAgreement,
+      displayedFeatures,
     };
   },
-  computed: {
-    // Computed property to return the sorted feature list based on toggle state
-    displayedFeatures() {
-      const modelFeatures = featureData[this.selectedModel] || [];
-
-      // Sort features descending by agreement or disagreement depending on toggle
-      return modelFeatures.sort((a, b) =>
-        this.showAgreement ? b.agreement - a.agreement : b.disagreement - a.disagreement
-      );
-    }
-  }
 };
 </script>
 

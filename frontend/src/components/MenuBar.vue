@@ -135,7 +135,7 @@ const searchText = ref("");
 const isSidebarOpen = ref(false);
 const isUserDropdownOpen = ref(false);
 const user = ref(null);
-const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/6073/6073873.png"; /* TODO: change the url after uploading to git */
+const defaultAvatar = "/images/no-user-icon.png";
 
 // Stores
 const panelStore = usePanelStore();

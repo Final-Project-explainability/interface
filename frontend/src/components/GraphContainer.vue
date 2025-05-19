@@ -16,21 +16,6 @@
         :selectedModel="selectedModel"
       />
 
-      <!-- TODO: choose if to remove -->
-<!--      &lt;!&ndash; Render Boxplot Chart if type is 'Boxplot' &ndash;&gt;-->
-<!--      <BoxplotChart-->
-<!--        v-if="type === 'Boxplot'"-->
-<!--        :data="data"-->
-<!--        :selectedModel="selectedModel"-->
-<!--      />-->
-
-      <!-- Placeholder for future chart types -->
-
-<!--      <LineChart v-else-if="type === 'Line'" :data="data" class="chart" />-->
-<!--      <LimeChart v-else-if="type === 'LIME'" :data="data" class="chart" />-->
-<!--      <PieChart v-else-if="type === 'Pie'" :data="data" class="chart" />-->
-<!--      <RadarChart v-else-if="type === 'Radar'" :data="data" class="chart" />-->
-
       <!-- Fallback: No chart selected -->
       <div v-else class="empty-graph">No graph selected for display</div>
     </div>
@@ -38,20 +23,9 @@
 </template>
 
 <script>
-/* TODO:choose if to remove some that not used */
 import BarChart from "../components/Graphs/BarChart.vue";
-import LineChart from "../old files not used/not used graphs/LineChart.vue";
-import LimeChart from "../old files not used/not used graphs/LimeChart.vue";
-import PieChart from "../old files not used/not used graphs/PieChart.vue";
-import RadarChart from "../old files not used/not used graphs/RadarChart.vue";
-import GroupBarChart from "../old files not used/not used graphs/GroupedBarChart.vue";
-import HeatmapChart from "../old files not used/not used graphs/HeatmapChart.vue";
-import DotChart from "../old files not used/not used graphs/DotPlotChart.vue";
-import DumbbellChart from "@/old files not used/not used graphs/DumbbellChart.vue";
 import ComparisonTable from "@/components/Graphs/ComparisonTable.vue";
-import StackedBar from "@/old files not used/not used graphs/StackedBar.vue";
 import SankeyChart from "@/components/Graphs/SankeyChart.vue";
-import BoxplotChart from "@/old files not used/not used graphs/BoxplotChart.vue";
 
 export default {
   name: "GraphContainer",
@@ -60,20 +34,10 @@ export default {
     data: Object, // Data object to pass to the chart component
     selectedModel: String // Currently selected model (used by charts if needed)
   },
-  components: { /* TODO: choose if to remove some that not used */
+  components: {
     BarChart,
-    LineChart,
-    LimeChart,
-    PieChart,
-    RadarChart,
-    GroupBarChart,
-    HeatmapChart,
-    DotChart,
-    DumbbellChart,
     ComparisonTable,
-    StackedBar,
     SankeyChart,
-    BoxplotChart,
   },
 };
 </script>

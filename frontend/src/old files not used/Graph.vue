@@ -10,8 +10,8 @@ import * as echarts from "echarts";
 export default {
   name: "Graph",
   props: {
-    title: String, // כותרת הגרף
-    data: Object, // נתונים לגרף
+    title: String, // Chart title
+    data: Object,  // Chart data (key-value pairs)
   },
   mounted() {
     this.initChart();
@@ -25,7 +25,7 @@ export default {
 
       const option = {
         title: {
-          text: this.title || "Graph", // שימוש בכותרת אם ניתנה
+          text: this.title || "Graph", // Use the provided title or fallback to "Graph"
           left: "center",
         },
         tooltip: {
@@ -61,7 +61,7 @@ export default {
 
       chart.setOption(option);
 
-      // טיפול ברספונסיביות
+
       window.addEventListener("resize", () => {
         chart.resize();
       });
