@@ -1,20 +1,18 @@
  {
   "XGBoost": [
-    { "name": "kendall_w", "agreement": 87.73, "disagreement": 12.27 },
+    { "name": "kendall_w", "agreement": 50.91, "disagreement": 49.09 },
     { "name": "intersection_at_10", "agreement": 40, "disagreement": 60 },
-    { "name": "pearson_avg", "agreement": 59.38, "disagreement": 40.62 }
+    { "name": "pearson_avg", "agreement": 56.88, "disagreement": 43.12 }
   ],
   "Logistic Regression": [
-    { "name": "kendall_w", "agreement": 96.87, "disagreement": 3.13 },
+    { "name": "kendall_w", "agreement": 96.34, "disagreement": 3.66 },
     { "name": "intersection_at_10", "agreement": 100, "disagreement": 0 },
-    { "name": "pearson_avg", "agreement": 95.7, "disagreement": 4.3 }
+    { "name": "pearson_avg", "agreement": 90.41, "disagreement": 9.59 }
   ],
   "Decision Tree": [
-    { "name": "kendall_w", "agreement": 97.86, "disagreement": 3.14 },
+    { "name": "kendall_w", "agreement": 88.48, "disagreement": 11.52 },
     { "name": "intersection_at_10", "agreement": 90, "disagreement": 10 },
-    { "name": "pearson_avg", "agreement": 93.28, "disagreement": 6.72 }
+    { "name": "pearson_avg", "agreement": 94.12, "disagreement": 5.88 }
   ]
 }
-
-
 
