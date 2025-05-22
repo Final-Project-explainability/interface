@@ -72,124 +72,103 @@
           <!-- User Name & Username -->
           <div class="user-info">
             <h2 class="name">{{ form.fullName }}</h2>
-            <p class="username">@{{ form.username }}</p>
+            <span class="username-badge">
+              @{{ form.username }}
+            </span>
           </div>
         </div>
 
         <!-- User Profile Fields -->
-        <div class="profile-info">
-          <div class="info-item">
-            <i class="fas fa-id-card icon"></i>
-            <label>Full Name</label>
+        <!-- Redesigned User Info Fields -->
+        <div class="profile-info-grid">
+          <!-- Full Name -->
+          <div class="profile-field">
+            <label><i class="fas fa-id-card"></i> Full Name</label>
             <span v-if="!editMode">{{ form.fullName }}</span>
             <input v-else v-model="form.fullName" type="text" />
           </div>
 
-          <!-- Title Field (admin editable only) -->
-          <div class="info-item readonly">
-            <i class="fas fa-user-tie icon"></i>
-            <label>Title</label>
-            <template v-if="!editMode">
-              <span>{{ formattedTitle }}</span>
-            </template>
-            <template v-else>
-              <select
-                v-model="form.title"
-                :disabled="!isAdminUser"
-                :class="isAdminUser ? '' : 'readonly-input'"
-              >
-                <option disabled value="">Select Title</option>
-                <option v-for="option in titles" :key="option">{{ option }}</option>
-              </select>
-            </template>
-          </div>
-
-          <!-- Specialty Field -->
-          <div class="info-item readonly">
-            <i class="fas fa-stethoscope icon"></i>
-            <label>Specialty</label>
-            <template v-if="!editMode">
-              <span>{{ form.specialty }}</span>
-            </template>
-            <template v-else>
-              <input
-                type="text"
-                v-model="form.specialty"
-                :readonly="!isAdminUser"
-                :class="isAdminUser ? '' : 'readonly-input'"
-              />
-            </template>
-          </div>
-
-          <!-- License ID Field (admin editable + validation) -->
-          <div class="info-item readonly">
-            <i class="fas fa-id-badge icon"></i>
-            <label>License ID</label>
-            <template v-if="!editMode">
-              <span>{{ form.licenseId || "N/A" }}</span>
-            </template>
-            <template v-else>
-              <div class="input-with-message">
-                <input
-                  type="text"
-                  v-model="form.licenseId"
-                  :readonly="!isAdminUser"
-                  @input="validateLicenseId"
-                  :class="[
-                    isAdminUser
-                      ? licenseIdError
-                        ? 'invalid-field'
-                        : licenseIdValid
-                        ? 'valid-field'
-                        : ''
-                      : 'readonly-input'
-                  ]"
-                />
-                <p v-if="licenseIdError" class="error-message">{{ licenseIdError }}</p>
-              </div>
-            </template>
-          </div>
-
-          <!-- Email Field -->
-          <div class="info-item">
-            <i class="fas fa-envelope icon"></i>
-            <label>Email</label>
-            <span v-if="!editMode">{{ form.email || "N/A" }}</span>
+          <!-- Email -->
+          <div class="profile-field">
+            <label><i class="fas fa-envelope"></i> Email</label>
+            <span v-if="!editMode">{{ form.email || 'N/A' }}</span>
             <input v-else v-model="form.email" type="email" />
           </div>
 
-          <p v-if="emailErrorMessage" class="error-message">{{ emailErrorMessage }}</p>
-
-          <!-- Phone Number Field -->
-          <div class="info-item">
-            <i class="fas fa-phone icon"></i>
-            <label>Phone Number</label>
-            <span v-if="!editMode">{{ form.phoneNumber || "N/A" }}</span>
+          <!-- Phone Number -->
+          <div class="profile-field">
+            <label><i class="fas fa-phone"></i> Phone</label>
+            <span v-if="!editMode">{{ form.phoneNumber || 'N/A' }}</span>
             <input
               v-else
               v-model="form.phoneNumber"
               type="tel"
               inputmode="numeric"
-              pattern="^05\d{8}$"
+              pattern="^05\\d{8}$"
               placeholder="05XXXXXXXX"
               class="phone-input"
               @input="validatePhoneNumber"
             />
           </div>
 
-          <p v-if="phoneErrorMessage" class="error-message">{{ phoneErrorMessage }}</p>
-
-          <!-- Gender Field -->
-          <div class="info-item">
-            <i class="fas fa-venus-mars icon"></i>
-            <label>Gender</label>
+          <!-- Gender -->
+          <div class="profile-field">
+            <label><i class="fas fa-venus-mars"></i> Gender</label>
             <span v-if="!editMode">{{ form.gender }}</span>
             <select v-else v-model="form.gender">
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
           </div>
+
+          <!-- Title (admin only) -->
+          <div class="profile-field">
+            <label><i class="fas fa-user-tie"></i> Title</label>
+            <span v-if="!editMode">{{ formattedTitle }}</span>
+            <select v-else v-model="form.title" :disabled="!isAdminUser" :class="!isAdminUser ? 'readonly-input' : ''">
+              <option disabled value="">Select Title</option>
+              <option v-for="option in titles" :key="option">{{ option }}</option>
+            </select>
+          </div>
+
+          <!-- Specialty (admin only) -->
+          <div class="profile-field">
+            <label><i class="fas fa-stethoscope"></i> Specialty</label>
+            <span v-if="!editMode">{{ form.specialty }}</span>
+            <input
+              v-else
+              type="text"
+              v-model="form.specialty"
+              :readonly="!isAdminUser"
+              :class="!isAdminUser ? 'readonly-input' : ''"
+            />
+          </div>
+
+          <!-- License ID -->
+          <div class="profile-field">
+            <label><i class="fas fa-id-badge"></i> License ID</label>
+            <span v-if="!editMode">{{ form.licenseId || 'N/A' }}</span>
+            <div v-else class="input-with-message">
+              <input
+                type="text"
+                v-model="form.licenseId"
+                :readonly="!isAdminUser"
+                @input="validateLicenseId"
+                :class="[
+                  isAdminUser
+                    ? licenseIdError
+                      ? 'invalid-field'
+                      : licenseIdValid
+                      ? 'valid-field'
+                      : ''
+                    : 'readonly-input'
+                ]"
+              />
+              <p v-if="licenseIdError" class="error-message">{{ licenseIdError }}</p>
+            </div>
+          </div>
         </div>
+
 
         <!-- Save Profile Button (edit mode only) -->
         <button v-if="editMode" class="save-button" @click="updateProfile">
@@ -1051,4 +1030,88 @@ export default {
   flex-direction: column;
   flex: 2;
 }
+
+
+
+
+.profile-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.profile-field label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+}
+
+.profile-field span {
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 5px;
+  color: #212529;
+}
+
+.profile-field input,
+.profile-field select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+}
+
+.readonly-input {
+  background: #e9ecef;
+  cursor: not-allowed;
+}
+
+.valid-field {
+  border-color: #28a745;
+}
+
+.invalid-field {
+  border-color: #dc3545;
+}
+
+.input-with-message {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.username-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f3f5;
+  color: #007bff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-top: 6px;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.username-badge i {
+  font-size: 13px;
+}
+
+.username-badge:hover {
+  background: #e9ecef;
+}
+
 </style>
